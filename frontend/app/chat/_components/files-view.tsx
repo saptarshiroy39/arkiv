@@ -41,7 +41,7 @@ export function FilesView({
   return (
     <div className="bg-sidebar relative flex min-h-0 flex-1 flex-col items-center justify-start space-y-4 overflow-y-auto p-4 sm:justify-center sm:space-y-8 sm:p-8">
       <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-        Ready to explore..?
+        Ready to explore...
       </h2>
 
       <input
@@ -67,7 +67,7 @@ export function FilesView({
                 isUploading && "opacity-50 grayscale-[0.5]"
               )}
             >
-              <div className="bg-primary/10 text-primary group-hover:bg-primary/15 flex size-12 items-center justify-center rounded-lg border-0 transition-all duration-200 group-hover:scale-105 dark:bg-emerald-500/20 dark:text-emerald-400 dark:group-hover:bg-emerald-500/25">
+              <div className="bg-primary/10 dark:bg-primary/20 text-primary group-hover:bg-primary/15 dark:group-hover:bg-primary/25 flex size-12 items-center justify-center rounded-lg border-0 transition-all duration-200 group-hover:scale-105">
                 <Icon size={24} />
               </div>
               <div className="w-full min-w-0 px-2">
@@ -109,10 +109,10 @@ export function FilesView({
         {uploadStatus.status === "idle" ? (
           <Button
             size="lg"
-            className="group h-10 w-full gap-2 px-8 sm:w-auto"
+            className="group h-10 w-full gap-2 px-8 font-bold sm:w-auto"
             onClick={onStartChat}
           >
-            <span>ANALYZE</span>
+            <span className="font-bold">ANALYZE</span>
             <IconArrowRight
               size={20}
               className="transition-transform group-hover:translate-x-1"

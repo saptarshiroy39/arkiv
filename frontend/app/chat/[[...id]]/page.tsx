@@ -14,9 +14,13 @@ import { ChatView } from "../_components/chat-view";
 import { RightPanel } from "../_components/right-panel";
 import { useChat } from "../_components/chat-context";
 import { ViewState, Message, ChatSession, UploadedFile } from "../types";
-import { MAX_FILE_SIZE, MAX_FILE_COUNT, formatChatTitle } from "../utils";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+import {
+  MAX_FILE_SIZE,
+  MAX_FILE_COUNT,
+  formatChatTitle,
+  API_URL,
+} from "../utils";
+import { chatStore } from "@/lib/chat-store";
 
 function ChatInterface({ initialChatId }: { initialChatId?: string }) {
   const router = useRouter();
@@ -27,18 +31,12 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
   );
 
   const [uploadedFiles, setUploadedFiles] = React.useState<UploadedFile[]>(
-    () => {
-      if (typeof window === "undefined" || !initialChatId) return [];
-      const saved = localStorage.getItem(`arkiv_files_${initialChatId}`);
-      return saved ? JSON.parse(saved) : [];
-    }
+    () => chatStore.getStoredFiles(initialChatId)
   );
 
-  const [messages, setMessages] = React.useState<Message[]>(() => {
-    if (typeof window === "undefined" || !initialChatId) return [];
-    const saved = localStorage.getItem(`arkiv_messages_${initialChatId}`);
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [messages, setMessages] = React.useState<Message[]>(() =>
+    chatStore.getStoredMessages(initialChatId)
+  );
 
   const [inputValue, setInputValue] = React.useState("");
   const [isRightPanelOpen, setIsRightPanelOpen] = React.useState(false);
@@ -160,19 +158,15 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
       ];
 
       setMessages(initMessages);
-      localStorage.setItem(
-        `arkiv_messages_${newChatId}`,
-        JSON.stringify(initMessages)
-      );
 
       const fileMetadata = uploadedFiles.map((f) => ({
         name: f.name,
         size: f.size,
       }));
-      localStorage.setItem(
-        `arkiv_files_${newChatId}`,
-        JSON.stringify(fileMetadata)
-      );
+      chatStore.saveStoredSession(newChatId, {
+        messages: initMessages,
+        files: fileMetadata,
+      });
 
       await new Promise((resolve) => setTimeout(resolve, 500));
       router.push(`/chat/${newChatId}`);
@@ -215,10 +209,7 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
 
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
-    localStorage.setItem(
-      `arkiv_messages_${initialChatId}`,
-      JSON.stringify(newMessages)
-    );
+    chatStore.saveStoredMessages(initialChatId, newMessages);
     setInputValue("");
     setAskingStatus({ status: "working" });
     setIsAsking(true);
@@ -286,10 +277,7 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
       };
       const updatedMessages = [...newMessages, aiMessage];
       setMessages(updatedMessages);
-      localStorage.setItem(
-        `arkiv_messages_${initialChatId}`,
-        JSON.stringify(updatedMessages)
-      );
+      chatStore.saveStoredMessages(initialChatId, updatedMessages);
     } catch (error) {
       if (error instanceof Error && error.name === "AbortError") {
         if (!isTimeout) return;
@@ -297,11 +285,9 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
       console.error("Ask error:", error);
       const detailMsg =
         error instanceof Error ? error.message : "Failed to get answer";
-      const warningMessage = isTimeout
-        ? "Connection timeout. Please check your network."
+      const errorContent = isTimeout
+        ? "The request timed out. The server took too long to respond."
         : detailMsg;
-
-      toast.error(warningMessage);
 
       const elapsed =
         Math.round(((performance.now() - startTime) / 1000) * 10) / 10;
@@ -312,9 +298,7 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
       const errorMessage: Message = {
         id: (now + 1).toString(),
         role: "assistant",
-        content: isTimeout
-          ? "The request timed out. The server took too long to respond."
-          : detailMsg,
+        content: errorContent,
         status: "error",
         elapsed,
         timestamp: now,
@@ -410,7 +394,7 @@ export default function ChatPage() {
         <Blocks
           size={32}
           sweep="diagonal"
-          className="text-primary dark:text-emerald-400"
+          className="text-primary"
         />
         <p className="text-muted-foreground animate-pulse text-sm font-medium">
           Initializing session...

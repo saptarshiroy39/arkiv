@@ -1,6 +1,6 @@
 "use client";
 
-import React, {
+import {
   useEffect,
   useLayoutEffect,
   useRef,
@@ -19,7 +19,7 @@ import { ElasticSlider } from "@/components/ui/elastic-slider";
 import { useSpeechRecognition } from "@/hooks/use-speech-recog";
 import { cn } from "@/lib/utils";
 
-export interface PromptBarProps {
+interface PromptBarProps {
   placeholder?: string;
   value?: string;
   onChange?: (val: string) => void;
@@ -285,7 +285,7 @@ export function PromptBar({
                   : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
               )}
             >
-              <span className="text-primary font-mono font-bold dark:text-emerald-400">
+              <span className="text-primary font-mono font-bold">
                 {cmd.name}
               </span>
               <span className="text-muted-foreground ml-2 truncate text-[10px]">
@@ -317,7 +317,7 @@ export function PromptBar({
               type="button"
               onClick={onSummarize}
               title="Summarize documents"
-              className="text-primary hover:text-primary/80 inline-flex size-7 cursor-pointer items-center justify-center rounded-md transition-colors dark:text-emerald-400 dark:hover:text-emerald-300"
+              className="text-primary hover:text-primary/80 inline-flex size-7 cursor-pointer items-center justify-center rounded-md transition-colors"
             >
               <IconFileTextSpark size={18} />
             </button>
@@ -331,7 +331,7 @@ export function PromptBar({
             className={cn(
               "inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-1.5 font-mono text-xs font-medium transition-colors",
               paramsOpen
-                ? "text-primary dark:text-emerald-400"
+                ? "text-primary"
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
@@ -339,7 +339,7 @@ export function PromptBar({
               size={18}
               className={
                 paramsOpen
-                  ? "text-primary dark:text-emerald-400"
+                  ? "text-primary"
                   : "text-muted-foreground"
               }
             />
@@ -386,5 +386,3 @@ export function PromptBar({
     </div>
   );
 }
-
-export default PromptBar;

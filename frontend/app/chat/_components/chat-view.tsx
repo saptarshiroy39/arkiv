@@ -85,7 +85,7 @@ export function ChatView({
                       className={cn(
                         "text-sm leading-relaxed",
                         message.role === "user"
-                          ? "bg-primary/10 text-foreground max-w-[90%] rounded-lg px-4 py-2.5 dark:bg-emerald-500/20"
+                          ? "bg-primary/10 dark:bg-primary/20 text-foreground max-w-[90%] rounded-lg px-4 py-2.5"
                           : "w-full max-w-[95%] bg-transparent"
                       )}
                     >

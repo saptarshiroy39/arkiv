@@ -14,7 +14,7 @@ import {
 import { flushSync } from "react-dom";
 import { cn } from "@/lib/utils";
 
-export interface ThemeToggleProps
+interface ThemeToggleProps
   extends Omit<ComponentPropsWithoutRef<"button">, "children" | "onClick"> {
   iconClassName?: string;
   duration?: number;
@@ -68,7 +68,7 @@ function getRectangleClipPaths(
   return [polygonCollapsed(point(cx, cy), 4), `polygon(${end})`];
 }
 
-export function useThemeToggle(
+function useThemeToggle(
   buttonRef?: RefObject<HTMLButtonElement | null>,
   duration = 400
 ) {

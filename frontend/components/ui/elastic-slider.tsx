@@ -68,7 +68,7 @@ function useControllableNumber(
   return [value, setValue];
 }
 
-export interface ElasticSliderProps {
+interface ElasticSliderProps {
   label: string;
   value?: number;
   defaultValue?: number;

@@ -1,6 +1,6 @@
 import { CitationItem } from "@/components/citations";
 
-export interface ParsedCitationsResult {
+interface ParsedCitationsResult {
   processedContent: string;
   citations: CitationItem[];
   copyText: string;

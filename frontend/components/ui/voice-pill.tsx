@@ -9,7 +9,7 @@ import React, {
 import { IconMicrophone } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
 
-export interface VoicePillProps {
+interface VoicePillProps {
   listening?: boolean;
   disabled?: boolean;
   size?: number;

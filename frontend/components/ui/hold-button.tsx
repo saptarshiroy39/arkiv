@@ -11,9 +11,9 @@ import React, {
 } from "react";
 import { cn } from "@/lib/utils";
 
-export type HoldButtonSize = "sm" | "md" | "lg";
+type HoldButtonSize = "sm" | "md" | "lg";
 
-export interface HoldButtonProps {
+interface HoldButtonProps {
   children?: ReactNode;
   holdLabel?: ReactNode;
   doneLabel?: ReactNode;

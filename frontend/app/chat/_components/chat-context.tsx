@@ -3,20 +3,14 @@
 import * as React from "react";
 import { toast } from "@/components/ui/swipe-toast";
 import { ChatSession } from "../types";
+import { API_URL } from "../utils";
+import {
+  chatStore,
+  type ArkivSettings,
+  DEFAULT_SETTINGS,
+} from "@/lib/chat-store";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
-export interface ArkivSettings {
-  top_k: number;
-  temperature: number;
-  score_threshold: number;
-}
-
-export const DEFAULT_SETTINGS: ArkivSettings = {
-  top_k: 10,
-  temperature: 0.2,
-  score_threshold: 0.45,
-};
+export type { ArkivSettings };
 
 interface ChatContextType {
   chats: ChatSession[];
@@ -33,59 +27,6 @@ interface ChatContextType {
 const ChatContext = React.createContext<ChatContextType | undefined>(undefined);
 
 const emptySubscribe = () => () => {};
-
-function deduplicateChats(chats: ChatSession[]): ChatSession[] {
-  const seen = new Set<string>();
-  return chats.filter((chat) => {
-    if (!chat || !chat.id || seen.has(chat.id)) return false;
-    seen.add(chat.id);
-    return true;
-  });
-}
-
-function getSavedChats(): ChatSession[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const saved = localStorage.getItem("arkiv_chats");
-    if (!saved) return [];
-    const parsed = JSON.parse(saved);
-    if (!Array.isArray(parsed)) return [];
-    const deduplicated = deduplicateChats(parsed);
-    if (deduplicated.length !== parsed.length) {
-      localStorage.setItem("arkiv_chats", JSON.stringify(deduplicated));
-    }
-    return deduplicated;
-  } catch (error) {
-    console.error("Failed to load chats:", error);
-    return [];
-  }
-}
-
-function getSavedSettings(): ArkivSettings {
-  if (typeof window === "undefined") return DEFAULT_SETTINGS;
-  try {
-    const saved = localStorage.getItem("arkiv_settings");
-    if (!saved) return DEFAULT_SETTINGS;
-    const parsed = JSON.parse(saved);
-    return {
-      top_k:
-        typeof parsed.top_k === "number"
-          ? parsed.top_k
-          : DEFAULT_SETTINGS.top_k,
-      temperature:
-        typeof parsed.temperature === "number"
-          ? parsed.temperature
-          : DEFAULT_SETTINGS.temperature,
-      score_threshold:
-        typeof parsed.score_threshold === "number"
-          ? parsed.score_threshold
-          : DEFAULT_SETTINGS.score_threshold,
-    };
-  } catch (error) {
-    console.error("Failed to load settings:", error);
-    return DEFAULT_SETTINGS;
-  }
-}
 
 export function ChatProvider({ children }: { children: React.ReactNode }) {
   const isMounted = React.useSyncExternalStore(
@@ -104,7 +45,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
   const chats = React.useMemo(() => {
     if (!isMounted) return [];
-    return localChats ?? getSavedChats();
+    return localChats ?? chatStore.getStoredChats();
   }, [isMounted, localChats]);
 
   const isLoadingChats = !isMounted;
@@ -112,18 +53,13 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const setChats: React.Dispatch<React.SetStateAction<ChatSession[]>> =
     React.useCallback((action) => {
       setLocalChats((prev) => {
-        const current = prev ?? getSavedChats();
+        const current = prev ?? chatStore.getStoredChats();
         const updated =
           typeof action === "function"
             ? (action as (prev: ChatSession[]) => ChatSession[])(current)
             : action;
-        const deduplicated = deduplicateChats(updated);
-        try {
-          localStorage.setItem("arkiv_chats", JSON.stringify(deduplicated));
-        } catch (error) {
-          console.error("Failed to save chats:", error);
-        }
-        return deduplicated;
+        chatStore.saveStoredChats(updated);
+        return updated;
       });
     }, []);
 
@@ -137,8 +73,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       if (!response.ok) throw new Error("Failed to delete chat");
 
       setChats((prev) => prev.filter((c) => c.id !== id));
-      localStorage.removeItem(`arkiv_messages_${id}`);
-      localStorage.removeItem(`arkiv_files_${id}`);
+      chatStore.deleteStoredSession(id);
     } catch (error) {
       console.error("Delete error:", error);
       toast.error("Failed to delete chat data.");
@@ -158,15 +93,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       if (!response.ok) throw new Error("Failed to clear index");
 
       setChats([]);
-      Object.keys(localStorage).forEach((key) => {
-        if (
-          key.startsWith("arkiv_messages_") ||
-          key.startsWith("arkiv_files_") ||
-          key === "arkiv_chats"
-        ) {
-          localStorage.removeItem(key);
-        }
-      });
+      chatStore.clearAllStoredSessions();
       if (onSuccess) onSuccess();
     } catch (error) {
       console.error("Clear error:", error);
@@ -181,19 +108,15 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
   const settings = React.useMemo(() => {
     if (!isMounted) return DEFAULT_SETTINGS;
-    return localSettings ?? getSavedSettings();
+    return localSettings ?? chatStore.getStoredSettings();
   }, [isMounted, localSettings]);
 
   const updateSettings = React.useCallback(
     (newSettings: Partial<ArkivSettings>) => {
       setLocalSettings((prev) => {
-        const current = prev ?? getSavedSettings();
+        const current = prev ?? chatStore.getStoredSettings();
         const updated = { ...current, ...newSettings };
-        try {
-          localStorage.setItem("arkiv_settings", JSON.stringify(updated));
-        } catch (e) {
-          console.error("Failed to save settings:", e);
-        }
+        chatStore.saveStoredSettings(updated);
         return updated;
       });
     },

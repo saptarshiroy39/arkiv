@@ -12,7 +12,7 @@ import {
 } from "@tabler/icons-react";
 import type { ComponentType, SVGAttributes } from "react";
 
-export type IconComponent = ComponentType<
+type IconComponent = ComponentType<
   SVGAttributes<SVGElement> & { size?: number; className?: string }
 >;
 
@@ -74,6 +74,10 @@ export const truncateFileName = (name: string, maxLength = 24) => {
     extension
   );
 };
+
+export const API_URL =
+  process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "") ||
+  "http://localhost:8000";
 
 export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 export const MAX_FILE_COUNT = 6;

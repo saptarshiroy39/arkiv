@@ -112,7 +112,7 @@ export function AppSidebar({
         {!isCollapsed && (
           <div className="mt-2 space-y-1">
             <p className="text-muted-foreground px-2 text-[10px] font-medium tracking-wider uppercase">
-              Recent Chats
+              RECENT CHATS
             </p>
             <SidebarMenu>
               {isLoading ? (
@@ -120,7 +120,7 @@ export function AppSidebar({
                   <Blocks
                     size={24}
                     sweep="diagonal"
-                    className="text-primary dark:text-emerald-400"
+                    className="text-primary"
                   />
                   <p className="text-muted-foreground animate-pulse text-[10px] font-medium tracking-wider uppercase">
                     Loading chats...

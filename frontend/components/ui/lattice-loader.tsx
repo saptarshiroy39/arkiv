@@ -2,11 +2,11 @@
 
 import React, { useEffect, useRef, type CSSProperties } from "react";
 
-export type LatticeStatus = "working" | "done" | "error";
-export type LatticePatternName = "spiral";
-export type LatticeGrid = 3;
+type LatticeStatus = "working" | "done" | "error";
+type LatticePatternName = "spiral";
+type LatticeGrid = 3;
 
-export interface LatticeLoaderProps {
+interface LatticeLoaderProps {
   label?: string;
   doneLabel?: string;
   errorLabel?: string;
