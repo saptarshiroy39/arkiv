@@ -1,0 +1,22 @@
+# Git
+.git
+.gitignore
+
+# Virtual Environment
+venv
+
+# Python cache
+__pycache__
+
+# Logs
+*.log
+arkiv.log
+
+# Environment (will be provided at runtime)
+.env
+
+# Documentation
+README.md
+
+# Email templates (for Supabase config, not needed in deployment)
+email_templates/

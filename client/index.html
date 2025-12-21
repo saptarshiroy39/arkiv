@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arkiv</title>
+  <meta name="description"
+    content="Arkiv - AI-powered document chat. Upload files and ask questions about their content.">
+
+  <!-- Preconnect to all CDNs for faster loading -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://unpkg.com" crossorigin>
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+  <link rel="dns-prefetch" href="https://unpkg.com">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap"
+    rel="stylesheet">
+
+  <!-- Icons - loaded with higher priority for visual readiness -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+
+  <!-- App Styles -->
+  <link rel="stylesheet" href="styles/index.css?v=6">
+  <link rel="stylesheet" href="/easter_egg/easter_egg.css?v=1">
+
+  <!-- Favicon -->
+  <link rel="icon"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15.5 13a3.5 3.5 0 0 0 -3.5 3.5v1a3.5 3.5 0 0 0 7 0v-1.8'/%3E%3Cpath d='M8.5 13a3.5 3.5 0 0 1 3.5 3.5v1a3.5 3.5 0 0 1 -7 0v-1.8'/%3E%3Cpath d='M17.5 16a3.5 3.5 0 0 0 0 -7h-.5'/%3E%3Cpath d='M19 9.3v-2.8a3.5 3.5 0 0 0 -7 0'/%3E%3Cpath d='M6.5 16a3.5 3.5 0 0 1 0 -7h.5'/%3E%3Cpath d='M5 9.3v-2.8a3.5 3.5 0 0 1 7 0v10'/%3E%3C/svg%3E">
+</head>
+
+<body>
+  <div id="root"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- Core -->
+  <script type="text/babel" src="core/config.js"></script>
+  <script type="text/babel" src="core/supabase.js"></script>
+  <script type="text/babel" src="core/auth.js?v=6"></script>
+
+  <!-- Easter Eggs -->
+  <script type="text/babel" src="/easter_egg/SnowEffect.js"></script>
+
+  <!-- Header -->
+  <script type="text/babel" src="header/Header.js"></script>
+
+  <!-- Chat -->
+  <script type="text/babel" src="chat/ChatMessages.js"></script>
+  <script type="text/babel" src="chat/ChatInput.js"></script>
+
+  <!-- Sidebar -->
+  <script type="text/babel" src="sidebar/FileUpload.js?v=2"></script>
+  <script type="text/babel" src="sidebar/ChatHistory.js"></script>
+  <script type="text/babel" src="sidebar/ProfileDropdown.js"></script>
+  <script type="text/babel" src="sidebar/Sidebar.js?v=2"></script>
+
+  <!-- Settings -->
+  <script type="text/babel" src="settings/GeneralTab.js"></script>
+  <script type="text/babel" src="settings/PrivacyTab.js"></script>
+  <script type="text/babel" src="settings/BillingTab.js"></script>
+  <script type="text/babel" src="settings/ApiKeysTab.js"></script>
+  <script type="text/babel" src="settings/AboutTab.js"></script>
+  <script type="text/babel" src="settings/SettingsPage.js"></script>
+
+  <!-- Main App -->
+  <script type="text/babel" src="core/app.js?v=3"></script>
+  <script type="text/babel" src="core/main.js"></script>
+</body>
+
+</html>

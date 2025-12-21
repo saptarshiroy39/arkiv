@@ -1,0 +1,68 @@
+/* Layout Styles - App Structure, Main Area, Header */
+/* Flex layout for app, main content area, and header bar */
+
+
+/* Layout */
+.app {
+  display: flex;
+  height: 100vh;
+}
+
+/* Main Area */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #171717;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 24px;
+  border-bottom: 1px solid #262626;
+  background: #171717;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.header-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+}
+
+/* Header Token Display */
+.header-token-display {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.header-token-label {
+  font-size: 16px;
+  color: #737373;
+}
+
+.header-token-value {
+  font-size: 16px;
+  font-weight: 600;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
