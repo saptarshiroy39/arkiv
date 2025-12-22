@@ -29,17 +29,14 @@ function App() {
     const profileMenuRef = useRef(null);
 
 
-    // Check health and load chat history
     useEffect(() => {
         if (!user) return;
         
-        // Load indexReady state from localStorage (persists across page refreshes)
         const savedIndexReady = localStorage.getItem(`indexReady_${user.id}`);
         if (savedIndexReady === 'true') {
             setIndexReady(true);
         }
         
-        // Load stats from Supabase API
         const loadStats = async () => {
             try {
                 const { data: { session } } = await supabase.auth.getSession();
@@ -61,7 +58,6 @@ function App() {
         if (saved) setChatHistory(JSON.parse(saved));
     }, [user]);
 
-    // Close profile menu when clicking outside
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (profileMenuRef.current && !profileMenuRef.current.contains(e.target)) {
@@ -72,20 +68,16 @@ function App() {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    // Scroll to bottom when messages change
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
-    // Show Auth if not logged in or if password reset is in progress
     if (!user || passwordResetInProgress) {
         return <Auth />;
     }
 
-    // Estimate tokens (rough: ~4 chars per token)
     const estimateTokens = (text) => Math.ceil(text.length / 4);
 
-    // Save chat to history
     const saveToHistory = (msgs, files = [], tokens = 0) => {
         if (msgs.length === 0) return;
         const firstUserMsg = msgs.find(m => m.role === 'user');
@@ -110,7 +102,6 @@ function App() {
         localStorage.setItem(`chatHistory_${user.id}`, JSON.stringify(updated));
     };
 
-    // Supported file types
     const SUPPORTED_TYPES = [
         'application/pdf', 
         'image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp',
@@ -123,7 +114,6 @@ function App() {
 
     const isFileSupported = (file) => {
         const ext = '.' + file.name.split('.').pop().toLowerCase();
-        // Trust extension if type is empty or generic, otherwise check both
         return SUPPORTED_EXTENSIONS.includes(ext) || SUPPORTED_TYPES.includes(file.type);
     };
 
@@ -169,13 +159,11 @@ function App() {
             if (!res.ok) throw new Error((await res.json()).detail || 'Upload failed');
             const data = await res.json();
             const newFiles = files.map(f => f.name);
-            // Clear files BEFORE adding to processedFiles to prevent both sections showing the same file
             setFiles([]);
             setProcessedFiles(prev => [...prev, ...newFiles]);
             setStatus({ type: 'success', msg: `Processed ${data.files_processed.length} file(s)` });
             const uploadTokens = (data.chunks_created || 1) * 500;
             setTokenCount(prev => prev + uploadTokens);
-            // Update stats in Supabase
             try {
                 const statsRes = await fetch(`${API_URL}/stats`, {
                     method: 'PATCH',
@@ -212,7 +200,6 @@ function App() {
 
         const { data: { session } } = await supabase.auth.getSession();
 
-        // Custom API Key Logic (Simplified for Google Only)
         const customKey = localStorage.getItem('custom_api_key_google');
 
         const headers = { 
@@ -233,12 +220,10 @@ function App() {
             if (!res.ok) throw new Error((await res.json()).detail || 'Request failed');
             const data = await res.json();
             const finalMessages = [...newMessages, { role: 'assistant', content: data.answer }];
-            // Set loading false BEFORE updating messages to prevent typing indicator flash
             setIsLoading(false);
             setMessages(finalMessages);
             const msgTokens = estimateTokens(q) + estimateTokens(data.answer);
             setTokenCount(prev => prev + msgTokens);
-            // Update token stats in Supabase
             try {
                 const { data: { session: sess } } = await supabase.auth.getSession();
                 const statsRes = await fetch(`${API_URL}/stats`, {

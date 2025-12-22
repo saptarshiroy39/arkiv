@@ -10,12 +10,9 @@ from .config import genai, logger
 
 
 def sanitize_text(text: str) -> str:
-    """Remove null bytes and other problematic Unicode characters for PostgreSQL."""
     if not text:
         return ""
-    # Remove null bytes which PostgreSQL cannot store
     text = text.replace('\x00', '')
-    # Remove other control characters (except newline, tab, carriage return)
     text = ''.join(char for char in text if char == '\n' or char == '\t' or char == '\r' or ord(char) >= 32)
     return text
 
@@ -44,7 +41,6 @@ def get_image_description(image_bytes: bytes, filename: str, api_key: str = None
     try:
         logger.info(f"Processing image with Gemini Vision: {filename}")
         
-        # If custom API key provided, create a new configured client
         if api_key:
             import google.generativeai as custom_genai
             custom_genai.configure(api_key=api_key)
@@ -70,7 +66,6 @@ Provide a comprehensive description that captures all important information."""
 
 
 def process_image(file_bytes: bytes, filename: str, api_key: str = None) -> str:
-    """Process image using Gemini Vision only (no Tesseract required)."""
     texts = [f"=== Image: {filename} ===\n"]
     vision_text = get_image_description(file_bytes, filename, api_key=api_key)
     if vision_text:

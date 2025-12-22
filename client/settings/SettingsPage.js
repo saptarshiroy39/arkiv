@@ -140,7 +140,7 @@ function SettingsPage({ user, onClose, updateProfile, updateEmail, updatePasswor
                             className={`settings-nav-item ${activeTab === tab.id ? 'active' : ''}`}
                             onClick={() => setActiveTab(tab.id)}
                         >
-                            <i className={`ti ti-${tab.icon}`} style={{fontSize: 18}}></i>
+                            <i className={`ti ti-${tab.icon}`} style={{fontSize: 20}}></i>
                             {tab.label}
                         </button>
                     ))}

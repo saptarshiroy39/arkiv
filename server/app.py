@@ -15,9 +15,6 @@ from .routes import router
 
 app = FastAPI(title="Arkiv API", version="1.0.0")
 
-# CORS Configuration
-# For production, set ALLOWED_ORIGINS="https://yourdomain.com" in .env
-# For development, defaults to "*" (allow all)
 allowed_origins = os.getenv("ALLOWED_ORIGINS", "*").split(",")
 
 app.add_middleware(
@@ -30,7 +27,6 @@ app.add_middleware(
 
 app.include_router(router)
 
-# Mount easter_egg folder for standalone easter egg module
 app.mount("/easter_egg", StaticFiles(directory=EASTER_EGG_DIR), name="easter_egg")
 app.mount("/", StaticFiles(directory=CLIENT_DIR, html=True), name="static")
 

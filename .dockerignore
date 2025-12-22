@@ -12,7 +12,7 @@ __pycache__
 *.log
 arkiv.log
 
-# Environment (will be provided at runtime)
+# Environment
 .env
 
 # Documentation

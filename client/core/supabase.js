@@ -36,7 +36,7 @@ function SupabaseProvider({ children }) {
             <div className="auth-container">
                 <div className="auth-form">
                     <div className="logo" style={{justifyContent: 'center'}}>
-                        <div className="logo-icon">
+                        <div className="logo-icon lava-lamp-bg">
                             <i className="ti ti-brain" style={{fontSize: 20}}></i>
                         </div>
                         <div className="logo-text">
@@ -54,7 +54,7 @@ function SupabaseProvider({ children }) {
             <div className="auth-container">
                 <div className="auth-form">
                     <div className="logo" style={{justifyContent: 'center'}}>
-                        <div className="logo-icon">
+                        <div className="logo-icon lava-lamp-bg">
                             <i className="ti ti-brain" style={{fontSize: 20}}></i>
                         </div>
                         <div className="logo-text">

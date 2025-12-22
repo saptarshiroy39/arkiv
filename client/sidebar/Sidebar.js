@@ -59,12 +59,11 @@ function Sidebar({
         return iconMap[ext] || 'file';
     };
 
-    // Collapsed sidebar - icon only
     if (collapsed) {
         return (
             <aside className="sidebar collapsed">
                 <div className="sidebar-logo-toggle" title="Expand" onClick={() => setShowSidebar(!showSidebar)}>
-                    <div className="logo-icon-small">
+                    <div className="logo-icon-small lava-lamp-bg">
                         <i className="ti ti-brain" style={{fontSize: 20}}></i>
                     </div>
                     <div className="expand-icon">
@@ -124,7 +123,7 @@ function Sidebar({
         <aside className="sidebar">
             <div className="sidebar-top-row">
                 <div className="logo">
-                    <div className="logo-icon">
+                    <div className="logo-icon lava-lamp-bg">
                         <i className="ti ti-brain" style={{fontSize: 20}}></i>
                     </div>
                     <div className="logo-text">

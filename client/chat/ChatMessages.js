@@ -1,6 +1,46 @@
 // Chat Messages Component - Message Display
 // 1. Renders chat messages list, empty state, user/assistant avatars, and copy buttons
 // 2. Handles typing indicator for loading state
+// 3. Supports LaTeX/math rendering via KaTeX
+
+
+function renderMathInText(text) {
+    if (!text || typeof text !== 'string') return text;
+    
+    let result = text.replace(/\$\$([\s\S]*?)\$\$/g, (match, math) => {
+        try {
+            return katex.renderToString(math.trim(), {
+                displayMode: true,
+                throwOnError: false,
+                strict: false
+            });
+        } catch (e) {
+            console.warn('KaTeX block render error:', e);
+            return match;
+        }
+    });
+    
+    result = result.replace(/\$([^\$\n]+?)\$/g, (match, math) => {
+        if (match.includes('<') || match.includes('>')) return match;
+        try {
+            return katex.renderToString(math.trim(), {
+                displayMode: false,
+                throwOnError: false,
+                strict: false
+            });
+        } catch (e) {
+            console.warn('KaTeX inline render error:', e);
+            return match;
+        }
+    });
+    
+    return result;
+}
+
+function renderMarkdownWithMath(content) {
+    const mathRendered = renderMathInText(content);
+    return marked.parse(mathRendered);
+}
 
 
 function ChatMessages({ messages, isLoading, messagesEndRef, user }) {
@@ -10,7 +50,7 @@ function ChatMessages({ messages, isLoading, messagesEndRef, user }) {
         <div className="messages">
             {messages.length === 0 ? (
                 <div className="empty-state">
-                    <div className="empty-icon">
+                    <div className="empty-icon lava-lamp-bg">
                         <i className="ti ti-brain" style={{fontSize: 28}}></i>
                     </div>
                     <h2 className="empty-title">Arkiv</h2>
@@ -39,7 +79,7 @@ function ChatMessages({ messages, isLoading, messagesEndRef, user }) {
                             </div>
                             <div className="message-body">
                                 {msg.role === 'assistant' ? (
-                                    <div className="message-content" dangerouslySetInnerHTML={{__html: marked.parse(msg.content)}} />
+                                    <div className="message-content" dangerouslySetInnerHTML={{__html: renderMarkdownWithMath(msg.content)}} />
                                 ) : (
                                     <div className="message-content">{msg.content}</div>
                                 )}

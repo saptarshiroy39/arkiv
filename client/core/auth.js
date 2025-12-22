@@ -111,7 +111,6 @@ function AuthProvider({ children }) {
                 return { error: { message: errorData.detail || 'Failed to delete account' } };
             }
             
-            // Sign out after successful deletion
             await supabaseClient.auth.signOut();
             return { error: null };
         },
@@ -143,9 +142,9 @@ function Auth() {
     const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
     const [pendingEmail, setPendingEmail] = useState('');
     const [loading, setLoading] = useState(false);
+    const [resending, setResending] = useState(false);
     const [error, setError] = useState(null);
     const [message, setMessage] = useState(null);
-    // New states for password reset flow
     const [isResettingPassword, setIsResettingPassword] = useState(false);
     const [resetEmail, setResetEmail] = useState('');
     const [passwordResetComplete, setPasswordResetComplete] = useState(false);
@@ -194,7 +193,7 @@ function Auth() {
     };
 
     const handleResendOtp = async () => {
-        setLoading(true);
+        setResending(true);
         setError(null);
         try {
             const { error } = await resendOtp(pendingEmail, 'signup');
@@ -203,11 +202,10 @@ function Auth() {
         } catch (error) {
             setError(error.message);
         } finally {
-            setLoading(false);
+            setResending(false);
         }
     };
 
-    // Handler for password reset with OTP
     const handlePasswordReset = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -222,18 +220,13 @@ function Auth() {
             if (password.length < 6) {
                 throw new Error('Password must be at least 6 characters');
             }
-            // Set flag to prevent main app flash during password reset
             setPasswordResetInProgress(true);
-            // Verify OTP with recovery type
             const { error: verifyError } = await verifyOtp(resetEmail, otp, 'recovery');
             if (verifyError) throw verifyError;
-            // Update password
             const { error: updateError } = await updatePassword(password);
             if (updateError) throw updateError;
             await signOut();
-            // Clear flag after signOut
             setPasswordResetInProgress(false);
-            // Show success screen
             setPasswordResetComplete(true);
             setIsResettingPassword(false);
         } catch (error) {
@@ -244,9 +237,8 @@ function Auth() {
         }
     };
 
-    // Handler for resending password reset OTP
     const handleResendPasswordResetOtp = async () => {
-        setLoading(true);
+        setResending(true);
         setError(null);
         try {
             const { error } = await resetPassword(resetEmail);
@@ -255,7 +247,7 @@ function Auth() {
         } catch (error) {
             setError(error.message);
         } finally {
-            setLoading(false);
+            setResending(false);
         }
     };
 
@@ -263,7 +255,7 @@ function Auth() {
         <div className="auth-container">
             <div className="auth-form">
                 <div className="logo" style={{justifyContent: 'center'}}>
-                    <div className="logo-icon">
+                    <div className="logo-icon lava-lamp-bg">
                         <i className="ti ti-brain" style={{fontSize: 20}}></i>
                     </div>
                     <div className="logo-text">
@@ -360,9 +352,9 @@ function Auth() {
                             <button 
                                 onClick={handleResendPasswordResetOtp} 
                                 className="toggle-auth"
-                                disabled={loading}
+                                disabled={loading || resending}
                             >
-                                Resend
+                                {resending ? 'Resending...' : 'Resend'}
                             </button>
                         </p>
                         <p>
@@ -411,9 +403,9 @@ function Auth() {
                             <button 
                                 onClick={handleResendOtp} 
                                 className="toggle-auth"
-                                disabled={loading}
+                                disabled={loading || resending}
                             >
-                                Resend
+                                {resending ? 'Resending...' : 'Resend'}
                             </button>
                         </p>
                         <p>

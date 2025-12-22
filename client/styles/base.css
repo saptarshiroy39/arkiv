@@ -37,10 +37,12 @@ body {
 @keyframes fadeIn {
   from {
     opacity: 0;
+    transform: translateY(8px);
   }
 
   to {
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -76,4 +78,39 @@ body {
     transform: translate(6%, 10%) scale(1.05) rotate(8deg);
     filter: blur(21px) saturate(1.35);
   }
+}
+
+/* Shared Lava Lamp Background - Apply to ::before pseudo-element */
+.lava-lamp-bg {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  background: transparent;
+}
+
+.lava-lamp-bg::before {
+  content: '';
+  position: absolute;
+  top: -100%;
+  left: -100%;
+  width: 300%;
+  height: 300%;
+  background:
+    radial-gradient(circle at 50% 50%, #dc2626 0%, transparent 55%),
+    radial-gradient(circle at 20% 30%, #16a34a 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, #7c3aed 0%, transparent 50%),
+    radial-gradient(circle at 30% 80%, #ef4444 0%, transparent 48%),
+    radial-gradient(circle at 70% 20%, #22c55e 0%, transparent 50%),
+    radial-gradient(circle at 15% 60%, #4f46e5 0%, transparent 48%),
+    radial-gradient(circle at 85% 45%, #b91c1c 0%, transparent 45%),
+    radial-gradient(circle at 45% 15%, #15803d 0%, transparent 48%),
+    radial-gradient(circle at 60% 85%, #6366f1 0%, transparent 50%),
+    radial-gradient(circle at 10% 10%, #f87171 0%, transparent 45%),
+    radial-gradient(circle at 90% 90%, #4ade80 0%, transparent 48%),
+    radial-gradient(circle at 40% 50%, #8b5cf6 0%, transparent 50%);
+  background-color: #0a0a0a;
+  filter: blur(22px) saturate(1.4);
+  animation: lava-lamp 4s ease-in-out infinite;
+  z-index: -1;
+  opacity: 0.95;
 }

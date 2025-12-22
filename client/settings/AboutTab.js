@@ -9,7 +9,7 @@ function AboutTab() {
         {
             title: 'Contact & Support',
             items: [
-                { icon: 'mail-opened', label: 'Email Us', href: 'mailto:support@arkiv.app', external: true },
+                { icon: 'mail-opened', label: 'Email Us', href: 'mailto:saptarshiroy404@gmail.com', external: true },
                 { icon: 'brand-github', label: 'GitHub Repo', href: 'https://github.com/saptarshiroy39/Arkiv', external: true },
                 { icon: 'bug', label: 'Report Bug', href: 'https://github.com/saptarshiroy39/Arkiv/issues', external: true }
             ]
@@ -26,11 +26,6 @@ function AboutTab() {
     ];
 
     const handleLinkClick = (item) => {
-        if (item.action === 'rate') {
-            // Could open a rating modal or redirect to app store
-            alert('Thank you for your interest! Rating feature coming soon.');
-            return;
-        }
         if (item.external) {
             window.open(item.href, '_blank', 'noopener,noreferrer');
         } else {
@@ -43,7 +38,7 @@ function AboutTab() {
             {/* App Info */}
             <div className="settings-section">
                 <div className="about-app-header">
-                    <div className="about-app-icon">
+                    <div className="about-app-icon lava-lamp-bg">
                         <i className="ti ti-brain" style={{fontSize: 32}}></i>
                     </div>
                     <div className="about-app-info">

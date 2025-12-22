@@ -5,7 +5,6 @@
 
 
 function ChatInput({ input, setInput, handleSubmit, indexReady, isLoading, inputRef }) {
-    // Reset textarea height when input is cleared (after submit)
     React.useEffect(() => {
         if (!input && inputRef.current) {
             inputRef.current.style.height = '56px';
@@ -20,7 +19,6 @@ function ChatInput({ input, setInput, handleSubmit, indexReady, isLoading, input
                     value={input}
                     onChange={(e) => {
                         setInput(e.target.value);
-                        // Auto-resize textarea
                         e.target.style.height = 'auto';
                         e.target.style.height = Math.min(e.target.scrollHeight, 150) + 'px';
                     }}
@@ -45,7 +43,7 @@ function ChatInput({ input, setInput, handleSubmit, indexReady, isLoading, input
                     )}
                 </button>
             </form>
-            <div className="input-hint">Arkive never makes mistakes</div>
+            <div className="input-hint">Arkive never makes mistakes.</div>
         </div>
     );
 }

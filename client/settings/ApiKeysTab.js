@@ -11,7 +11,6 @@ function ApiKeysTab() {
     const [testingKey, setTestingKey] = React.useState(null); 
     const [message, setMessage] = React.useState(null);
 
-    // Load keys from localStorage on mount
     React.useEffect(() => {
         const storedKeys = JSON.parse(localStorage.getItem('saved_gemini_keys') || '[]');
         setGeminiKeys(storedKeys);
@@ -34,8 +33,6 @@ function ApiKeysTab() {
                 })
             });
             if (!res.ok) {
-                // If it's a 400/403/401, it's likely an invalid key. Return simple message.
-                // We log the full error to console for debugging if needed.
                 const errData = await res.json().catch(() => ({}));
                 console.warn("API Verification Error:", errData); 
                 throw new Error('Invalid API Key');
@@ -60,7 +57,6 @@ function ApiKeysTab() {
             localStorage.setItem('saved_gemini_keys', JSON.stringify(updatedKeys));
             setGeminiKeys(updatedKeys);
             
-            // Notify Header to update
             window.dispatchEvent(new Event('geminiKeysUpdated'));
             
             showMessage(`Google Gemini key added`);
@@ -78,7 +74,6 @@ function ApiKeysTab() {
         localStorage.setItem('saved_gemini_keys', JSON.stringify(updatedKeys));
         setGeminiKeys(updatedKeys);
         
-        // Notify Header to update
         window.dispatchEvent(new Event('geminiKeysUpdated'));
         
         showMessage(`Key removed`);

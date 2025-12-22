@@ -8,7 +8,6 @@ function Header({ tokenCount, snowEnabled, onToggleSnow }) {
     const [geminiKeys, setGeminiKeys] = React.useState([]);
     const [activeKey, setActiveKey] = React.useState('');
 
-    // Load keys helper
     const loadKeys = () => {
         const storedKeys = JSON.parse(localStorage.getItem('saved_gemini_keys') || '[]');
         setGeminiKeys(storedKeys);
@@ -19,7 +18,6 @@ function Header({ tokenCount, snowEnabled, onToggleSnow }) {
     React.useEffect(() => {
         loadKeys();
         
-        // Listen for updates from Settings tab
         const handleUpdates = () => loadKeys();
         window.addEventListener('geminiKeysUpdated', handleUpdates);
         return () => window.removeEventListener('geminiKeysUpdated', handleUpdates);
@@ -30,7 +28,6 @@ function Header({ tokenCount, snowEnabled, onToggleSnow }) {
         setActiveKey(key);
     };
 
-    // Snow toggle button component
     const SnowToggle = () => (
         <button 
             className={`snow-toggle-btn ${snowEnabled ? 'active' : ''}`}
@@ -40,7 +37,6 @@ function Header({ tokenCount, snowEnabled, onToggleSnow }) {
         </button>
     );
 
-    // If no keys are saved, just show standard header
     if (geminiKeys.length === 0) {
         return (
             <header className="header">

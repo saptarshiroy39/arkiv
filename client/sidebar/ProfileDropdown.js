@@ -34,11 +34,11 @@ function ProfileDropdown({
                         </div>
                         <div className="profile-divider"></div>
                         <button className="profile-menu-item" onClick={() => { setShowProfile(true); setShowProfileMenu(false); }}>
-                            <i className="ti ti-settings" style={{fontSize: 16}}></i>
+                            <i className="ti ti-settings" style={{fontSize: 20}}></i>
                             Settings
                         </button>
                         <button className="profile-menu-item signout" onClick={signOut}>
-                            <i className="ti ti-logout" style={{fontSize: 16}}></i>
+                            <i className="ti ti-logout" style={{fontSize: 20}}></i>
                             Log out
                         </button>
                     </div>
@@ -71,11 +71,11 @@ function ProfileDropdown({
                     </div>
                     <div className="profile-divider"></div>
                     <button className="profile-menu-item" onClick={() => { setShowProfile(true); setShowProfileMenu(false); }}>
-                        <i className="ti ti-settings" style={{fontSize: 16}}></i>
+                        <i className="ti ti-settings" style={{fontSize: 20}}></i>
                         Settings
                     </button>
                     <button className="profile-menu-item signout" onClick={signOut}>
-                        <i className="ti ti-logout" style={{fontSize: 16}}></i>
+                        <i className="ti ti-logout" style={{fontSize: 20}}></i>
                         Log out
                     </button>
                 </div>
