@@ -7,7 +7,7 @@
   flex: 1;
   overflow-y: auto;
   padding: 24px;
-  min-height: 0; /* Fix flex child overflow */
+  min-height: 0;
 }
 
 /* KaTeX Math Styling */
@@ -21,7 +21,7 @@
   overflow-y: hidden;
 }
 
-.message-content .katex-display > .katex {
+.message-content .katex-display>.katex {
   max-width: 100%;
 }
 

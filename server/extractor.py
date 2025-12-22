@@ -30,14 +30,12 @@ from .processor import sanitize_text, process_image, simplify_error_message
 
 
 def _handle_error(func_name: str, filename: str, error: Exception) -> str:
-    """Centralized error formatting."""
     error_msg = simplify_error_message(error)
     logger.error(f"{func_name} failed for '{filename}': {str(error)}")
     return f"[{func_name}: {filename} - Failed to extract text: {error_msg}]"
 
 
 def _process_pdf(file_bytes: bytes, filename: str, **kwargs) -> str:
-    """Extract text from PDF using pdfplumber."""
     try:
         text_parts = [f"=== PDF Document: {filename} ==="]
         extracted_any = False
@@ -65,7 +63,6 @@ def _process_pdf(file_bytes: bytes, filename: str, **kwargs) -> str:
 
 
 def _process_word(file_bytes: bytes, filename: str, **kwargs) -> str:
-    """Extract text from Word (.docx) files."""
     try:
         doc = DocxDocument(io.BytesIO(file_bytes))
         texts = [f"=== Word Document: {filename} ==="]
@@ -87,7 +84,6 @@ def _process_word(file_bytes: bytes, filename: str, **kwargs) -> str:
 
 
 def _process_excel(file_bytes: bytes, filename: str, **kwargs) -> str:
-    """Extract text from Excel (.xlsx) files."""
     try:
         wb = load_workbook(io.BytesIO(file_bytes), data_only=True)
         texts = [f"=== Excel Spreadsheet: {filename} ==="]
@@ -96,9 +92,7 @@ def _process_excel(file_bytes: bytes, filename: str, **kwargs) -> str:
             texts.append(f"\n--- Sheet: {sheet_name} ---")
             sheet = wb[sheet_name]
             for row in sheet.iter_rows(values_only=True):
-                # Convert None to "" and other types to string
                 row_values = [str(cell) if cell is not None else "" for cell in row]
-                # Only add row if it has content
                 if any(val.strip() for val in row_values):
                     texts.append("\t".join(row_values))
                     
@@ -109,7 +103,6 @@ def _process_excel(file_bytes: bytes, filename: str, **kwargs) -> str:
 
 
 def _process_powerpoint(file_bytes: bytes, filename: str, **kwargs) -> str:
-    """Extract text from PowerPoint (.pptx) files."""
     try:
         prs = Presentation(io.BytesIO(file_bytes))
         texts = [f"=== PowerPoint: {filename} ==="]
@@ -127,7 +120,6 @@ def _process_powerpoint(file_bytes: bytes, filename: str, **kwargs) -> str:
 
 
 def _process_csv(file_bytes: bytes, filename: str, **kwargs) -> str:
-    """Extract text from CSV files."""
     try:
         text_content = file_bytes.decode('utf-8', errors='ignore')
         texts = [f"=== CSV File: {filename} ==="]
@@ -144,7 +136,6 @@ def _process_csv(file_bytes: bytes, filename: str, **kwargs) -> str:
 
 
 def _process_text_or_markdown(file_bytes: bytes, filename: str, **kwargs) -> str:
-    """Extract text from generic Text or Markdown files."""
     try:
         content = file_bytes.decode('utf-8', errors='ignore')
         return sanitize_text(f"=== Document: {filename} ===\n" + content)
@@ -153,7 +144,6 @@ def _process_text_or_markdown(file_bytes: bytes, filename: str, **kwargs) -> str
 
 
 def _process_image(file_bytes: bytes, filename: str, api_key: str = None, **kwargs) -> str:
-    """Process images using AI Vision (Gemini)."""
     try:
         description = process_image(file_bytes, filename, api_key=api_key)
         if description:
@@ -178,12 +168,8 @@ _EXTENSION_HANDLERS: dict[tuple[str, ...], HandlerFunction] = {
 }
 
 def extract_text_from_file(file_bytes: bytes, filename: str, api_key: str = None) -> str:
-    """
-    Main Entry Point: Dispatches file to the correct handler based on extension.
-    """
     filename_lower = filename.lower()
     _, ext = os.path.splitext(filename_lower)
-    
     
     for extension_group, handler in _EXTENSION_HANDLERS.items():
         if ext in extension_group:
