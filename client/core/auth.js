@@ -93,7 +93,6 @@ function AuthProvider({ children }) {
             });
         },
         deleteAccount: async () => {
-            // Call server API to delete the user account
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (!session) {
                 return { error: { message: 'No active session' } };
@@ -165,7 +164,6 @@ function Auth() {
             } else if (isForgotPassword) {
                 const { error } = await resetPassword(email);
                 if (error) throw error;
-                // Transition to password reset form
                 setResetEmail(email);
                 setIsResettingPassword(true);
                 setIsForgotPassword(false);
@@ -253,203 +251,62 @@ function Auth() {
 
     return (
         <div className="auth-container">
-            <div className="auth-form">
-                <div className="logo" style={{justifyContent: 'center'}}>
-                    <div className="logo-icon lava-lamp-bg">
-                        <i className="ti ti-brain" style={{fontSize: 20}}></i>
+            <div className="auth-form-section">
+                <div className="auth-form">
+                    <div className="logo" style={{justifyContent: 'center', marginBottom: 32}}>
+                        <div className="logo-icon lava-lamp-bg">
+                            <i className="ti ti-brain" style={{fontSize: 20}}></i>
+                        </div>
+                        <div className="logo-text">
+                            <h1>Arkiv</h1>
+                        </div>
                     </div>
-                    <div className="logo-text">
-                        <h1>Arkiv</h1>
-                    </div>
-                </div>
-                
-                {passwordResetComplete ? (
-                    <>
-                        <h2>Password Reset</h2>
-                        <p style={{color: '#4ade80', fontSize: 14, marginBottom: 20, textAlign: 'center'}}>
-                            <i className="ti ti-check" style={{marginRight: 6}}></i>
-                            Your password has been reset successfully!
-                        </p>
-                        <button 
-                            type="button"
-                            className="primary-btn"
-                            onClick={() => {
-                                setPasswordResetComplete(false);
-                                setOtp('');
-                                setPassword('');
-                                setConfirmPassword('');
-                                setResetEmail('');
-                                setError(null);
-                                setMessage(null);
-                            }}
-                        >
-                            Log In Now
-                        </button>
-                    </>
-                ) : isResettingPassword ? (
-                    <>
-                        <h2>Reset Password</h2>
-                        <p style={{color: '#737373', fontSize: 13, marginBottom: 20, textAlign: 'center'}}>
-                            Enter the 6-digit code sent to<br/>
-                            <strong style={{color: '#fff', display: 'inline-block', marginTop: 6}}>{resetEmail}</strong>
-                        </p>
-                        <form onSubmit={handlePasswordReset}>
-                            <input
-                                type="text"
-                                placeholder="Enter OTP"
-                                value={otp}
-                                onChange={(e) => {
-                                    const value = e.target.value.replace(/\D/g, '').slice(0, 6);
-                                    setOtp(value);
-                                }}
-                                maxLength={6}
-                                style={{textAlign: 'center', letterSpacing: '8px', fontSize: 20, fontWeight: 600}}
-                                autoFocus
-                                required
-                            />
-                            <div className="password-input-wrapper">
-                                <input
-                                    type={showPassword ? "text" : "password"}
-                                    placeholder="New Password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    required
-                                />
-                                <button 
-                                    type="button" 
-                                    className="password-toggle"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    tabIndex={-1}
-                                >
-                                    <i className={`ti ti-eye${showPassword ? '-off' : ''}`}></i>
-                                </button>
-                            </div>
-                            <div className="password-input-wrapper">
-                                <input
-                                    type={showConfirmPassword ? 'text' : 'password'}
-                                    placeholder="Confirm New Password"
-                                    value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
-                                    required
-                                />
-                                <button 
-                                    type="button" 
-                                    className="password-toggle"
-                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                    tabIndex={-1}
-                                >
-                                    <i className={`ti ti-eye${showConfirmPassword ? '-off' : ''}`}></i>
-                                </button>
-                            </div>
-                            <button type="submit" disabled={loading || otp.length !== 6}>
-                                {loading ? 'Resetting...' : 'Reset Password'}
-                            </button>
-                        </form>
-                        {error && <p className="error">{error}</p>}
-                        {message && <p className="message" style={{textAlign: 'center'}}>{message}</p>}
-                        <p>
-                            Didn't receive the code?
+                    
+                    {passwordResetComplete ? (
+                        <>
+                            <h2>Password Reset</h2>
+                            <p className="auth-subtitle">Your password has been reset successfully!</p>
                             <button 
-                                onClick={handleResendPasswordResetOtp} 
-                                className="toggle-auth"
-                                disabled={loading || resending}
-                            >
-                                {resending ? 'Resending...' : 'Resend'}
-                            </button>
-                        </p>
-                        <p>
-                            <button onClick={() => {
-                                setIsResettingPassword(false);
-                                setOtp('');
-                                setPassword('');
-                                setConfirmPassword('');
-                                setResetEmail('');
-                                setError(null);
-                                setMessage(null);
-                            }} className="toggle-auth" style={{marginLeft: 0}}>
-                                ← Back to Sign In
-                            </button>
-                        </p>
-                    </>
-                ) : isVerifyingOtp ? (
-                    <>
-                        <h2>Verify Email</h2>
-                        <p style={{color: '#737373', fontSize: 13, marginBottom: 20, textAlign: 'center'}}>
-                            Enter the 6-digit code sent to<br/>
-                            <strong style={{color: '#fff', display: 'inline-block', marginTop: 6}}>{pendingEmail}</strong>
-                        </p>
-                        <form onSubmit={handleSubmit}>
-                            <input
-                                type="text"
-                                placeholder="Enter OTP"
-                                value={otp}
-                                onChange={(e) => {
-                                    const value = e.target.value.replace(/\D/g, '').slice(0, 6);
-                                    setOtp(value);
+                                type="button"
+                                className="primary-btn"
+                                onClick={() => {
+                                    setPasswordResetComplete(false);
+                                    setOtp('');
+                                    setPassword('');
+                                    setConfirmPassword('');
+                                    setResetEmail('');
+                                    setError(null);
+                                    setMessage(null);
                                 }}
-                                maxLength={6}
-                                style={{textAlign: 'center', letterSpacing: '8px', fontSize: 20, fontWeight: 600}}
-                                autoFocus
-                                required
-                            />
-                            <button type="submit" disabled={loading || otp.length !== 6}>
-                                {loading ? 'Verifying...' : 'Verify Code'}
-                            </button>
-                        </form>
-                        {error && <p className="error">{error}</p>}
-                        {message && <p className="message" style={{textAlign: 'center'}}>{message}</p>}
-                        <p>
-                            Didn't receive the code?
-                            <button 
-                                onClick={handleResendOtp} 
-                                className="toggle-auth"
-                                disabled={loading || resending}
                             >
-                                {resending ? 'Resending...' : 'Resend'}
+                                Log In Now
                             </button>
-                        </p>
-                        <p>
-                            <button onClick={() => {
-                                setIsVerifyingOtp(false);
-                                setOtp('');
-                                setPendingEmail('');
-                                setError(null);
-                                setMessage(null);
-                            }} className="toggle-auth" style={{marginLeft: 0}}>
-                                ← Back to Sign Up
-                            </button>
-                        </p>
-                    </>
-                ) : (
-                    <>
-                        <h2>{isForgotPassword ? 'Reset Password' : (isSignUp ? 'Create an account' : 'Sign in')}</h2>
-                        {isForgotPassword && (
-                            <p style={{color: '#737373', fontSize: 13, marginBottom: 20}}>
-                                Enter your email to receive a password reset code
+                        </>
+                    ) : isResettingPassword ? (
+                        <>
+                            <h2>Reset Password</h2>
+                            <p className="auth-subtitle">
+                                Enter the 6-digit code sent to<br/>
+                                <strong style={{color: '#fff'}}>{resetEmail}</strong>
                             </p>
-                        )}
-                        <form onSubmit={handleSubmit}>
-                            {isSignUp && !isForgotPassword && (
+                            <form onSubmit={handlePasswordReset}>
                                 <input
                                     type="text"
-                                    placeholder="Full Name"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder="Enter OTP"
+                                    value={otp}
+                                    onChange={(e) => {
+                                        const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                                        setOtp(value);
+                                    }}
+                                    maxLength={6}
+                                    style={{textAlign: 'center', letterSpacing: '8px', fontSize: 20, fontWeight: 600}}
+                                    autoFocus
                                     required
                                 />
-                            )}
-                            <input
-                                type="email"
-                                placeholder="Email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                            />
-                            {!isForgotPassword && (
                                 <div className="password-input-wrapper">
                                     <input
                                         type={showPassword ? "text" : "password"}
-                                        placeholder="Password"
+                                        placeholder="New Password"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         required
@@ -463,12 +320,10 @@ function Auth() {
                                         <i className={`ti ti-eye${showPassword ? '-off' : ''}`}></i>
                                     </button>
                                 </div>
-                            )}
-                            {isSignUp && !isForgotPassword && (
                                 <div className="password-input-wrapper">
                                     <input
                                         type={showConfirmPassword ? 'text' : 'password'}
-                                        placeholder="Confirm Password"
+                                        placeholder="Confirm New Password"
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                         required
@@ -482,55 +337,247 @@ function Auth() {
                                         <i className={`ti ti-eye${showConfirmPassword ? '-off' : ''}`}></i>
                                     </button>
                                 </div>
-                            )}
-                            {!isSignUp && !isForgotPassword && (
-                                <button 
-                                    type="button" 
-                                    className="forgot-password-link"
-                                    onClick={() => {
-                                        setIsForgotPassword(true);
-                                        setError(null);
-                                        setMessage(null);
-                                    }}
-                                >
-                                    Forgot Password?
+                                <button type="submit" disabled={loading || otp.length !== 6}>
+                                    {loading ? 'Resetting...' : 'Reset Password'}
                                 </button>
-                            )}
-                            <button type="submit" disabled={loading}>
-                                {loading ? 'Loading...' : (isForgotPassword ? 'Send OTP' : (isSignUp ? 'Sign Up' : 'Sign In'))}
-                            </button>
-                        </form>
-                        {error && <p className="error">{error}</p>}
-                        {message && <p className="message" style={{textAlign: 'center'}}>{message}</p>}
-                        {isForgotPassword ? (
+                            </form>
+                            {error && <p className="error">{error}</p>}
+                            {message && <p className="message">{message}</p>}
                             <p>
-                                Remember your password?
-                                <button onClick={() => {
-                                    setIsForgotPassword(false);
-                                    setError(null);
-                                    setMessage(null);
-                                }} className="toggle-auth">
-                                    Sign In
+                                Didn't receive the code?
+                                <button 
+                                    onClick={handleResendPasswordResetOtp} 
+                                    className="toggle-auth"
+                                    disabled={loading || resending}
+                                >
+                                    {resending ? 'Resending...' : 'Resend'}
                                 </button>
                             </p>
-                        ) : (
                             <p>
-                                {isSignUp ? 'Already have an account?' : "Don't have an account?"}
                                 <button onClick={() => {
-                                    setIsSignUp(!isSignUp);
-                                    setEmail('');
+                                    setIsResettingPassword(false);
+                                    setOtp('');
                                     setPassword('');
                                     setConfirmPassword('');
-                                    setName('');
+                                    setResetEmail('');
                                     setError(null);
                                     setMessage(null);
-                                }} className="toggle-auth">
-                                    {isSignUp ? 'Sign In' : 'Sign Up'}
+                                }} className="toggle-auth" style={{marginLeft: 0}}>
+                                    ← Back to Sign In
                                 </button>
                             </p>
-                        )}
-                    </>
-                )}
+                        </>
+                    ) : isVerifyingOtp ? (
+                        <>
+                            <h2>Verify Email</h2>
+                            <p className="auth-subtitle">
+                                Enter the 6-digit code sent to<br/>
+                                <strong style={{color: '#fff'}}>{pendingEmail}</strong>
+                            </p>
+                            <form onSubmit={handleSubmit}>
+                                <input
+                                    type="text"
+                                    placeholder="Enter OTP"
+                                    value={otp}
+                                    onChange={(e) => {
+                                        const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                                        setOtp(value);
+                                    }}
+                                    maxLength={6}
+                                    style={{textAlign: 'center', letterSpacing: '8px', fontSize: 20, fontWeight: 600}}
+                                    autoFocus
+                                    required
+                                />
+                                <button type="submit" disabled={loading || otp.length !== 6}>
+                                    {loading ? 'Verifying...' : 'Verify Code'}
+                                </button>
+                            </form>
+                            {error && <p className="error">{error}</p>}
+                            {message && <p className="message">{message}</p>}
+                            <p>
+                                Didn't receive the code?
+                                <button 
+                                    onClick={handleResendOtp} 
+                                    className="toggle-auth"
+                                    disabled={loading || resending}
+                                >
+                                    {resending ? 'Resending...' : 'Resend'}
+                                </button>
+                            </p>
+                            <p>
+                                <button onClick={() => {
+                                    setIsVerifyingOtp(false);
+                                    setOtp('');
+                                    setPendingEmail('');
+                                    setError(null);
+                                    setMessage(null);
+                                }} className="toggle-auth" style={{marginLeft: 0}}>
+                                    ← Back to Sign Up
+                                </button>
+                            </p>
+                        </>
+                    ) : (
+                        <>
+                            <h2>{isForgotPassword ? 'Reset Password' : (isSignUp ? 'Create Account' : 'Welcome Back')}</h2>
+                            <p className="auth-subtitle">
+                                {isForgotPassword 
+                                    ? 'Enter your email to receive a reset code' 
+                                    : (isSignUp 
+                                        ? 'Start organizing your knowledge today' 
+                                        : 'Sign in to continue to Arkiv')}
+                            </p>
+                            <form onSubmit={handleSubmit}>
+                                {isSignUp && !isForgotPassword && (
+                                    <input
+                                        type="text"
+                                        placeholder="Full Name"
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        required
+                                    />
+                                )}
+                                <input
+                                    type="email"
+                                    placeholder="Email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                />
+                                {!isForgotPassword && (
+                                    <div className="password-input-wrapper">
+                                        <input
+                                            type={showPassword ? "text" : "password"}
+                                            placeholder="Password"
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            required
+                                        />
+                                        <button 
+                                            type="button" 
+                                            className="password-toggle"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            tabIndex={-1}
+                                        >
+                                            <i className={`ti ti-eye${showPassword ? '-off' : ''}`}></i>
+                                        </button>
+                                    </div>
+                                )}
+                                {isSignUp && !isForgotPassword && (
+                                    <div className="password-input-wrapper">
+                                        <input
+                                            type={showConfirmPassword ? 'text' : 'password'}
+                                            placeholder="Confirm Password"
+                                            value={confirmPassword}
+                                            onChange={(e) => setConfirmPassword(e.target.value)}
+                                            required
+                                        />
+                                        <button 
+                                            type="button" 
+                                            className="password-toggle"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            tabIndex={-1}
+                                        >
+                                            <i className={`ti ti-eye${showConfirmPassword ? '-off' : ''}`}></i>
+                                        </button>
+                                    </div>
+                                )}
+                                {!isSignUp && !isForgotPassword && (
+                                    <button 
+                                        type="button" 
+                                        className="forgot-password-link"
+                                        onClick={() => {
+                                            setIsForgotPassword(true);
+                                            setError(null);
+                                            setMessage(null);
+                                        }}
+                                    >
+                                        Forgot Password?
+                                    </button>
+                                )}
+                                <button type="submit" disabled={loading}>
+                                    {loading ? 'Loading...' : (isForgotPassword ? 'Send Reset Code' : (isSignUp ? 'Create Account' : 'Sign In'))}
+                                </button>
+                            </form>
+                            {error && <p className="error">{error}</p>}
+                            {message && <p className="message">{message}</p>}
+                            {isForgotPassword ? (
+                                <p>
+                                    Remember your password?
+                                    <button onClick={() => {
+                                        setIsForgotPassword(false);
+                                        setError(null);
+                                        setMessage(null);
+                                    }} className="toggle-auth">
+                                        Sign In
+                                    </button>
+                                </p>
+                            ) : (
+                                <p>
+                                    {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+                                    <button onClick={() => {
+                                        setIsSignUp(!isSignUp);
+                                        setEmail('');
+                                        setPassword('');
+                                        setConfirmPassword('');
+                                        setName('');
+                                        setError(null);
+                                        setMessage(null);
+                                    }} className="toggle-auth">
+                                        {isSignUp ? 'Sign In' : 'Sign Up'}
+                                    </button>
+                                </p>
+                            )}
+                        </>
+                    )}
+                </div>
+            </div>
+            <div className="auth-decorative-panel">
+                <div className="auth-decorative-content">
+                    <h1 className="auth-decorative-tagline">Your Second Brain,<br/>Supercharged.</h1>
+                    <p className="auth-decorative-subtitle">Chat with your documents</p>
+                    <div className="auth-formats-container">
+                        <div className="auth-formats-rail">
+                            <div className="auth-formats-track">
+                                <span className="auth-format-badge">PDF</span>
+                                <span className="auth-format-badge">Word</span>
+                                <span className="auth-format-badge">Excel</span>
+                                <span className="auth-format-badge">PowerPoint</span>
+                                <span className="auth-format-badge">Images</span>
+                                <span className="auth-format-badge">CSV</span>
+                                <span className="auth-format-badge">Markdown</span>
+                                <span className="auth-format-badge">Text</span>
+                                <span className="auth-format-badge">PDF</span>
+                                <span className="auth-format-badge">Word</span>
+                                <span className="auth-format-badge">Excel</span>
+                                <span className="auth-format-badge">PowerPoint</span>
+                                <span className="auth-format-badge">Images</span>
+                                <span className="auth-format-badge">CSV</span>
+                                <span className="auth-format-badge">Markdown</span>
+                                <span className="auth-format-badge">Text</span>
+                            </div>
+                        </div>
+                        <div className="auth-formats-rail">
+                            <div className="auth-formats-track reverse">
+                                <span className="auth-format-badge">Images</span>
+                                <span className="auth-format-badge">CSV</span>
+                                <span className="auth-format-badge">PDF</span>
+                                <span className="auth-format-badge">Markdown</span>
+                                <span className="auth-format-badge">Excel</span>
+                                <span className="auth-format-badge">Text</span>
+                                <span className="auth-format-badge">Word</span>
+                                <span className="auth-format-badge">PowerPoint</span>
+                                <span className="auth-format-badge">Images</span>
+                                <span className="auth-format-badge">CSV</span>
+                                <span className="auth-format-badge">PDF</span>
+                                <span className="auth-format-badge">Markdown</span>
+                                <span className="auth-format-badge">Excel</span>
+                                <span className="auth-format-badge">Text</span>
+                                <span className="auth-format-badge">Word</span>
+                                <span className="auth-format-badge">PowerPoint</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );

@@ -9,16 +9,9 @@ from typing import List
 from fastapi import HTTPException, UploadFile
 
 from .config import (
-    CSV_EXTENSIONS,
-    EXCEL_EXTENSIONS,
     IMAGE_EXTENSIONS,
-    MARKDOWN_EXTENSIONS,
-    PDF_EXTENSIONS,
-    POWERPOINT_EXTENSIONS,
     SUPABASE_KEY,
     SUPABASE_URL,
-    TEXT_EXTENSIONS,
-    WORD_EXTENSIONS,
     logger,
     supabase,
 )
@@ -73,7 +66,7 @@ async def process_uploaded_files(files: List[UploadFile], user, api_key: str = N
                 text = extract_text_from_file(file_bytes, file.filename, api_key=api_key)
                 all_texts.append(text)
             except ValueError as ve:
-                 raise HTTPException(
+                raise HTTPException(
                     status_code=400,
                     detail=str(ve),
                 )
@@ -109,12 +102,12 @@ async def process_uploaded_files(files: List[UploadFile], user, api_key: str = N
     except Exception as e:
         error_str = str(e)
         if "429" in error_str and ("Quota" in error_str or "quota" in error_str):
-             logger.warning(f"Quota exceeded (caught via string): {user.email}")
-             if api_key:
-                 detail = "Your Custom Google API Key quota exceeded."
-             else:
-                 detail = "Global Server Quota Exceeded."
-             raise HTTPException(status_code=429, detail=detail)
+            logger.warning(f"Quota exceeded (caught via string): {user.email}")
+            if api_key:
+                detail = "Your Custom Google API Key quota exceeded."
+            else:
+                detail = "Global Server Quota Exceeded."
+            raise HTTPException(status_code=429, detail=detail)
 
         logger.error(f"Upload failed for {user.email}: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
@@ -165,7 +158,7 @@ async def process_question(request: QuestionRequest, user, api_key: str = None):
         chain = get_conversational_chain(api_key=api_key)
         response = chain.invoke({"context": context, "question": request.question})
 
-        # Extract text from response (handles newer Gemini list-based responses)
+        # Extract text from response
         answer_text = response.content
         if isinstance(answer_text, list):
             answer_text = "".join([item.get("text", "") for item in answer_text if isinstance(item, dict) and item.get("type") == "text"])
@@ -194,12 +187,12 @@ async def process_question(request: QuestionRequest, user, api_key: str = None):
     except Exception as e:
         error_str = str(e)
         if "429" in error_str and ("Quota" in error_str or "quota" in error_str):
-             logger.warning(f"Quota exceeded (caught via string): {user.email}")
-             if api_key:
-                 detail = "Your Custom Google API Key quota exceeded."
-             else:
-                 detail = "Server Quota Exceeded. Please try again later or add your own Google API Key in Settings."
-             raise HTTPException(status_code=429, detail=detail)
+            logger.warning(f"Quota exceeded (caught via string): {user.email}")
+            if api_key:
+                detail = "Your Custom Google API Key quota exceeded."
+            else:
+                detail = "Server Quota Exceeded. Please try again later or add your own Google API Key in Settings."
+            raise HTTPException(status_code=429, detail=detail)
 
         logger.error(f"Question failed for {user.email}: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
@@ -248,19 +241,19 @@ async def delete_user_account(user):
         user_email = user.email
         logger.info(f"Account deletion requested for user: {user_email}")
         
-        # 1. Delete user's conversations (Cascades if constraint fixed, but safe to run)
+        # 1. Delete user's conversations
         try:
             supabase.table("conversations").delete().eq("user_id", user_id).execute()
         except Exception:
             pass
 
-        # 2. Delete user's stats (Cascades if constraint fixed)
+        # 2. Delete user's stats
         try:
             supabase.table("user_stats").delete().eq("user_id", user_id).execute()
         except Exception:
             pass
 
-        # 3. CRITICAL: Delete storage objects using the RPC function we just created
+        # 3. Delete storage objects
         try:
             supabase.rpc('delete_storage_objects_for_user', {'target_user_id': user_id}).execute()
             logger.info(f"Deleted storage objects for user {user_email}")

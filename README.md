@@ -9,7 +9,7 @@
 | FEATURES                        | DESCRIPTION                                                                        | TECHNOLOGY                              |
 |---------------------------------|------------------------------------------------------------------------------------|-----------------------------------------|
 | 📄 **Multi-Format Processing** | Upload & process PDF (including protected), Images, Word, Excel, CSV, PowerPoint, Markdown & TXT files | ***pdfplumber***, ***Pillow***, ***python-docx***, ***openpyxl***, ***python-pptx*** |
-| 🖼️ **AI Vision Analysis**      | Analyze images using Gemini Vision for comprehensive content extraction            | ***Gemini Flash Latest***, ***pyzbar*** |
+| 🖼️ **AI Vision Analysis**      | Analyze images using Gemini Vision for comprehensive content extraction            | ***Gemini Flash Latest***               |
 | 🤖 **Contextual AI Q&A**       | RAG-powered question answering with responses grounded in your documents           | ***Gemini Flash Latest***               |
 | 🔍 **Vector Search**           | Lightning-fast semantic search across all your documents using local FAISS         | ***FAISS***, ***LangChain***            |
 | 📚 **Batch Upload**            | Process multiple files simultaneously with drag-and-drop interface                 | ***Built-in***                          |
@@ -26,16 +26,16 @@
 
 ## 📁 Supported File Formats
 
-| Format     | Extensions                               | Processing Method                                                             |
-|------------|------------------------------------------|-------------------------------------------------------------------------------|
-| PDF        | `.pdf`                                   | Text extraction via PyPDF2 with pdfplumber fallback (supports protected PDFs) |
-| Images     | `.png`, `.jpg`, `.jpeg`, `.gif`, `.webp` | AI Vision analysis via Gemini & pyzbar                                        |
-| Word       | `.doc`, `.docx`                          | Text + table extraction                                                       |
-| Excel      | `.xls`, `.xlsx`                          | All sheets extraction                                                         |
-| PowerPoint | `.ppt`, `.pptx`                          | All slides extraction                                                         |
-| CSV        | `.csv`                                   | Structured data extraction                                                    |
-| Markdown   | `.md`, `.markdown`                       | Direct text processing with structure preservation                            |
-| Text       | `.txt`                                   | Direct text processing                                                        |
+| Format     | Extensions                               | Processing Method                                        |
+|------------|------------------------------------------|----------------------------------------------------------|
+| PDF        | `.pdf`                                   | Text extraction via pdfplumber (supports protected PDFs) |
+| Images     | `.png`, `.jpg`, `.jpeg`, `.gif`, `.webp` | AI Vision analysis via Gemini                            |
+| Word       | `.doc`, `.docx`                          | Text + table extraction                                  |
+| Excel      | `.xls`, `.xlsx`                          | All sheets extraction                                    |
+| PowerPoint | `.ppt`, `.pptx`                          | All slides extraction                                    |
+| CSV        | `.csv`                                   | Structured data extraction                               |
+| Markdown   | `.md`, `.markdown`                       | Direct text processing with structure preservation       |
+| Text       | `.txt`                                   | Direct text processing                                   |
 
 ---
 

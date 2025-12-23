@@ -70,14 +70,6 @@ function AboutTab() {
                     </div>
                 </div>
             ))}
-
-            {/* Made with love */}
-            <div className="settings-section">
-                <div className="about-footer">
-                    <p>Made with <i className="ti ti-heart-filled" style={{color: '#3b82f6', fontSize: 14}}></i> by Saptarshi Roy</p>
-                    <p className="about-copyright">© 2025 Arkiv. All rights reserved.</p>
-                </div>
-            </div>
         </div>
     );
 }
