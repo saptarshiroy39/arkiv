@@ -18,9 +18,7 @@
 | 🔑 **Bring Your Own Key**      | Use your own Google Gemini API keys instead of the server default                  | ***Local Storage***                     |
 | 🎚️ **Multi-Key Management**    | Store up to 3 custom keys and switch between them instantly using a header toggle  | ***Header Toggle UI***                  |
 | 👥 **User Isolation**          | Private document storage with per-user metadata enforcement using Namespaces       | ***Pinecone Namespaces***               |
-| 💬 **Chat History**            | Persistent conversation logs with context-aware follow-up question support         | ***Built-in***                          |
-| 📊 **Token Tracking**          | Monitor AI usage and token consumption across all interactions                     | ***Built-in***                          |
-| 🎨 **Aurora UI**               | Beautiful, conversational login experience with ethereal animations                | ***CSS Animations***                    |
+| 💬 **Chat History**            | Conversation logs stored in browser with optional cloud sync                       | ***LocalStorage + Supabase***           |
 
 ---
 

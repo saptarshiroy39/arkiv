@@ -1,10 +1,9 @@
 // Header Component - Top Bar
-// 1. Displays token usage count in the main content area header
-// 2. Handles key selection for Gemini API
-// 3. Snow toggle Easter egg
+// 1. Handles key selection for Gemini API
+// 2. Snow toggle Easter egg
 
 
-function Header({ tokenCount, snowEnabled, onToggleSnow }) {
+function Header({ snowEnabled, onToggleSnow }) {
     const [geminiKeys, setGeminiKeys] = React.useState([]);
     const [activeKey, setActiveKey] = React.useState('');
 
@@ -41,14 +40,9 @@ function Header({ tokenCount, snowEnabled, onToggleSnow }) {
         return (
             <header className="header">
                 <div className="header-left">
-                    <div className="header-token-display">
-                        <span className="header-token-label">Token Usage:</span>
-                        <span className="header-token-value">{tokenCount.toLocaleString()}</span>
-                    </div>
-                </div>
-                <div className="header-center">
                     <SnowToggle />
                 </div>
+                <div className="header-center"></div>
                 <div className="header-right"></div>
             </header>
         );
@@ -57,15 +51,10 @@ function Header({ tokenCount, snowEnabled, onToggleSnow }) {
     return (
         <header className="header">
             <div className="header-left">
-                <div className="header-token-display">
-                    <span className="header-token-label">Token Usage:</span>
-                    <span className="header-token-value">{tokenCount.toLocaleString()}</span>
-                </div>
-            </div>
-
-            <div className="header-center">
                 <SnowToggle />
             </div>
+
+            <div className="header-center"></div>
 
             <div className="header-right" style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
                 <div className="key-toggle-container">

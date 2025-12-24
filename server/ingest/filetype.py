@@ -21,7 +21,7 @@ def get_file_type(path: str) -> str:
         # Sheets/Data
         ".xls": "sheets",
         ".xlsx": "sheets",
-        ".csv": "sheets",
+        ".csv": "csv",
         
         # Slides
         ".ppt": "slides",

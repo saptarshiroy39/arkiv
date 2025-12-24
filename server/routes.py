@@ -11,8 +11,6 @@ from .models import (
     AnswerResponse,
     ConfigResponse,
     QuestionRequest,
-    UpdateStatsRequest,
-    UserStatsResponse,
     VerifyKeyRequest,
 )
 
@@ -52,14 +50,12 @@ async def verify_key(request: VerifyKeyRequest):
     return await services.verify_key_status(request)
 
 
-@router.get("/stats", response_model=UserStatsResponse)
-async def get_stats(user=Depends(get_user)):
-    return await services.get_user_stats(user)
-
-
-@router.patch("/stats", response_model=UserStatsResponse)
-async def update_stats(request: UpdateStatsRequest, user=Depends(get_user)):
-    return await services.update_user_stats(user, request.files_delta, request.tokens_delta)
+@router.delete("/clear-data")
+async def clear_data(
+    user=Depends(get_user),
+    x_custom_api_key: str = Header(None)
+):
+    return await services.clear_user_data(user, api_key=x_custom_api_key)
 
 
 @router.delete("/account")

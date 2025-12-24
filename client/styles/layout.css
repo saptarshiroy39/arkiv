@@ -48,24 +48,3 @@
   justify-content: flex-end;
   flex: 1;
 }
-
-/* Header Token Display */
-.header-token-display {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.header-token-label {
-  font-size: 16px;
-  color: #737373;
-}
-
-.header-token-value {
-  font-size: 16px;
-  font-weight: 600;
-  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}

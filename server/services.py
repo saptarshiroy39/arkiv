@@ -19,7 +19,7 @@ from .ingest.filetype import get_file_type
 from .ingest.reader import read_file
 from .ingest.cleaner import normalize_text, sanitize_filename
 from .ingest.chunker import chunk_text
-from .rag.rag import ingest_chunks, ask_question
+from .rag.rag import ingest_chunks, ask_question, clear_user_data as rag_clear_user_data
 
 # Arkiv
 def get_app_config():
@@ -161,40 +161,14 @@ async def process_question(request: QuestionRequest, user, api_key: str = None):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-async def get_user_stats(user):
+async def clear_user_data(user, api_key: str = None):
+    """Clears all document embeddings for a user from Pinecone."""
     try:
-        result = supabase.table("user_stats").select("*").eq("user_id", user.id).execute()
-        if result.data and len(result.data) > 0:
-            row = result.data[0]
-            return {"files_processed": row["files_processed"], "tokens_used": row["tokens_used"]}
-        else:
-            supabase.table("user_stats").insert({"user_id": user.id, "files_processed": 0, "tokens_used": 0}).execute()
-            return {"files_processed": 0, "tokens_used": 0}
+        logger.info(f"Clearing knowledge base for user: {user.email}")
+        rag_clear_user_data(user.id, api_key=api_key)
+        return {"message": "Knowledge base cleared successfully"}
     except Exception as e:
-        logger.error(f"Failed to get stats for {user.email}: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-async def update_user_stats(user, files_delta: int = 0, tokens_delta: int = 0):
-    try:
-        result = supabase.table("user_stats").select("*").eq("user_id", user.id).execute()
-        if result.data and len(result.data) > 0:
-            row = result.data[0]
-            new_files = row["files_processed"] + files_delta
-            new_tokens = row["tokens_used"] + tokens_delta
-        else:
-            new_files = files_delta
-            new_tokens = tokens_delta
-        
-        supabase.table("user_stats").upsert({
-            "user_id": user.id,
-            "files_processed": new_files,
-            "tokens_used": new_tokens
-        }).execute()
-        
-        return {"files_processed": new_files, "tokens_used": new_tokens}
-    except Exception as e:
-        logger.error(f"Failed to update stats for {user.email}: {str(e)}")
+        logger.error(f"Failed to clear data for {user.email}: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -210,20 +184,19 @@ async def delete_user_account(user):
         except Exception:
             pass
 
-        # 2. Delete user's stats
+        # 2. Delete Pinecone Namespace (Vector Data)
         try:
-            supabase.table("user_stats").delete().eq("user_id", user_id).execute()
-        except Exception:
-            pass
-
-        # 3. Delete storage objects
-        try:
-            supabase.rpc('delete_storage_objects_for_user', {'target_user_id': user_id}).execute()
-            logger.info(f"Deleted storage objects for user {user_email}")
+            from .storage.pinecone_store import PineconeStore
+            if os.getenv("PINECONE_API_KEY"):
+                store = PineconeStore()
+                store.delete_namespace(str(user_id))
+                logger.info(f"Deleted Pinecone namespace for user {user_email}")
+            else:
+                logger.warning("PINECONE_API_KEY not set, skipping vector deletion")
         except Exception as e:
-            logger.warning(f"Failed to delete storage objects (RPC): {str(e)}")
+            logger.warning(f"Failed to delete Pinecone namespace: {str(e)}")
 
-        # 4. Delete the user from auth.users using admin API
+        # 3. Delete the user from auth.users using admin API
         supabase.auth.admin.delete_user(user_id)
         logger.info(f"Successfully deleted user account: {user_email}")
         

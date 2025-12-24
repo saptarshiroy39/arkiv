@@ -31,3 +31,7 @@ def ask_question(question: str, user_id: str, api_key: str = None) -> Dict[str, 
         "answer": answer,
         "context": context
     }
+
+def clear_user_data(user_id: str, api_key: str = None):
+    retriever = Retriever(user_id=user_id, api_key=api_key)
+    retriever.clear_data()

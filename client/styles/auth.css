@@ -92,10 +92,6 @@
   letter-spacing: -0.04em;
 }
 
-
-/* Interaction Effects */
-
-
 /* Form Container */
 .auth-form {
   width: 100%;
@@ -304,7 +300,7 @@
 }
 
 .password-toggle i {
-  font-size: 18px;
+  font-size: 20px;
 }
 
 /* Spin Animation */

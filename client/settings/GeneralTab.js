@@ -1,5 +1,5 @@
-// General Tab Component - Profile, Name, Stats, Plan
-// 1. Displays user profile card, display name editor, usage statistics, and current plan
+// General Tab Component - Profile, Name, Knowledge Base, Plan
+// 1. Displays user profile card, display name editor, and knowledge reset
 
 
 function GeneralTab({
@@ -8,10 +8,25 @@ function GeneralTab({
     setDisplayName,
     handleUpdateName,
     isLoading,
-    tokenCount,
-    filesProcessed
+    resetKnowledgeBase,
+    isResettingKnowledge,
+    hasIndexedDocuments
 }) {
+    const [showResetConfirm, setShowResetConfirm] = React.useState(false);
+    const [resetMessage, setResetMessage] = React.useState(null);
+
     const userInitial = (user?.user_metadata?.display_name || user?.user_metadata?.full_name || 'U').charAt(0).toUpperCase();
+
+    const handleReset = async () => {
+        const result = await resetKnowledgeBase();
+        if (result.success) {
+            setResetMessage({ text: 'Knowledge base cleared successfully!', type: 'success' });
+        } else {
+            setResetMessage({ text: result.error?.message || 'Reset failed', type: 'error' });
+        }
+        setShowResetConfirm(false);
+        setTimeout(() => setResetMessage(null), 4000);
+    };
 
     return (
         <div className="settings-tab">
@@ -46,31 +61,45 @@ function GeneralTab({
                 </form>
             </div>
 
-            {/* Usage Statistics */}
-            <div className="settings-section">
-                <h2 className="settings-section-title">Usage Statistics</h2>
-                <div className="stats-grid">
-                    <div className="stat-card">
-                        <div className="stat-value">{tokenCount.toLocaleString()}</div>
-                        <div className="stat-label">Tokens Used</div>
+            {/* Knowledge Base - styled like Session section */}
+            <div className="settings-section inline-section session-section">
+                <h2 className="settings-section-title">Knowledge Base</h2>
+                {!showResetConfirm ? (
+                    <button 
+                        className="settings-btn-secondary" 
+                        onClick={() => setShowResetConfirm(true)}
+                        disabled={!hasIndexedDocuments || isResettingKnowledge}
+                        style={{opacity: hasIndexedDocuments ? 1 : 0.5}}
+                    >
+                        <i className="ti ti-eraser" style={{fontSize: 16}}></i>
+                        {hasIndexedDocuments ? 'Reset' : 'No Documents'}
+                    </button>
+                ) : (
+                    <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}>
+                        <button 
+                            className="settings-btn-danger" 
+                            onClick={handleReset}
+                            disabled={isResettingKnowledge}
+                        >
+                            <i className="ti ti-check" style={{fontSize: 16}}></i>
+                            {isResettingKnowledge ? 'Resetting...' : 'Confirm'}
+                        </button>
+                        <button 
+                            className="settings-btn-secondary" 
+                            onClick={() => setShowResetConfirm(false)}
+                        >
+                            Cancel
+                        </button>
                     </div>
-                    <div className="stat-card">
-                        <div className="stat-value">{filesProcessed}</div>
-                        <div className="stat-label">Files Processed</div>
-                    </div>
-                </div>
+                )}
             </div>
 
-            {/* Current Plan */}
-            <div className="settings-section">
-                <h2 className="settings-section-title">Current Plan</h2>
-                <div className="plan-card">
-                    <div className="plan-info">
-                        <span className="plan-badge free">Free</span>
-                        <p className="plan-desc">You're on the free plan with limited features.</p>
-                    </div>
+            {resetMessage && (
+                <div className={`profile-message ${resetMessage.type}`} style={{marginTop: '-10px', marginBottom: '20px'}}>
+                    <i className={`ti ti-${resetMessage.type === 'success' ? 'check' : 'alert-triangle'}`} style={{fontSize: 16}}></i>
+                    {resetMessage.text}
                 </div>
-            </div>
+            )}
         </div>
     );
 }

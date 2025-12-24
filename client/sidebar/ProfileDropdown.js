@@ -55,7 +55,6 @@ function ProfileDropdown({
                 </div>
                 <div className="profile-trigger-info">
                     <span className="profile-trigger-name">{userName}</span>
-                    <span className="profile-trigger-plan">Free</span>
                 </div>
             </div>
             {showProfileMenu && (

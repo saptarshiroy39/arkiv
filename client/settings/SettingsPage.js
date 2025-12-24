@@ -2,7 +2,7 @@
 // 1. Manages tabs and state, renders GeneralTab, PrivacyTab, and BillingTab components
 
 
-function SettingsPage({ user, onClose, updateProfile, updateEmail, updatePassword, signOut, deleteAccount, filesProcessed, tokenCount }) {
+function SettingsPage({ user, onClose, updateProfile, updateEmail, updatePassword, signOut, deleteAccount, resetKnowledgeBase, isResettingKnowledge, hasIndexedDocuments }) {
     const [activeTab, setActiveTab] = useState('general');
     const [displayName, setDisplayName] = useState(user?.user_metadata?.display_name || user?.user_metadata?.full_name || '');
     const [newEmail, setNewEmail] = useState('');
@@ -109,7 +109,6 @@ function SettingsPage({ user, onClose, updateProfile, updateEmail, updatePasswor
         { id: 'general', label: 'General', icon: 'user-circle' },
         { id: 'privacy', label: 'Security', icon: 'shield-lock' },
         { id: 'apikeys', label: 'API Keys', icon: 'key' },
-        { id: 'billing', label: 'Billing', icon: 'credit-card' },
         { id: 'about', label: 'About', icon: 'info-octagon' }
     ];
 
@@ -155,8 +154,9 @@ function SettingsPage({ user, onClose, updateProfile, updateEmail, updatePasswor
                             setDisplayName={setDisplayName}
                             handleUpdateName={handleUpdateName}
                             isLoading={isLoading}
-                            tokenCount={tokenCount}
-                            filesProcessed={filesProcessed}
+                            resetKnowledgeBase={resetKnowledgeBase}
+                            isResettingKnowledge={isResettingKnowledge}
+                            hasIndexedDocuments={hasIndexedDocuments}
                         />
                     )}
 
@@ -184,10 +184,6 @@ function SettingsPage({ user, onClose, updateProfile, updateEmail, updatePasswor
 
                     {activeTab === 'apikeys' && (
                         <ApiKeysTab />
-                    )}
-
-                    {activeTab === 'billing' && (
-                        <BillingTab />
                     )}
 
                     {activeTab === 'about' && (

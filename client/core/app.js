@@ -43,12 +43,10 @@ function App() {
     const [chatHistory, setChatHistory] = useState([]);
     const [currentChatId, setCurrentChatId] = useState(null);
     const [showHistory, setShowHistory] = useState(false);
-    const [tokenCount, setTokenCount] = useState(0);
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
-    const [totalFilesProcessed, setTotalFilesProcessed] = useState(0);
-    const [totalTokenCount, setTotalTokenCount] = useState(0);
     const [snowEnabled, setSnowEnabled] = useState(false);
+    const [isResettingKnowledge, setIsResettingKnowledge] = useState(false);
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
     const fileInputRef = useRef(null);
@@ -62,23 +60,6 @@ function App() {
         if (savedIndexReady === 'true') {
             setIndexReady(true);
         }
-        
-        const loadStats = async () => {
-            try {
-                const { data: { session } } = await supabase.auth.getSession();
-                const res = await fetch(`${API_URL}/stats`, {
-                    headers: { 'Authorization': `Bearer ${session.access_token}` }
-                });
-                if (res.ok) {
-                    const stats = await res.json();
-                    setTotalFilesProcessed(stats.files_processed);
-                    setTotalTokenCount(stats.tokens_used);
-                }
-            } catch (err) {
-                console.error('Failed to load stats:', err);
-            }
-        };
-        loadStats();
         
         const saved = localStorage.getItem(`chatHistory_${user.id}`);
         if (saved) setChatHistory(JSON.parse(saved));
@@ -102,9 +83,7 @@ function App() {
         return <Auth />;
     }
 
-    const estimateTokens = (text) => Math.ceil(text.length / 4);
-
-    const saveToHistory = (msgs, files = [], tokens = 0) => {
+    const saveToHistory = (msgs, files = []) => {
         if (msgs.length === 0) return;
         const firstUserMsg = msgs.find(m => m.role === 'user');
         const title = firstUserMsg ? firstUserMsg.content.slice(0, 30) + '...' : 'New Chat';
@@ -113,7 +92,6 @@ function App() {
             title,
             messages: msgs,
             files: files,
-            tokens: tokens,
             time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
         };
         
@@ -188,23 +166,6 @@ function App() {
             setFiles([]);
             setProcessedFiles(prev => [...prev, ...newFiles]);
             setStatus({ type: 'success', msg: `Processed ${data.files_processed.length} file(s)` });
-            const uploadTokens = (data.chunks_created || 1) * 500;
-            setTokenCount(prev => prev + uploadTokens);
-            try {
-                const statsRes = await fetch(`${API_URL}/stats`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Authorization': `Bearer ${session.access_token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ files_delta: files.length, tokens_delta: uploadTokens })
-                });
-                if (statsRes.ok) {
-                    const stats = await statsRes.json();
-                    setTotalFilesProcessed(stats.files_processed);
-                    setTotalTokenCount(stats.tokens_used);
-                }
-            } catch (e) { console.error('Stats update failed:', e); }
             setIndexReady(true);
             localStorage.setItem(`indexReady_${user.id}`, 'true');
         } catch (err) {
@@ -248,24 +209,7 @@ function App() {
             const finalMessages = [...newMessages, { role: 'assistant', content: data.answer }];
             setIsLoading(false);
             setMessages(finalMessages);
-            const msgTokens = estimateTokens(q) + estimateTokens(data.answer);
-            setTokenCount(prev => prev + msgTokens);
-            try {
-                const { data: { session: sess } } = await supabase.auth.getSession();
-                const statsRes = await fetch(`${API_URL}/stats`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Authorization': `Bearer ${sess.access_token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ tokens_delta: msgTokens })
-                });
-                if (statsRes.ok) {
-                    const stats = await statsRes.json();
-                    setTotalTokenCount(stats.tokens_used);
-                }
-            } catch (e) { console.error('Stats update failed:', e); }
-            saveToHistory(finalMessages, processedFiles, tokenCount + msgTokens);
+            saveToHistory(finalMessages, processedFiles);
         } catch (err) {
             const finalMessages = [...newMessages, { role: 'assistant', content: err.message, isError: true }];
             setIsLoading(false);
@@ -276,22 +220,47 @@ function App() {
     };
 
     const startNewChat = () => {
-        if (messages.length > 0) saveToHistory(messages, processedFiles, tokenCount);
+        if (messages.length > 0) saveToHistory(messages, processedFiles);
         setMessages([]);
         setProcessedFiles([]);
-        setTokenCount(0);
         setCurrentChatId(null);
         setShowHistory(false);
         setStatus(null);
     };
 
     const loadChat = (chat) => {
-        if (messages.length > 0 && currentChatId !== chat.id) saveToHistory(messages, processedFiles, tokenCount);
+        if (messages.length > 0 && currentChatId !== chat.id) saveToHistory(messages, processedFiles);
         setMessages(chat.messages);
         setProcessedFiles(chat.files || []);
-        setTokenCount(chat.tokens || 0);
         setCurrentChatId(chat.id);
         setShowHistory(false);
+    };
+
+    const resetKnowledgeBase = async () => {
+        setIsResettingKnowledge(true);
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            const customKey = localStorage.getItem('custom_api_key_google');
+            const headers = { 'Authorization': `Bearer ${session.access_token}` };
+            if (customKey) headers['X-Custom-Api-Key'] = customKey;
+            
+            const res = await fetch(`${API_URL}/clear-data`, {
+                method: 'DELETE',
+                headers: headers
+            });
+            if (!res.ok) throw new Error((await res.json()).detail || 'Reset failed');
+            
+            setProcessedFiles([]);
+            setStatus(null);
+            setIndexReady(false);
+            localStorage.removeItem(`indexReady_${user.id}`);
+            return { success: true };
+        } catch (err) {
+            console.error('Reset knowledge base failed:', err);
+            return { error: { message: err.message } };
+        } finally {
+            setIsResettingKnowledge(false);
+        }
     };
 
     const deleteChat = (e, chatId) => {
@@ -351,13 +320,13 @@ function App() {
                         updatePassword={updatePassword}
                         signOut={signOut}
                         deleteAccount={deleteAccount}
-                        filesProcessed={totalFilesProcessed}
-                        tokenCount={totalTokenCount}
+                        resetKnowledgeBase={resetKnowledgeBase}
+                        isResettingKnowledge={isResettingKnowledge}
+                        hasIndexedDocuments={indexReady}
                     />
                 ) : (
                     <>
                         <Header
-                            tokenCount={tokenCount}
                             snowEnabled={snowEnabled}
                             onToggleSnow={() => setSnowEnabled(prev => !prev)}
                         />
