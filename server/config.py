@@ -30,6 +30,13 @@ if not GOOGLE_API_KEY:
     raise ValueError("GOOGLE_API_KEY is required. Add it to your .env file.")
 genai.configure(api_key=GOOGLE_API_KEY)
 
+PINECONE_API_KEY = os.getenv("PINECONE_API_KEY", "")
+PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "arkiv-index")
+
+if not PINECONE_API_KEY:
+    logger.warning("PINECONE_API_KEY not found. Vector storage will fail until configured.")
+
+
 SUPABASE_URL = os.getenv("SUPABASE_URL", "")
 SUPABASE_KEY = os.getenv("SUPABASE_ANON_KEY", "")
 SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
@@ -51,16 +58,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 CLIENT_DIR = os.path.join(BASE_DIR, "client")
 EASTER_EGG_DIR = os.path.join(BASE_DIR, "easter_egg")
-
-
-PDF_EXTENSIONS = (".pdf",)
-IMAGE_EXTENSIONS = (".png", ".jpg", ".jpeg", ".gif", ".webp")
-WORD_EXTENSIONS = (".doc", ".docx")
-EXCEL_EXTENSIONS = (".xls", ".xlsx")
-POWERPOINT_EXTENSIONS = (".ppt", ".pptx")
-TEXT_EXTENSIONS = (".txt",)
-MARKDOWN_EXTENSIONS = (".md", ".markdown")
-CSV_EXTENSIONS = (".csv",)
 
 logger.info("=" * 50)
 logger.info("Arkiv API Starting...")

@@ -11,16 +11,16 @@
 | 📄 **Multi-Format Processing** | Upload & process PDF (including protected), Images, Word, Excel, CSV, PowerPoint, Markdown & TXT files | ***pdfplumber***, ***Pillow***, ***python-docx***, ***openpyxl***, ***python-pptx*** |
 | 🖼️ **AI Vision Analysis**      | Analyze images using Gemini Vision for comprehensive content extraction            | ***Gemini Flash Latest***               |
 | 🤖 **Contextual AI Q&A**       | RAG-powered question answering with responses grounded in your documents           | ***Gemini Flash Latest***               |
-| 🔍 **Vector Search**           | Lightning-fast semantic search across all your documents using local FAISS         | ***FAISS***, ***LangChain***            |
+| 🔍 **Vector Search**           | Lightning-fast semantic search across all your documents                           | ***Pinecone***, ***LangChain***         |
 | 📚 **Batch Upload**            | Process multiple files simultaneously with drag-and-drop interface                 | ***Built-in***                          |
 | 🧩 **Smart Chunking**          | Automatic text splitting and optimization for enhanced retrieval accuracy          | ***RecursiveCharacterTextSplitter***    |
 | 🔐 **Secure Authentication**   | OTP-based user authentication with email/password and secure session management    | ***Supabase Auth***                     |
 | 🔑 **Bring Your Own Key**      | Use your own Google Gemini API keys instead of the server default                  | ***Local Storage***                     |
 | 🎚️ **Multi-Key Management**    | Store up to 3 custom keys and switch between them instantly using a header toggle  | ***Header Toggle UI***                  |
-| 👥 **User Isolation**          | Private document storage with per-user metadata enforcement                        | ***Supabase RLS***                      |
+| 👥 **User Isolation**          | Private document storage with per-user metadata enforcement using Namespaces       | ***Pinecone Namespaces***               |
 | 💬 **Chat History**            | Persistent conversation logs with context-aware follow-up question support         | ***Built-in***                          |
 | 📊 **Token Tracking**          | Monitor AI usage and token consumption across all interactions                     | ***Built-in***                          |
-| ❄️ **Easter Egg**              | Fun interactive snow mode with redesigned rotating toggle and transparency effects | ***CSS Animations***                    |
+| 🎨 **Aurora UI**               | Beautiful, conversational login experience with ethereal animations                | ***CSS Animations***                    |
 
 ---
 
@@ -43,7 +43,7 @@
 
 ```
 Arkiv/
-├── client/                # Frontend (React + Babel)
+├── client/                   # Frontend (React + Babel)
 │   ├── core/                 # App, Auth, Config, Supabase
 │   ├── chat/                 # ChatInput, ChatMessages
 │   ├── sidebar/              # Sidebar, FileUpload, ChatHistory, ProfileDropdown
@@ -51,19 +51,30 @@ Arkiv/
 │   ├── settings/             # All settings tabs
 │   └── styles/               # CSS modules
 |
-├── server/                # Backend (FastAPI)
+├── server/                   # Backend (FastAPI)
+│   ├── ingest/               # File ingestion logic
+│   │   ├── reader.py         # File readers (PDF, Docx, etc.)
+│   │   ├── cleaner.py        # Text sanitization
+│   │   ├── chunker.py        # Text splitting
+│   │   └── filetype.py       # Extension handling
+│   │
+│   ├── storage/              # Vector database logic
+│   │   ├── pinecone_store.py # Pinecone vectordb wrapper
+│   │   └── embeddings.py     # Embedding generation
+│   │
+│   ├── rag/                  # RAG pipeline
+│   │   ├── rag.py            # Main RAG & Chat chain
+│   │   ├── retriever.py      # Retriever configuration
+│   │   └── client.py         # LLM client setup
+│   │
 │   ├── app.py                # FastAPI app entry
 │   ├── config.py             # Environment, logging, constants
 │   ├── routes.py             # API endpoints
-│   ├── services.py           # Business logic
-│   ├── models.py             # Pydantic models
-│   ├── dependencies.py       # Auth dependency
-│   ├── extractor.py          # Document text extraction (PDF, Word, Excel, etc.)
-│   ├── processor.py          # Text sanitization + AI image processing
-│   └── rag.py                # RAG pipeline (FAISS + LangChain)
+│   ├── services.py           # Business logic service layer
+│   └── models.py             # Pydantic models
 |
-├── easter_egg/            # Season-wise Easter egg features
-├── email_templates/       # Supabase email templates
+├── easter_egg/               # Season-wise Easter egg features
+├── email_templates/          # Supabase email templates
 └── Configuration files
 ```
 
@@ -80,7 +91,7 @@ Arkiv uses a sophisticated RAG (Retrieval-Augmented Generation) architecture wit
 ```
 User Upload → Document Processing → Text Extraction → Smart Chunking
      ↓
-Vector Embeddings → Local FAISS Store → Vector Index
+Vector Embeddings → Pinecone Vector Store → Vector Index
      ↓
 User Question → Vector Similarity Search → Context Retrieval → RAG Generation → Response
 ```

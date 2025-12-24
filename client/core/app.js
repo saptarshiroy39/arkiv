@@ -11,7 +11,33 @@ function App() {
     const [isUploading, setIsUploading] = useState(false);
     const [status, setStatus] = useState(null);
     const [indexReady, setIndexReady] = useState(false);
-    const [showSidebar, setShowSidebar] = useState(true);
+    const [showSidebar, setShowSidebar] = useState(window.innerWidth >= 1000);
+    const [userPreferredSidebar, setUserPreferredSidebar] = useState(true);
+    const prevWidthRef = useRef(window.innerWidth);
+
+    const handleSidebarToggle = (value) => {
+        const newState = typeof value === 'function' ? value(showSidebar) : value;
+        setShowSidebar(newState);
+        setUserPreferredSidebar(newState);
+    };
+
+    useEffect(() => {
+        const handleResize = () => {
+            const width = window.innerWidth;
+            const prevWidth = prevWidthRef.current;
+
+            if (width < 1000 && prevWidth >= 1000) {
+                setShowSidebar(false);
+            } else if (width >= 1000 && prevWidth < 1000) {
+                setShowSidebar(userPreferredSidebar);
+            }
+            
+            prevWidthRef.current = width;
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, [userPreferredSidebar]);
     const [isDragOver, setIsDragOver] = useState(false);
     const [processedFiles, setProcessedFiles] = useState([]);
     const [chatHistory, setChatHistory] = useState([]);
@@ -307,7 +333,7 @@ function App() {
                 setCurrentChatId={setCurrentChatId}
                 collapsed={!showSidebar}
                 showSidebar={showSidebar}
-                setShowSidebar={setShowSidebar}
+                setShowSidebar={handleSidebarToggle}
                 signOut={signOut}
                 showProfileMenu={showProfileMenu}
                 setShowProfileMenu={setShowProfileMenu}

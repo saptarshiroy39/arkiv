@@ -287,7 +287,7 @@ function Auth() {
                             <h2>Reset Password</h2>
                             <p className="auth-subtitle">
                                 Enter the 6-digit code sent to<br/>
-                                <strong style={{color: '#fff'}}>{resetEmail}</strong>
+                                <strong style={{color: '#ffffff7e'}}>{resetEmail}</strong>
                             </p>
                             <form onSubmit={handlePasswordReset}>
                                 <input
@@ -533,50 +533,10 @@ function Auth() {
             </div>
             <div className="auth-decorative-panel">
                 <div className="auth-decorative-content">
-                    <h1 className="auth-decorative-tagline">Your Second Brain,<br/>Supercharged.</h1>
-                    <p className="auth-decorative-subtitle">Chat with your documents</p>
-                    <div className="auth-formats-container">
-                        <div className="auth-formats-rail">
-                            <div className="auth-formats-track">
-                                <span className="auth-format-badge">PDF</span>
-                                <span className="auth-format-badge">Word</span>
-                                <span className="auth-format-badge">Excel</span>
-                                <span className="auth-format-badge">PowerPoint</span>
-                                <span className="auth-format-badge">Images</span>
-                                <span className="auth-format-badge">CSV</span>
-                                <span className="auth-format-badge">Markdown</span>
-                                <span className="auth-format-badge">Text</span>
-                                <span className="auth-format-badge">PDF</span>
-                                <span className="auth-format-badge">Word</span>
-                                <span className="auth-format-badge">Excel</span>
-                                <span className="auth-format-badge">PowerPoint</span>
-                                <span className="auth-format-badge">Images</span>
-                                <span className="auth-format-badge">CSV</span>
-                                <span className="auth-format-badge">Markdown</span>
-                                <span className="auth-format-badge">Text</span>
-                            </div>
-                        </div>
-                        <div className="auth-formats-rail">
-                            <div className="auth-formats-track reverse">
-                                <span className="auth-format-badge">Images</span>
-                                <span className="auth-format-badge">CSV</span>
-                                <span className="auth-format-badge">PDF</span>
-                                <span className="auth-format-badge">Markdown</span>
-                                <span className="auth-format-badge">Excel</span>
-                                <span className="auth-format-badge">Text</span>
-                                <span className="auth-format-badge">Word</span>
-                                <span className="auth-format-badge">PowerPoint</span>
-                                <span className="auth-format-badge">Images</span>
-                                <span className="auth-format-badge">CSV</span>
-                                <span className="auth-format-badge">PDF</span>
-                                <span className="auth-format-badge">Markdown</span>
-                                <span className="auth-format-badge">Excel</span>
-                                <span className="auth-format-badge">Text</span>
-                                <span className="auth-format-badge">Word</span>
-                                <span className="auth-format-badge">PowerPoint</span>
-                            </div>
-                        </div>
-                    </div>
+                    <h1 className="auth-decorative-tagline">
+                        <span style={{color: 'rgba(255,255,255,0.5)'}}>Your documents,</span><br/>
+                        <span style={{color: '#fff'}}>Now conversational.</span>
+                    </h1>
                 </div>
             </div>
         </div>

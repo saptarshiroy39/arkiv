@@ -9,22 +9,19 @@ from typing import List
 from fastapi import HTTPException, UploadFile
 
 from .config import (
-    IMAGE_EXTENSIONS,
     SUPABASE_KEY,
     SUPABASE_URL,
     logger,
     supabase,
 )
-from .extractor import extract_text_from_file
-from .models import AnswerResponse, QuestionRequest, VerifyKeyRequest
-from .rag import (
-    get_conversational_chain,
-    get_text_chunks,
-    get_vectorstore,
-    load_vectorstore,
-)
+from .models import AnswerResponse, QuestionRequest, VerifyKeyRequest, Chunk
+from .ingest.filetype import get_file_type
+from .ingest.reader import read_file
+from .ingest.cleaner import normalize_text, sanitize_filename
+from .ingest.chunker import chunk_text
+from .rag.rag import ingest_chunks, ask_question
 
-
+# Arkiv
 def get_app_config():
     return {
         "supabase_url": SUPABASE_URL,
@@ -44,7 +41,7 @@ async def process_uploaded_files(files: List[UploadFile], user, api_key: str = N
             logger.warning(f"User {user.email} attempted upload with no files")
             raise HTTPException(status_code=400, detail="No files uploaded")
 
-        all_texts = []
+        all_chunks: List[Chunk] = []
         filenames = []
         pdf_count = 0
         image_count = 0
@@ -52,78 +49,81 @@ async def process_uploaded_files(files: List[UploadFile], user, api_key: str = N
         for file in files:
             if not file.filename:
                 continue
-            filename = file.filename.lower()
-            ext = os.path.splitext(filename)[1]
-
-            filenames.append(file.filename)
-            if ext in IMAGE_EXTENSIONS:
-                image_count += 1
-            else:
+            
+            filename = sanitize_filename(file.filename)
+            filenames.append(filename)
+            
+            file_type = get_file_type(filename)
+            if file_type == 'pdf':
                 pdf_count += 1
-
+            elif file_type == 'image':
+                image_count += 1
+            
             try:
+                # 1. Read
                 file_bytes = await file.read()
-                text = extract_text_from_file(file_bytes, file.filename, api_key=api_key)
-                all_texts.append(text)
-            except ValueError as ve:
-                raise HTTPException(
-                    status_code=400,
-                    detail=str(ve),
-                )
+                raw_text = read_file(file_bytes, filename, file_type, api_key=api_key)
+                
+                # 2. Normalize
+                clean_text = normalize_text(raw_text)
+                
+                if not clean_text:
+                    logger.warning(f"No text extracted from {filename}")
+                    continue
+                    
+                # 3. Chunk
+                text_chunks = chunk_text(clean_text)
+                
+                # 4. Wrap
+                for idx, text_piece in enumerate(text_chunks):
+                    chunk = Chunk(
+                        text=text_piece,
+                        source=filename,
+                        chunk_index=idx,
+                        page_number=None,
+                        metadata={"type": file_type}
+                    )
+                    all_chunks.append(chunk)
 
-        combined_text = "\n\n".join(all_texts)
-        logger.info(f"Total extracted text length: {len(combined_text)} chars")
-        if not combined_text.strip():
+            except Exception as e:
+                logger.error(f"Error processing file {filename}: {e}")
+                continue
+
+        if not all_chunks:
             raise HTTPException(
                 status_code=400,
                 detail="No text could be extracted from the uploaded files",
             )
-
-        text_chunks = get_text_chunks(combined_text)
-        logger.info(f"Created {len(text_chunks)} chunks from text")
-        get_vectorstore(text_chunks, user.id, api_key=api_key)
-        logger.info(f"Successfully stored {len(text_chunks)} chunks in local vectorstore")
+            
+        # 5. Ingest (Store)
+        logger.info(f"Ingesting {len(all_chunks)} chunks for user {user.id}")
+        ingest_chunks(all_chunks, user.id, api_key=api_key)
 
         duration = (datetime.now() - start_time).total_seconds()
         logger.info(
             f"Upload complete for {user.email} | "
             f"PDFs: {pdf_count}, Images: {image_count} | "
-            f"Chunks: {len(text_chunks)} | "
+            f"Chunks: {len(all_chunks)} | "
             f"Duration: {duration:.2f}s"
         )
 
         return {
             "message": "Files processed successfully",
             "files_processed": filenames,
-            "chunks_created": len(text_chunks),
+            "chunks_created": len(all_chunks),
             "pdfs": pdf_count,
             "images": image_count,
         }
     except Exception as e:
-        error_str = str(e)
-        if "429" in error_str and ("Quota" in error_str or "quota" in error_str):
-            logger.warning(f"Quota exceeded (caught via string): {user.email}")
-            if api_key:
-                detail = "Your Custom Google API Key quota exceeded."
-            else:
-                detail = "Global Server Quota Exceeded."
-            raise HTTPException(status_code=429, detail=detail)
-
         logger.error(f"Upload failed for {user.email}: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 
 async def verify_key_status(request: VerifyKeyRequest):
     try:
-        chain = get_conversational_chain(api_key=request.api_key)
-        
-        response = chain.invoke({
-            "context": "Verification test.",
-            "question": "Reply with 'Success' if you can read this."
-        })
-        
+        from .rag.client import LLMClient
+        client = LLMClient(api_key=request.api_key)
         return {"status": "valid", "message": "Key is valid"}
-        
     except Exception as e:
         logger.warning(f"Key verification failed: {str(e)}")
         raise HTTPException(status_code=400, detail=f"Invalid Key: {str(e)}")
@@ -133,37 +133,10 @@ async def process_question(request: QuestionRequest, user, api_key: str = None):
     start_time = datetime.now()
     logger.info(f"Question from {user.email}: {request.question[:50]}...")
     try:
-        db = load_vectorstore(user.id)
+        result = ask_question(request.question, user.id, api_key=api_key)
         
-        if db is None:
-            logger.info(f"No vectorstore found for user {user.id}")
-            raise HTTPException(
-                status_code=400,
-                detail="📄 Please upload documents first before asking questions.",
-            )
-        
-        # Search local FAISS vectorstore
-        docs = db.similarity_search(request.question, k=4)
-        
-        if not docs:
-            logger.info(f"No similar documents found for user {user.id}")
-            raise HTTPException(
-                status_code=400,
-                detail="📄 Please upload documents first before asking questions.",
-            )
-
-        context = "\n\n".join([doc.page_content for doc in docs])
-        logger.info(f"Found {len(docs)} documents for query. Context length: {len(context)} chars")
-
-        chain = get_conversational_chain(api_key=api_key)
-        response = chain.invoke({"context": context, "question": request.question})
-
-        # Extract text from response
-        answer_text = response.content
-        if isinstance(answer_text, list):
-            answer_text = "".join([item.get("text", "") for item in answer_text if isinstance(item, dict) and item.get("type") == "text"])
-        else:
-            answer_text = str(answer_text)
+        answer_text = result["answer"]
+        context = result["context"]
 
         try:
             supabase.table("conversations").insert(
@@ -174,7 +147,6 @@ async def process_question(request: QuestionRequest, user, api_key: str = None):
                     "context": context,
                 }
             ).execute()
-            logger.debug(f"Conversation saved for user {user.email}")
         except Exception as e:
             logger.error(f"Failed to save conversation for {user.email}: {str(e)}")
 
@@ -185,15 +157,6 @@ async def process_question(request: QuestionRequest, user, api_key: str = None):
     except HTTPException:
         raise
     except Exception as e:
-        error_str = str(e)
-        if "429" in error_str and ("Quota" in error_str or "quota" in error_str):
-            logger.warning(f"Quota exceeded (caught via string): {user.email}")
-            if api_key:
-                detail = "Your Custom Google API Key quota exceeded."
-            else:
-                detail = "Server Quota Exceeded. Please try again later or add your own Google API Key in Settings."
-            raise HTTPException(status_code=429, detail=detail)
-
         logger.error(f"Question failed for {user.email}: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
