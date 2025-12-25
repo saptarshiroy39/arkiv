@@ -1,26 +1,16 @@
-# Arkiv Dependencies
-# 1. Dependencies for Arkiv
-# 2. Handles authentication, file upload, and chat history
-
-
 from fastapi import Header, HTTPException
-
 from .config import logger, supabase
-
 
 async def get_user(authorization: str = Header(...)):
     if not authorization.startswith("Bearer "):
-        logger.warning("Auth attempt with invalid scheme")
-        raise HTTPException(status_code=401, detail="Invalid authentication scheme")
+        raise HTTPException(status_code=401, detail="Missing or invalid token")
+        
     token = authorization.split(" ")[1]
     try:
-        response = supabase.auth.get_user(token)
-        user = response.user if response else None
-        if not user:
-            logger.warning("Auth attempt with invalid token")
-            raise HTTPException(status_code=401, detail="Invalid token")
-        logger.debug(f"User authenticated: {user.email}")
-        return user
-    except Exception as e:
-        logger.warning(f"Auth failed: {str(e)}")
-        raise HTTPException(status_code=401, detail="Invalid token")
+        res = supabase.auth.get_user(token)
+        if not res or not res.user:
+            raise HTTPException(status_code=401, detail="Session expired")
+            
+        return res.user
+    except Exception:
+        raise HTTPException(status_code=401, detail="Auth failed")

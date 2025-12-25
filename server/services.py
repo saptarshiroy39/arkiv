@@ -1,206 +1,130 @@
-# Arkiv Services
-# 1. Handles authentication, file upload, and chat history
-
-
 import os
-from datetime import datetime
 from typing import List
-
 from fastapi import HTTPException, UploadFile
-
-from .config import (
-    SUPABASE_KEY,
-    SUPABASE_URL,
-    logger,
-    supabase,
-)
-from .models import AnswerResponse, QuestionRequest, VerifyKeyRequest, Chunk
+from .config import SUPABASE_KEY, SUPABASE_URL, logger, supabase
+from .models import Answer, Question, KeyRequest, Chunk
 from .ingest.filetype import get_file_type
 from .ingest.reader import read_file
 from .ingest.cleaner import normalize_text, sanitize_filename
 from .ingest.chunker import chunk_text
 from .rag.rag import ingest_chunks, ask_question, clear_user_data as rag_clear_user_data
 
-# Arkiv
 def get_app_config():
-    return {
-        "supabase_url": SUPABASE_URL,
-        "supabase_anon_key": SUPABASE_KEY,
-    }
-
+    return {"supabase_url": SUPABASE_URL, "supabase_anon_key": SUPABASE_KEY}
 
 def get_health_status():
-    return {"status": "healthy", "database": "supabase"}
-
+    return {"status": "ok", "db": "connected"}
 
 async def process_uploaded_files(files: List[UploadFile], user, api_key: str = None):
-    start_time = datetime.now()
-    logger.info(f"Upload request from user: {user.email} | Files: {len(files)}")
+    logger.info(f"Uploading {len(files)} files for {user.email}")
     try:
         if not files:
-            logger.warning(f"User {user.email} attempted upload with no files")
-            raise HTTPException(status_code=400, detail="No files uploaded")
+            raise HTTPException(status_code=400, detail="No files provided")
 
-        all_chunks: List[Chunk] = []
-        filenames = []
-        pdf_count = 0
-        image_count = 0
-
-        for file in files:
-            if not file.filename:
-                continue
+        chunks: List[Chunk] = []
+        done_files = []
+        
+        for f in files:
+            if not f.filename: continue
             
-            filename = sanitize_filename(file.filename)
-            filenames.append(filename)
-            
-            file_type = get_file_type(filename)
-            if file_type == 'pdf':
-                pdf_count += 1
-            elif file_type == 'image':
-                image_count += 1
+            fname = sanitize_filename(f.filename)
+            done_files.append(fname)
+            ftype = get_file_type(fname)
             
             try:
-                # 1. Read
-                file_bytes = await file.read()
-                raw_text = read_file(file_bytes, filename, file_type, api_key=api_key)
+                # read and clean
+                blob = await f.read()
+                raw = read_file(blob, fname, ftype, api_key=api_key)
+                txt = normalize_text(raw)
                 
-                # 2. Normalize
-                clean_text = normalize_text(raw_text)
-                
-                if not clean_text:
-                    logger.warning(f"No text extracted from {filename}")
+                if not txt:
+                    logger.warning(f"Empty text in {fname}")
                     continue
                     
-                # 3. Chunk
-                text_chunks = chunk_text(clean_text)
-                
-                # 4. Wrap
-                for idx, text_piece in enumerate(text_chunks):
-                    chunk = Chunk(
-                        text=text_piece,
-                        source=filename,
-                        chunk_index=idx,
-                        page_number=None,
-                        metadata={"type": file_type}
-                    )
-                    all_chunks.append(chunk)
+                # chunk it
+                for i, piece in enumerate(chunk_text(txt)):
+                    chunks.append(Chunk(
+                        text=piece,
+                        source=fname,
+                        idx=i,
+                        meta={"type": ftype}
+                    ))
 
             except Exception as e:
-                logger.error(f"Error processing file {filename}: {e}")
+                logger.error(f"Failed handling {fname}: {e}")
                 continue
 
-        if not all_chunks:
-            raise HTTPException(
-                status_code=400,
-                detail="No text could be extracted from the uploaded files",
-            )
+        if not chunks:
+            raise HTTPException(status_code=400, detail="Couldn't extract any text")
             
-        # 5. Ingest (Store)
-        logger.info(f"Ingesting {len(all_chunks)} chunks for user {user.id}")
-        ingest_chunks(all_chunks, user.id, api_key=api_key)
-
-        duration = (datetime.now() - start_time).total_seconds()
-        logger.info(
-            f"Upload complete for {user.email} | "
-            f"PDFs: {pdf_count}, Images: {image_count} | "
-            f"Chunks: {len(all_chunks)} | "
-            f"Duration: {duration:.2f}s"
-        )
+        # save to vector store
+        ingest_chunks(chunks, user.id, api_key=api_key)
+        logger.info(f"Saved {len(chunks)} chunks for {user.id}")
 
         return {
-            "message": "Files processed successfully",
-            "files_processed": filenames,
-            "chunks_created": len(all_chunks),
-            "pdfs": pdf_count,
-            "images": image_count,
+            "status": "success",
+            "processed": done_files,
+            "count": len(chunks)
         }
     except Exception as e:
-        logger.error(f"Upload failed for {user.email}: {str(e)}", exc_info=True)
+        logger.error(f"Upload error for {user.email}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
-async def verify_key_status(request: VerifyKeyRequest):
+async def verify_key_status(req: KeyRequest):
     try:
         from .rag.client import LLMClient
-        client = LLMClient(api_key=request.api_key)
-        return {"status": "valid", "message": "Key is valid"}
+        LLMClient(api_key=req.key)
+        return {"status": "valid"}
     except Exception as e:
-        logger.warning(f"Key verification failed: {str(e)}")
-        raise HTTPException(status_code=400, detail=f"Invalid Key: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Invalid Key: {e}")
 
-
-async def process_question(request: QuestionRequest, user, api_key: str = None):
-    start_time = datetime.now()
-    logger.info(f"Question from {user.email}: {request.question[:50]}...")
+async def process_question(req: Question, user, api_key: str = None):
     try:
-        result = ask_question(request.question, user.id, api_key=api_key)
+        res = ask_question(req.text, user.id, api_key=api_key)
         
-        answer_text = result["answer"]
-        context = result["context"]
-
+        # save to db history
         try:
-            supabase.table("conversations").insert(
-                {
-                    "user_id": user.id,
-                    "question": request.question,
-                    "answer": answer_text,
-                    "context": context,
-                }
-            ).execute()
-        except Exception as e:
-            logger.error(f"Failed to save conversation for {user.email}: {str(e)}")
+            supabase.table("conversations").insert({
+                "user_id": user.id,
+                "question": req.text,
+                "answer": res["answer"],
+                "context": res["context"],
+            }).execute()
+        except Exception:
+            logger.error(f"DB save failed for {user.email}")
 
-        duration = (datetime.now() - start_time).total_seconds()
-        logger.info(f"Answer generated for {user.email} | Duration: {duration:.2f}s")
-
-        return AnswerResponse(answer=answer_text)
-    except HTTPException:
-        raise
+        return Answer(text=res["answer"])
     except Exception as e:
-        logger.error(f"Question failed for {user.email}: {str(e)}", exc_info=True)
+        logger.error(f"Chat error for {user.email}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 async def clear_user_data(user, api_key: str = None):
-    """Clears all document embeddings for a user from Pinecone."""
     try:
-        logger.info(f"Clearing knowledge base for user: {user.email}")
         rag_clear_user_data(user.id, api_key=api_key)
-        return {"message": "Knowledge base cleared successfully"}
+        return {"message": "Data cleared"}
     except Exception as e:
-        logger.error(f"Failed to clear data for {user.email}: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
-
+        logger.error(f"Clear failed: {e}")
+        raise HTTPException(status_code=500, detail="Failed to clear data")
 
 async def delete_user_account(user):
     try:
-        user_id = user.id
-        user_email = user.email
-        logger.info(f"Account deletion requested for user: {user_email}")
-        
-        # 1. Delete user's conversations
+        uid = user.id
+        # delete chats
+        supabase.table("conversations").delete().eq("user_id", uid).execute()
+
+        # delete vectors
         try:
-            supabase.table("conversations").delete().eq("user_id", user_id).execute()
+            from .storage.pinecone import PineconeClient
+            if os.getenv("PINECONE_API_KEY"):
+                PineconeClient().delete_namespace(str(uid))
         except Exception:
             pass
 
-        # 2. Delete Pinecone Namespace (Vector Data)
-        try:
-            from .storage.pinecone_store import PineconeStore
-            if os.getenv("PINECONE_API_KEY"):
-                store = PineconeStore()
-                store.delete_namespace(str(user_id))
-                logger.info(f"Deleted Pinecone namespace for user {user_email}")
-            else:
-                logger.warning("PINECONE_API_KEY not set, skipping vector deletion")
-        except Exception as e:
-            logger.warning(f"Failed to delete Pinecone namespace: {str(e)}")
-
-        # 3. Delete the user from auth.users using admin API
-        supabase.auth.admin.delete_user(user_id)
-        logger.info(f"Successfully deleted user account: {user_email}")
+        # delete auth user
+        supabase.auth.admin.delete_user(uid)
+        logger.info(f"Deleted user: {user.email}")
         
-        return {"message": "Account deleted successfully"}
+        return {"message": "Account deleted"}
     except Exception as e:
-        logger.error(f"Failed to delete account for {user.email}: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Failed to delete account: {str(e)}")
+        logger.error(f"Delete account error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to delete account")

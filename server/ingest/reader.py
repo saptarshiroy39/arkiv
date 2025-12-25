@@ -1,156 +1,114 @@
 import io
 import csv
-import logging
-from typing import Optional, Callable, Dict
-
 import pdfplumber
-from docx import Document as DocxDocument
+from docx import Document
 from openpyxl import load_workbook
 from pptx import Presentation
 from PIL import Image
-
-
 import google.generativeai as genai
-from server.config import genai as default_genai, logger
+from server.config import genai as def_genai, logger
 
-
-def read_pdf(file_bytes: bytes, filename: str, **kwargs) -> str:
-    text_parts = []
+def read_pdf(blob, fname, **kwargs):
+    parts = []
     try:
-        with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
+        with pdfplumber.open(io.BytesIO(blob)) as pdf:
             for page in pdf.pages:
-                text = page.extract_text()
-                if text:
-                    text_parts.append(text)
-        
-        if not text_parts:
-             return f"[PDF: {filename} - No extractable text found]"
-             
-        return "\n".join(text_parts)
+                txt = page.extract_text()
+                if txt: parts.append(txt)
+        return "\n".join(parts) if parts else f"[No text in {fname}]"
     except Exception as e:
-        logger.error(f"Error reading PDF {filename}: {e}")
+        logger.error(f"PDF error {fname}: {e}")
         return ""
 
 
-def read_docx(file_bytes: bytes, filename: str, **kwargs) -> str:
-    text_parts = []
+def read_docx(blob, fname, **kwargs):
+    parts = []
     try:
-        doc = DocxDocument(io.BytesIO(file_bytes))
-        
-        for para in doc.paragraphs:
-            if para.text.strip():
-                text_parts.append(para.text)
-        
+        doc = Document(io.BytesIO(blob))
+        for p in doc.paragraphs:
+            if p.text.strip(): parts.append(p.text)
         for table in doc.tables:
             for row in table.rows:
-                cell_text = [cell.text for cell in row.cells]
-                row_text = "\t".join(cell_text)
-                
-                if row_text.strip():
-                    text_parts.append(row_text)
-                    
-        return "\n".join(text_parts)
+                row_txt = "\t".join([c.text for c in row.cells])
+                if row_txt.strip(): parts.append(row_txt)
+        return "\n".join(parts)
     except Exception as e:
-        logger.error(f"Error reading DOCX {filename}: {e}")
+        logger.error(f"Docx error {fname}: {e}")
         return ""
 
 
-def read_excel(file_bytes: bytes, filename: str, **kwargs) -> str:
-    text_parts = []
+def read_excel(blob, fname, **kwargs):
+    parts = []
     try:
-        wb = load_workbook(io.BytesIO(file_bytes), data_only=True)
-        
+        wb = load_workbook(io.BytesIO(blob), data_only=True)
         for sheet in wb:
-            text_parts.append(f"--- Sheet: {sheet.title} ---")
-            
+            parts.append(f"--- {sheet.title} ---")
             for row in sheet.iter_rows(values_only=True):
-                clean_row = []
-                for cell in row:
-                    if cell is None:
-                        clean_row.append("")
-                    else:
-                        clean_row.append(str(cell))
-                
-                row_text = "\t".join(clean_row)
-                if row_text.strip():
-                    text_parts.append(row_text)
-
-        return "\n".join(text_parts)
+                # filter out None and join
+                vals = [str(v) if v is not None else "" for v in row]
+                line = "\t".join(vals)
+                if line.strip(): parts.append(line)
+        return "\n".join(parts)
     except Exception as e:
-        logger.error(f"Error reading Excel {filename}: {e}")
+        logger.error(f"Excel error {fname}: {e}")
         return ""
 
 
-def read_csv(file_bytes: bytes, filename: str, **kwargs) -> str:
+def read_csv(blob, fname, **kwargs):
     try:
-        content = file_bytes.decode('utf-8', errors='replace')
-        return "\n".join(["\t".join(r) for r in csv.reader(io.StringIO(content)) if any(r)])
+        txt = blob.decode('utf-8', errors='replace')
+        return "\n".join(["\t".join(r) for r in csv.reader(io.StringIO(txt)) if any(r)])
     except Exception as e:
-        logger.error(f"Error reading CSV {filename}: {e}")
+        logger.error(f"CSV error {fname}: {e}")
         return ""
 
 
-def read_pptx(file_bytes: bytes, filename: str, **kwargs) -> str:
-    text_parts = []
+def read_pptx(blob, fname, **kwargs):
+    parts = []
     try:
-        prs = Presentation(io.BytesIO(file_bytes))
-        
+        prs = Presentation(io.BytesIO(blob))
         for i, slide in enumerate(prs.slides, 1):
-            text_parts.append(f"--- Slide {i} ---")
-            
+            parts.append(f"--- Slide {i} ---")
             for shape in slide.shapes:
                 if hasattr(shape, "text") and shape.text.strip():
-                    text_parts.append(shape.text)
-                    
-        return "\n".join(text_parts)
+                    parts.append(shape.text)
+        return "\n".join(parts)
     except Exception as e:
-        logger.error(f"Error reading PPTX {filename}: {e}")
+        logger.error(f"PPTX error {fname}: {e}")
         return ""
 
 
-def read_text(file_bytes: bytes, filename: str, **kwargs) -> str:
+def read_text(blob, fname, **kwargs):
     try:
-        return file_bytes.decode('utf-8', errors='ignore')
-    except Exception as e:
-        logger.error(f"Error reading Text file {filename}: {e}")
+        return blob.decode('utf-8', errors='ignore')
+    except Exception:
         return ""
 
 
-def read_image(file_bytes: bytes, filename: str, api_key: str = None, **kwargs) -> str:
+def read_image(blob, fname, api_key=None, **kwargs):
     try:
-        logger.info(f"Analyzing image: {filename}")
-        
         if api_key:
             genai.configure(api_key=api_key)
             model = genai.GenerativeModel("gemini-flash-latest")
         else:
-            model = default_genai.GenerativeModel("gemini-flash-latest")
+            model = def_genai.GenerativeModel("gemini-flash-latest")
 
-        image = Image.open(io.BytesIO(file_bytes))
-        prompt = "Analyze this image. Extract: 1. Text (transcribed) 2. Main content 3. Data/Charts 4. Key details."
+        img = Image.open(io.BytesIO(blob))
+        # simpler, more human prompt
+        prompt = "Describe this image in detail. Extract any text, charts, or key data point you see."
         
-        response = model.generate_content([prompt, image])
-        return f"[Image Analysis for {filename}]\n{response.text}"
+        res = model.generate_content([prompt, img])
+        return f"[Analysis for {fname}]\n{res.text}"
     except Exception as e:
-        logger.error(f"Error analyzing image {filename}: {e}")
+        logger.error(f"Image error {fname}: {e}")
         return ""
 
 
-# Dispatcher
-_READERS: Dict[str, Callable] = {
-    "pdf": read_pdf,
-    "docs": read_docx,
-    "sheets": read_excel,
-    "csv": read_csv,
-    "slides": read_pptx,
-    "text": read_text,
-    "image": read_image,
-}
-
-
-def read_file(file_bytes: bytes, filename: str, file_type: str, api_key: str = None) -> str:
-    reader = _READERS.get(file_type)
-    if not reader:
-        return read_text(file_bytes, filename)
-        
-    return reader(file_bytes, filename, api_key=api_key)
+def read_file(blob, fname, ftype, api_key=None):
+    if ftype == "pdf": return read_pdf(blob, fname)
+    if ftype == "docs": return read_docx(blob, fname)
+    if ftype == "sheets": return read_excel(blob, fname)
+    if ftype == "csv": return read_csv(blob, fname)
+    if ftype == "slides": return read_pptx(blob, fname)
+    if ftype == "image": return read_image(blob, fname, api_key=api_key)
+    return read_text(blob, fname)

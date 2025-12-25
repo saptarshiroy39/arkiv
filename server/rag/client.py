@@ -4,33 +4,27 @@ from langchain_core.output_parsers import StrOutputParser
 from server.config import GOOGLE_API_KEY
 
 class LLMClient:
-    def __init__(self, api_key: str = None, temperature: float = 0.3):
-        key = api_key if api_key else GOOGLE_API_KEY
-        self.model = ChatGoogleGenerativeAI(
+    def __init__(self, api_key=None, temp=0.3):
+        key = api_key or GOOGLE_API_KEY
+        self.llm = ChatGoogleGenerativeAI(
             model="gemini-flash-latest",
             google_api_key=key,
-            temperature=temperature
+            temperature=temp
         )
         
     def get_answer_chain(self):
-        prompt_template = """
-        You are Arkiv, a helpful document assistant. Answer based on the context provided.
+        tmpl = """You are Arkiv, a document assistant. Answer the question using ONLY the context provided.
         
-        ## Guidelines:
-        - Be concise and direct.
-        - Use bullet points for lists.
-        - If the answer isn't in the context, say "I couldn't find this information in your documents."
+Keep these in mind:
+- Be concise and to the point.
+- Use bullet points for any lists.
+- If you can't find the answer, say "I couldn't find this information in your documents."
+
+Context: {context}
+
+Question: {question}
+
+Answer:"""
         
-        Context: {context}
-        
-        Question: {question}
-        
-        Answer:
-        """
-        
-        prompt = PromptTemplate(
-            template=prompt_template,
-            input_variables=["context", "question"]
-        )
-        
-        return prompt | self.model | StrOutputParser()
+        prompt = PromptTemplate.from_template(tmpl)
+        return prompt | self.llm | StrOutputParser()

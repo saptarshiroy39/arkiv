@@ -1,15 +1,10 @@
-// Chat Input Component - Message Input Area
-// 1. Auto-resizing textarea with send button
-// 2. handles Enter key submission
-// 3. handles shift + Enter for new line
-
-
-function ChatInput({ input, setInput, handleSubmit, indexReady, isLoading, inputRef }) {
+function ChatInput({ input, setInput, handleSubmit, indexReady: ready, isLoading: loading, inputRef }) {
     React.useEffect(() => {
         if (!input && inputRef.current) {
             inputRef.current.style.height = '56px';
         }
     }, [input, inputRef]);
+
     return (
         <div className="input-area">
             <form onSubmit={handleSubmit} className="input-wrapper">
@@ -25,18 +20,18 @@ function ChatInput({ input, setInput, handleSubmit, indexReady, isLoading, input
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
-                            if (input.trim() && indexReady && !isLoading) {
+                            if (input.trim() && ready && !loading) {
                                 handleSubmit(e);
                             }
                         }
                     }}
-                    placeholder={indexReady ? "Ask a question..." : "Upload documents first..."}
-                    disabled={!indexReady || isLoading}
+                    placeholder={ready ? "Ask a question..." : "Upload documents first..."}
+                    disabled={!ready || loading}
                     rows={1}
-                    style={{resize: 'none', minHeight: '56px', maxHeight: '150px', overflow: 'hidden'}}
+                    style={{resize: 'none', minHeight: '56px', maxHeight: '150px', overflowY: 'auto'}}
                 />
-                <button type="submit" className="btn-send" disabled={!input.trim() || !indexReady || isLoading}>
-                    {isLoading ? (
+                <button type="submit" className="btn-send" disabled={!input.trim() || !ready || loading}>
+                    {loading ? (
                         <i className="ti ti-loader-2 spin" style={{fontSize: 18}}></i>
                     ) : (
                         <i className="ti ti-send" style={{fontSize: 18}}></i>

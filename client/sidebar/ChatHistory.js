@@ -1,36 +1,32 @@
-// Chat History Component - History List
-// 1. Displays list of past chats with load and delete actions
-
-
 function ChatHistory({
-    chatHistory,
-    setChatHistory,
-    currentChatId,
+    chatHistory: history,
+    setChatHistory: setHistory,
+    currentChatId: chatId,
     loadChat,
     deleteChat,
     userId
 }) {
     return (
         <div className="history-section">
-            <div className="section-title">Chat History</div>
-            {chatHistory.length === 0 ? (
-                <p style={{fontSize: 12, color: '#525252', textAlign: 'center', marginTop: 20}}>No history yet</p>
+            <div className="section-title">History</div>
+            {!history.length ? (
+                <p style={{fontSize: 12, color: '#525252', textAlign: 'center', marginTop: 20}}>Empty</p>
             ) : (
                 <>
                     <div className="history-list">
-                        {chatHistory.map(chat => (
-                            <div key={chat.id} className={`history-item ${currentChatId === chat.id ? 'active' : ''}`} onClick={() => loadChat(chat)}>
+                        {history.map(c => (
+                            <div key={c.id} className={`history-item ${chatId === c.id ? 'active' : ''}`} onClick={() => loadChat(c)}>
                                 <i className="ti ti-message history-item-icon" style={{fontSize: 14}}></i>
-                                <span className="history-item-text">{chat.title}</span>
-                                <button className="file-item-remove" onClick={(e) => deleteChat(e, chat.id)}>
+                                <span className="history-item-text">{c.title}</span>
+                                <button className="file-item-remove" onClick={(e) => deleteChat(e, c.id)}>
                                     <i className="ti ti-x" style={{fontSize: 12}}></i>
                                 </button>
                             </div>
                         ))}
                     </div>
-                    <button className="btn-danger" onClick={() => { setChatHistory([]); localStorage.removeItem(`chatHistory_${userId}`); }}>
+                    <button className="btn-danger" onClick={() => { setHistory([]); localStorage.removeItem(`history_${userId}`); }}>
                         <i className="ti ti-trash" style={{fontSize: 14}}></i>
-                        Delete all chats
+                        Delete All
                     </button>
                 </>
             )}

@@ -1,8 +1,4 @@
-// Main Entry Point - Application Bootstrap
-// 1. Wraps App with Supabase and Auth providers, renders to DOM
-
-
-function AppWrapper() {
+function Main() {
     return (
         <SupabaseProvider>
             <AuthProvider>
@@ -12,5 +8,5 @@ function AppWrapper() {
     );
 }
 
-// Render the app
-ReactDOM.createRoot(document.getElementById('root')).render(<AppWrapper />);
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<Main />);

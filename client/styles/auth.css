@@ -1,7 +1,3 @@
-/* Authentication Styles - Login, Signup, OTP Forms */
-/* Split-layout design: form on left, decorative panel on right */
-
-
 /* Main Split Container */
 .auth-container {
   display: flex;

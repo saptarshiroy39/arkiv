@@ -1,42 +1,34 @@
-// General Tab Component - Profile, Name, Knowledge Base, Plan
-// 1. Displays user profile card, display name editor, and knowledge reset
-
-
 function GeneralTab({
     user,
-    displayName,
-    setDisplayName,
-    handleUpdateName,
-    isLoading,
-    resetKnowledgeBase,
-    isResettingKnowledge,
-    hasIndexedDocuments
+    displayName: name,
+    setDisplayName: setName,
+    handleUpdateName: onUpdate,
+    isLoading: loading,
+    resetKnowledgeBase: doReset,
+    isResettingKnowledge: resetting,
+    hasIndexedDocuments: hasDocs,
+    showToast
 }) {
-    const [showResetConfirm, setShowResetConfirm] = React.useState(false);
-    const [resetMessage, setResetMessage] = React.useState(null);
+    const [confirm, setConfirm] = React.useState(false);
 
-    const userInitial = (user?.user_metadata?.display_name || user?.user_metadata?.full_name || 'U').charAt(0).toUpperCase();
+    const initial = (user?.user_metadata?.display_name || user?.user_metadata?.full_name || 'U').charAt(0).toUpperCase();
 
-    const handleReset = async () => {
-        const result = await resetKnowledgeBase();
-        if (result.success) {
-            setResetMessage({ text: 'Knowledge base cleared successfully!', type: 'success' });
+    const onReset = async () => {
+        const res = await doReset();
+        if (res.success) {
+            showToast('Knowledge base cleared!');
         } else {
-            setResetMessage({ text: result.error?.message || 'Reset failed', type: 'error' });
+            showToast(res.error?.message || 'Failed', 'error');
         }
-        setShowResetConfirm(false);
-        setTimeout(() => setResetMessage(null), 4000);
+        setConfirm(false);
     };
 
     return (
         <div className="settings-tab">
-            {/* Profile Section */}
             <div className="settings-section">
                 <h2 className="settings-section-title">Profile</h2>
                 <div className="profile-card">
-                    <div className="profile-avatar-large">
-                        <span>{userInitial}</span>
-                    </div>
+                    <div className="profile-avatar-large"><span>{initial}</span></div>
                     <div className="profile-card-info">
                         <h3>{user?.user_metadata?.display_name || user?.user_metadata?.full_name || 'User'}</h3>
                         <p>{user?.email}</p>
@@ -44,62 +36,44 @@ function GeneralTab({
                 </div>
             </div>
 
-            {/* Display Name Section */}
             <div className="settings-section">
                 <h2 className="settings-section-title">Display Name</h2>
-                <form onSubmit={handleUpdateName} className="settings-form">
+                <form onSubmit={onUpdate} className="settings-form">
                     <input
                         type="text"
-                        value={displayName}
-                        onChange={(e) => setDisplayName(e.target.value)}
-                        placeholder="Enter display name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Name"
                         className="settings-input"
                     />
-                    <button type="submit" className="settings-btn-primary" disabled={isLoading} style={{width: '160px', height: '42px'}}>
-                        {isLoading ? 'Saving...' : 'Save'}
+                    <button type="submit" className="settings-btn-primary" disabled={loading} style={{width: '160px', height: '42px'}}>
+                        {loading ? 'Saving...' : 'Save'}
                     </button>
                 </form>
             </div>
 
-            {/* Knowledge Base - styled like Session section */}
             <div className="settings-section inline-section session-section">
                 <h2 className="settings-section-title">Knowledge Base</h2>
-                {!showResetConfirm ? (
+                {!confirm ? (
                     <button 
                         className="settings-btn-secondary" 
-                        onClick={() => setShowResetConfirm(true)}
-                        disabled={!hasIndexedDocuments || isResettingKnowledge}
-                        style={{opacity: hasIndexedDocuments ? 1 : 0.5}}
+                        onClick={() => setConfirm(true)}
+                        disabled={!hasDocs || resetting}
+                        style={{opacity: hasDocs ? 1 : 0.5}}
                     >
                         <i className="ti ti-eraser" style={{fontSize: 16}}></i>
-                        {hasIndexedDocuments ? 'Reset' : 'No Documents'}
+                        {hasDocs ? 'Reset' : 'No Docs'}
                     </button>
                 ) : (
                     <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}>
-                        <button 
-                            className="settings-btn-danger" 
-                            onClick={handleReset}
-                            disabled={isResettingKnowledge}
-                        >
+                        <button className="settings-btn-danger" onClick={onReset} disabled={resetting}>
                             <i className="ti ti-check" style={{fontSize: 16}}></i>
-                            {isResettingKnowledge ? 'Resetting...' : 'Confirm'}
+                            {resetting ? 'Resetting...' : 'Confirm'}
                         </button>
-                        <button 
-                            className="settings-btn-secondary" 
-                            onClick={() => setShowResetConfirm(false)}
-                        >
-                            Cancel
-                        </button>
+                        <button className="settings-btn-secondary" onClick={() => setConfirm(false)}>Cancel</button>
                     </div>
                 )}
             </div>
-
-            {resetMessage && (
-                <div className={`profile-message ${resetMessage.type}`} style={{marginTop: '-10px', marginBottom: '20px'}}>
-                    <i className={`ti ti-${resetMessage.type === 'success' ? 'check' : 'alert-triangle'}`} style={{fontSize: 16}}></i>
-                    {resetMessage.text}
-                </div>
-            )}
         </div>
     );
 }

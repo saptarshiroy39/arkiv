@@ -1,276 +1,245 @@
-// Main App Component - Application Root
-// 1. Manages state for chat, files, sidebar, and renders main layout with Sidebar, Chat, and Settings
-
-
 function App() {
     const { user, signOut, updateProfile, updateEmail, updatePassword, deleteAccount, passwordResetInProgress } = useAuth();
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [files, setFiles] = useState([]);
-    const [isUploading, setIsUploading] = useState(false);
+    const [uploading, setUploading] = useState(false);
     const [status, setStatus] = useState(null);
     const [indexReady, setIndexReady] = useState(false);
     const [showSidebar, setShowSidebar] = useState(window.innerWidth >= 1000);
-    const [userPreferredSidebar, setUserPreferredSidebar] = useState(true);
-    const prevWidthRef = useRef(window.innerWidth);
+    const [sidebarPref, setSidebarPref] = useState(true);
+    const prevWidth = useRef(window.innerWidth);
 
-    const handleSidebarToggle = (value) => {
-        const newState = typeof value === 'function' ? value(showSidebar) : value;
-        setShowSidebar(newState);
-        setUserPreferredSidebar(newState);
+    const toggleSidebar = (val) => {
+        const next = typeof val === 'function' ? val(showSidebar) : val;
+        setShowSidebar(next);
+        setSidebarPref(next);
     };
 
     useEffect(() => {
-        const handleResize = () => {
-            const width = window.innerWidth;
-            const prevWidth = prevWidthRef.current;
+        const onResize = () => {
+            const w = window.innerWidth;
+            const prev = prevWidth.current;
 
-            if (width < 1000 && prevWidth >= 1000) {
+            if (w < 1000 && prev >= 1000) {
                 setShowSidebar(false);
-            } else if (width >= 1000 && prevWidth < 1000) {
-                setShowSidebar(userPreferredSidebar);
+            } else if (w >= 1000 && prev < 1000) {
+                setShowSidebar(sidebarPref);
             }
-            
-            prevWidthRef.current = width;
+            prevWidth.current = w;
         };
 
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, [userPreferredSidebar]);
-    const [isDragOver, setIsDragOver] = useState(false);
-    const [processedFiles, setProcessedFiles] = useState([]);
-    const [chatHistory, setChatHistory] = useState([]);
-    const [currentChatId, setCurrentChatId] = useState(null);
+        window.addEventListener('resize', onResize);
+        return () => window.removeEventListener('resize', onResize);
+    }, [sidebarPref]);
+
+    const [dragging, setDragging] = useState(false);
+    const [processed, setProcessed] = useState([]);
+    const [history, setHistory] = useState([]);
+    const [chatId, setChatId] = useState(null);
     const [showHistory, setShowHistory] = useState(false);
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
-    const [snowEnabled, setSnowEnabled] = useState(false);
-    const [isResettingKnowledge, setIsResettingKnowledge] = useState(false);
-    const messagesEndRef = useRef(null);
+    const [snow, setSnow] = useState(false);
+    const [resetting, setResetting] = useState(false);
+    
+    const scrollRef = useRef(null);
     const inputRef = useRef(null);
-    const fileInputRef = useRef(null);
-    const profileMenuRef = useRef(null);
-
+    const fileRef = useRef(null);
+    const menuRef = useRef(null);
 
     useEffect(() => {
         if (!user) return;
         
-        const savedIndexReady = localStorage.getItem(`indexReady_${user.id}`);
-        if (savedIndexReady === 'true') {
-            setIndexReady(true);
-        }
+        const ready = localStorage.getItem(`ready_${user.id}`);
+        if (ready === 'true') setIndexReady(true);
         
-        const saved = localStorage.getItem(`chatHistory_${user.id}`);
-        if (saved) setChatHistory(JSON.parse(saved));
+        const saved = localStorage.getItem(`history_${user.id}`);
+        if (saved) setHistory(JSON.parse(saved));
     }, [user]);
 
     useEffect(() => {
-        const handleClickOutside = (e) => {
-            if (profileMenuRef.current && !profileMenuRef.current.contains(e.target)) {
+        const outside = (e) => {
+            if (menuRef.current && !menuRef.current.contains(e.target)) {
                 setShowProfileMenu(false);
             }
         };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
+        document.addEventListener('mousedown', outside);
+        return () => document.removeEventListener('mousedown', outside);
     }, []);
 
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
-    if (!user || passwordResetInProgress) {
-        return <Auth />;
-    }
+    if (!user || passwordResetInProgress) return <Auth />;
 
-    const saveToHistory = (msgs, files = []) => {
-        if (msgs.length === 0) return;
-        const firstUserMsg = msgs.find(m => m.role === 'user');
-        const title = firstUserMsg ? firstUserMsg.content.slice(0, 30) + '...' : 'New Chat';
+    const saveChat = (msgs, files = []) => {
+        if (!msgs.length) return;
+        const first = msgs.find(m => m.role === 'user');
+        const title = first ? first.content.slice(0, 30) + '...' : 'New Chat';
         const chat = {
-            id: currentChatId || Date.now(),
+            id: chatId || Date.now(),
             title,
             messages: msgs,
             files: files,
             time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
         };
         
-        let updated;
-        if (currentChatId) {
-            updated = chatHistory.map(c => c.id === currentChatId ? chat : c);
+        let nextHistory;
+        if (chatId) {
+            nextHistory = history.map(c => c.id === chatId ? chat : c);
         } else {
-            updated = [chat, ...chatHistory];
-            setCurrentChatId(chat.id);
+            nextHistory = [chat, ...history];
+            setChatId(chat.id);
         }
-        setChatHistory(updated);
-        localStorage.setItem(`chatHistory_${user.id}`, JSON.stringify(updated));
+        setHistory(nextHistory);
+        localStorage.setItem(`history_${user.id}`, JSON.stringify(nextHistory));
     };
 
-    const SUPPORTED_TYPES = [
-        'application/pdf', 
-        'image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp',
-        'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-        'text/plain', 'text/csv', 'text/markdown', 'text/x-markdown'
-    ];
-    const SUPPORTED_EXTENSIONS = ['.pdf', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.doc', '.docx', '.xls', '.xlsx', '.csv', '.ppt', '.pptx', '.txt', '.md', '.markdown'];
-
-    const isFileSupported = (file) => {
-        const ext = '.' + file.name.split('.').pop().toLowerCase();
-        return SUPPORTED_EXTENSIONS.includes(ext) || SUPPORTED_TYPES.includes(file.type);
+    const isSupported = (f) => {
+        const exts = ['.pdf', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.doc', '.docx', '.xls', '.xlsx', '.csv', '.ppt', '.pptx', '.txt', '.md'];
+        const name = f.name.toLowerCase();
+        return exts.some(e => name.endsWith(e));
     };
 
-    const handleDrop = (e) => {
+    const onDrop = (e) => {
         e.preventDefault();
-        setIsDragOver(false);
-        const validFiles = Array.from(e.dataTransfer.files).filter(isFileSupported);
-        setFiles(prev => [...prev, ...validFiles]);
+        setDragging(false);
+        const valid = Array.from(e.dataTransfer.files).filter(isSupported);
+        setFiles(prev => [...prev, ...valid]);
         setStatus(null);
     };
 
-    const handleFileSelect = (e) => {
-        const validFiles = Array.from(e.target.files).filter(isFileSupported);
-        setFiles(prev => [...prev, ...validFiles]);
+    const onFileSelect = (e) => {
+        const valid = Array.from(e.target.files).filter(isSupported);
+        setFiles(prev => [...prev, ...valid]);
         setStatus(null);
     };
 
-    const handleUpload = async () => {
+    const doUpload = async () => {
         if (!files.length) return;
-        setIsUploading(true);
+        setUploading(true);
         setStatus(null);
 
-        const formData = new FormData();
-        files.forEach(f => formData.append('files', f));
+        const form = new FormData();
+        files.forEach(f => form.append('files', f));
         
         const { data: { session } } = await supabase.auth.getSession();
-
-        // Get custom API key for BYOK support
-        const customKey = localStorage.getItem('custom_api_key_google');
-        const headers = {
-            'Authorization': `Bearer ${session.access_token}`,
-        };
-        if (customKey) {
-            headers['X-Custom-Api-Key'] = customKey;
-        }
+        const key = localStorage.getItem('custom_api_key_google');
+        const headers = { 'Authorization': `Bearer ${session.access_token}` };
+        if (key) headers['X-Custom-Api-Key'] = key;
 
         try {
             const res = await fetch(`${API_URL}/upload`, { 
                 method: 'POST', 
-                headers: headers,
-                body: formData 
+                headers,
+                body: form
             });
             if (!res.ok) throw new Error((await res.json()).detail || 'Upload failed');
+            
             const data = await res.json();
-            const newFiles = files.map(f => f.name);
+            const names = files.map(f => f.name);
             setFiles([]);
-            setProcessedFiles(prev => [...prev, ...newFiles]);
-            setStatus({ type: 'success', msg: `Processed ${data.files_processed.length} file(s)` });
+            setProcessed(prev => [...prev, ...names]);
+            setStatus({ type: 'success', msg: `${data.processed?.length || names.length} file(s)` });
             setIndexReady(true);
-            localStorage.setItem(`indexReady_${user.id}`, 'true');
+            localStorage.setItem(`ready_${user.id}`, 'true');
         } catch (err) {
             setStatus({ type: 'error', msg: err.message });
         } finally {
-            setIsUploading(false);
+            setUploading(false);
         }
     };
 
-    const handleSubmit = async (e) => {
+    const onSend = async (e) => {
         e.preventDefault();
-        if (!input.trim() || isLoading) return;
+        if (!input.trim() || loading) return;
 
-        const q = input.trim();
-        const newMessages = [...messages, { role: 'user', content: q }];
-        setMessages(newMessages);
+        const val = input.trim();
+        const next = [...messages, { role: 'user', content: val }];
+        setMessages(next);
         setInput('');
-        setIsLoading(true);
+        setLoading(true);
 
         const { data: { session } } = await supabase.auth.getSession();
-
-        const customKey = localStorage.getItem('custom_api_key_google');
-
+        const key = localStorage.getItem('custom_api_key_google');
         const headers = { 
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`,
+            'Authorization': `Bearer ${session.access_token}`
         };
-
-        if (customKey) {
-            headers['X-Custom-Api-Key'] = customKey;
-        }
+        if (key) headers['X-Custom-Api-Key'] = key;
 
         try {
             const res = await fetch(`${API_URL}/ask`, {
                 method: 'POST',
-                headers: headers,
-                body: JSON.stringify({ question: q })
+                headers,
+                body: JSON.stringify({ text: val })
             });
-            if (!res.ok) throw new Error((await res.json()).detail || 'Request failed');
+            if (!res.ok) throw new Error((await res.json()).detail || 'Failed');
+            
             const data = await res.json();
-            const finalMessages = [...newMessages, { role: 'assistant', content: data.answer }];
-            setIsLoading(false);
-            setMessages(finalMessages);
-            saveToHistory(finalMessages, processedFiles);
+            const final = [...next, { role: 'assistant', content: data.text }];
+            setLoading(false);
+            setMessages(final);
+            saveChat(final, processed);
         } catch (err) {
-            const finalMessages = [...newMessages, { role: 'assistant', content: err.message, isError: true }];
-            setIsLoading(false);
-            setMessages(finalMessages);
+            setLoading(false);
+            setMessages([...next, { role: 'assistant', content: err.message, isError: true }]);
         } finally {
             inputRef.current?.focus();
         }
     };
 
-    const startNewChat = () => {
-        if (messages.length > 0) saveToHistory(messages, processedFiles);
+    const startNew = () => {
+        if (messages.length) saveChat(messages, processed);
         setMessages([]);
-        setProcessedFiles([]);
-        setCurrentChatId(null);
+        setProcessed([]);
+        setChatId(null);
         setShowHistory(false);
         setStatus(null);
     };
 
     const loadChat = (chat) => {
-        if (messages.length > 0 && currentChatId !== chat.id) saveToHistory(messages, processedFiles);
+        if (messages.length && chatId !== chat.id) saveChat(messages, processed);
         setMessages(chat.messages);
-        setProcessedFiles(chat.files || []);
-        setCurrentChatId(chat.id);
+        setProcessed(chat.files || []);
+        setChatId(chat.id);
         setShowHistory(false);
     };
 
-    const resetKnowledgeBase = async () => {
-        setIsResettingKnowledge(true);
+    const clearDocs = async () => {
+        setResetting(true);
         try {
             const { data: { session } } = await supabase.auth.getSession();
-            const customKey = localStorage.getItem('custom_api_key_google');
+            const key = localStorage.getItem('custom_api_key_google');
             const headers = { 'Authorization': `Bearer ${session.access_token}` };
-            if (customKey) headers['X-Custom-Api-Key'] = customKey;
+            if (key) headers['X-Custom-Api-Key'] = key;
             
-            const res = await fetch(`${API_URL}/clear-data`, {
-                method: 'DELETE',
-                headers: headers
-            });
-            if (!res.ok) throw new Error((await res.json()).detail || 'Reset failed');
+            const res = await fetch(`${API_URL}/clear-data`, { method: 'DELETE', headers });
+            if (!res.ok) throw new Error('Reset failed');
             
-            setProcessedFiles([]);
+            setProcessed([]);
             setStatus(null);
             setIndexReady(false);
-            localStorage.removeItem(`indexReady_${user.id}`);
+            localStorage.removeItem(`ready_${user.id}`);
             return { success: true };
         } catch (err) {
-            console.error('Reset knowledge base failed:', err);
             return { error: { message: err.message } };
         } finally {
-            setIsResettingKnowledge(false);
+            setResetting(false);
         }
     };
 
-    const deleteChat = (e, chatId) => {
+    const onChatDelete = (e, id) => {
         e.stopPropagation();
-        const updated = chatHistory.filter(c => c.id !== chatId);
-        setChatHistory(updated);
-        localStorage.setItem(`chatHistory_${user.id}`, JSON.stringify(updated));
-        if (currentChatId === chatId) {
+        const next = history.filter(c => c.id !== id);
+        setHistory(next);
+        localStorage.setItem(`history_${user.id}`, JSON.stringify(next));
+        if (chatId === id) {
             setMessages([]);
-            setCurrentChatId(null);
+            setChatId(null);
         }
     };
 
@@ -280,33 +249,33 @@ function App() {
                 user={user}
                 showHistory={showHistory}
                 setShowHistory={setShowHistory}
-                chatHistory={chatHistory}
-                setChatHistory={setChatHistory}
-                currentChatId={currentChatId}
+                chatHistory={history}
+                setChatHistory={setHistory}
+                currentChatId={chatId}
                 loadChat={loadChat}
-                deleteChat={deleteChat}
-                startNewChat={startNewChat}
-                isDragOver={isDragOver}
-                setIsDragOver={setIsDragOver}
-                handleDrop={handleDrop}
-                handleFileSelect={handleFileSelect}
-                fileInputRef={fileInputRef}
+                deleteChat={onChatDelete}
+                startNewChat={startNew}
+                isDragOver={dragging}
+                setIsDragOver={setDragging}
+                handleDrop={onDrop}
+                handleFileSelect={onFileSelect}
+                fileInputRef={fileRef}
                 files={files}
                 setFiles={setFiles}
-                isUploading={isUploading}
-                handleUpload={handleUpload}
+                isUploading={uploading}
+                handleUpload={doUpload}
                 status={status}
-                processedFiles={processedFiles}
+                processedFiles={processed}
                 messages={messages}
                 setMessages={setMessages}
-                setCurrentChatId={setCurrentChatId}
+                setCurrentChatId={setChatId}
                 collapsed={!showSidebar}
                 showSidebar={showSidebar}
-                setShowSidebar={handleSidebarToggle}
+                setShowSidebar={toggleSidebar}
                 signOut={signOut}
                 showProfileMenu={showProfileMenu}
                 setShowProfileMenu={setShowProfileMenu}
-                profileMenuRef={profileMenuRef}
+                profileMenuRef={menuRef}
                 setShowProfile={setShowProfile}
             />
 
@@ -320,36 +289,36 @@ function App() {
                         updatePassword={updatePassword}
                         signOut={signOut}
                         deleteAccount={deleteAccount}
-                        resetKnowledgeBase={resetKnowledgeBase}
-                        isResettingKnowledge={isResettingKnowledge}
+                        resetKnowledgeBase={clearDocs}
+                        isResettingKnowledge={resetting}
                         hasIndexedDocuments={indexReady}
                     />
                 ) : (
                     <>
                         <Header
-                            snowEnabled={snowEnabled}
-                            onToggleSnow={() => setSnowEnabled(prev => !prev)}
+                            snowEnabled={snow}
+                            onToggleSnow={() => setSnow(prev => !prev)}
                         />
 
                         <ChatMessages
                             messages={messages}
-                            isLoading={isLoading}
-                            messagesEndRef={messagesEndRef}
+                            isLoading={loading}
+                            messagesEndRef={scrollRef}
                             user={user}
                         />
 
                         <ChatInput
                             input={input}
                             setInput={setInput}
-                            handleSubmit={handleSubmit}
+                            handleSubmit={onSend}
                             indexReady={indexReady}
-                            isLoading={isLoading}
+                            isLoading={loading}
                             inputRef={inputRef}
                         />
                     </>
                 )}
             </main>
-            <SnowEffect enabled={snowEnabled} />
+            <SnowEffect enabled={snow} />
         </div>
     );
 }

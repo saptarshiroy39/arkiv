@@ -1,7 +1,3 @@
-/* Arkiv Styles - Main Import File */
-/* Imports all modular stylesheets in correct order */
-
-
 @import url('base.css');
 @import url('layout.css');
 @import url('sidebar.css');

@@ -1,54 +1,38 @@
-// Chat Messages Component - Message Display
-// 1. Renders chat messages list, empty state, user/assistant avatars, and copy buttons
-// 2. Handles typing indicator for loading state
-// 3. Supports LaTeX/math rendering via KaTeX
-
-
-function renderMathInText(text) {
+function applyMath(text) {
     if (!text || typeof text !== 'string') return text;
     
-    let result = text.replace(/\$\$([\s\S]*?)\$\$/g, (match, math) => {
+    // block math
+    let res = text.replace(/\$\$([\s\S]*?)\$\$/g, (match, math) => {
         try {
-            return katex.renderToString(math.trim(), {
-                displayMode: true,
-                throwOnError: false,
-                strict: false
-            });
+            return katex.renderToString(math.trim(), { displayMode: true, throwOnError: false });
         } catch (e) {
-            console.warn('KaTeX block render error:', e);
             return match;
         }
     });
     
-    result = result.replace(/\$([^\$\n]+?)\$/g, (match, math) => {
+    // inline math
+    res = res.replace(/\$([^\$\n]+?)\$/g, (match, math) => {
         if (match.includes('<') || match.includes('>')) return match;
         try {
-            return katex.renderToString(math.trim(), {
-                displayMode: false,
-                throwOnError: false,
-                strict: false
-            });
+            return katex.renderToString(math.trim(), { displayMode: false, throwOnError: false });
         } catch (e) {
-            console.warn('KaTeX inline render error:', e);
             return match;
         }
     });
     
-    return result;
+    return res;
 }
 
-function renderMarkdownWithMath(content) {
-    const mathRendered = renderMathInText(content);
-    return marked.parse(mathRendered);
+function parse(content) {
+    return marked.parse(applyMath(content));
 }
 
-
-function ChatMessages({ messages, isLoading, messagesEndRef, user }) {
-    const userInitial = (user?.user_metadata?.display_name || user?.user_metadata?.full_name || 'U').charAt(0).toUpperCase();
+function ChatMessages({ messages, isLoading: loading, messagesEndRef, user }) {
+    const initial = (user?.user_metadata?.display_name || user?.user_metadata?.full_name || 'U').charAt(0).toUpperCase();
     
     return (
         <div className="messages">
-            {messages.length === 0 ? (
+            {!messages.length ? (
                 <div className="empty-state">
                     <div className="empty-icon lava-lamp-bg">
                         <i className="ti ti-brain" style={{fontSize: 28}}></i>
@@ -56,44 +40,37 @@ function ChatMessages({ messages, isLoading, messagesEndRef, user }) {
                     <h2 className="empty-title">Arkiv</h2>
                     <p className="empty-desc">AI-powered RAG for documents</p>
                     <div className="tips">
-                        {['Upload Files', 'Ask questions', 'Get answers'].map((tip, i) => (
-                            <div key={i} className="tip">
-                                <span className="tip-num">{i + 1}</span>
-                                <span className="tip-text">{tip}</span>
-                            </div>
-                        ))}
+                        <div className="tip"><span className="tip-num">1</span><span className="tip-text">Upload Files</span></div>
+                        <div className="tip"><span className="tip-num">2</span><span className="tip-text">Ask questions</span></div>
+                        <div className="tip"><span className="tip-num">3</span><span className="tip-text">Get answers</span></div>
                     </div>
                 </div>
             ) : (
                 <>
-                    {messages.map((msg, i) => (
-                        <div key={i} className={`message ${msg.role} ${msg.isError ? 'error' : ''}`}>
+                    {messages.map((m, i) => (
+                        <div key={i} className={`message ${m.role} ${m.isError ? 'error' : ''}`}>
                             <div className="message-avatar">
-                                {msg.role === 'user' ? (
-                                    <span className="avatar-initial">{userInitial}</span>
-                                ) : msg.isError ? (
+                                {m.role === 'user' ? (
+                                    <span className="avatar-initial">{initial}</span>
+                                ) : m.isError ? (
                                     <i className="ti ti-alert-triangle" style={{fontSize: 20}}></i>
                                 ) : (
                                     <i className="ti ti-brain" style={{fontSize: 20}}></i>
                                 )}
                             </div>
                             <div className="message-body">
-                                {msg.role === 'assistant' ? (
-                                    <div className="message-content" dangerouslySetInnerHTML={{__html: renderMarkdownWithMath(msg.content)}} />
+                                {m.role === 'assistant' ? (
+                                    <div className="message-content" dangerouslySetInnerHTML={{__html: parse(m.content)}} />
                                 ) : (
-                                    <div className="message-content">{msg.content}</div>
+                                    <div className="message-content">{m.content}</div>
                                 )}
-                                <button 
-                                    className="btn-copy" 
-                                    onClick={() => { navigator.clipboard.writeText(msg.content); }}
-                                    title="Copy to clipboard"
-                                >
+                                <button className="btn-copy" onClick={() => navigator.clipboard.writeText(m.content)}>
                                     <i className="ti ti-copy" style={{fontSize: 14}}></i>
                                 </button>
                             </div>
                         </div>
                     ))}
-                    {isLoading && (
+                    {loading && (
                         <div className="typing">
                             <div className="message-avatar" style={{background: '#262626', color: '#fff'}}>
                                 <i className="ti ti-brain" style={{fontSize: 20}}></i>

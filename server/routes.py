@@ -1,63 +1,47 @@
-# Arkiv Routes
-# 1. Handles authentication, file upload, and chat history
-
 from typing import List
-
 from fastapi import APIRouter, Depends, File, Header, UploadFile
-
 from . import services
 from .dependencies import get_user
-from .models import (
-    AnswerResponse,
-    ConfigResponse,
-    QuestionRequest,
-    VerifyKeyRequest,
-)
+from .models import Answer, Config, Question, KeyRequest
 
 router = APIRouter()
 
-
-@router.get("/config", response_model=ConfigResponse)
+@router.get("/config", response_model=Config)
 async def get_config():
-    return services.get_app_config()
-
+    c = services.get_app_config()
+    return {"url": c["supabase_url"], "anon_key": c["supabase_anon_key"]}
 
 @router.get("/health")
-async def health_check():
+async def health():
     return services.get_health_status()
 
-
 @router.post("/upload")
-async def upload_files(
+async def upload(
     files: List[UploadFile] = File(...), 
     user=Depends(get_user),
-    x_custom_api_key: str = Header(None)
+    key: str = Header(None, alias="x-custom-api-key")
 ):
-    return await services.process_uploaded_files(files, user, api_key=x_custom_api_key)
+    return await services.process_uploaded_files(files, user, api_key=key)
 
-
-@router.post("/ask", response_model=AnswerResponse)
-async def ask_question(
-    request: QuestionRequest, 
+@router.post("/ask", response_model=Answer)
+async def ask(
+    req: Question, 
     user=Depends(get_user),
-    x_custom_api_key: str = Header(None)
+    key: str = Header(None, alias="x-custom-api-key")
 ):
-    return await services.process_question(request, user, api_key=x_custom_api_key)
-
+    return await services.process_question(req, user, api_key=key)
 
 @router.post("/verify-key")
-async def verify_key(request: VerifyKeyRequest):
-    return await services.verify_key_status(request)
-
+async def verify(req: KeyRequest):
+    return await services.verify_key_status(req)
 
 @router.delete("/clear-data")
-async def clear_data(
+async def clear(
     user=Depends(get_user),
-    x_custom_api_key: str = Header(None)
+    key: str = Header(None, alias="x-custom-api-key")
 ):
-    return await services.clear_user_data(user, api_key=x_custom_api_key)
-
+    return await services.clear_user_data(user, api_key=key)
 
 @router.delete("/account")
-async def delete_account(user=Depends(get_user)):
+async def delete_acc(user=Depends(get_user)):
     return await services.delete_user_account(user)

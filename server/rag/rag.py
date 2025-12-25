@@ -1,29 +1,24 @@
-# Arkiv RAG Facade
-# Orchestrates the interaction between Retrieval, Storage, and LLM.
-
-from typing import List, Dict, Any
 from .retriever import Retriever
 from .client import LLMClient
-from server.models import Chunk
 
-def ingest_chunks(chunks: List[Chunk], user_id: str, api_key: str = None):
-    retriever = Retriever(user_id=user_id, api_key=api_key)
-    retriever.ingest_chunks(chunks)
+def ingest_chunks(chunks, user_id, api_key=None):
+    r = Retriever(user_id=user_id, api_key=api_key)
+    r.ingest_chunks(chunks)
 
-def ask_question(question: str, user_id: str, api_key: str = None) -> Dict[str, Any]:
-    retriever = Retriever(user_id=user_id, api_key=api_key)
-    relevant_texts = retriever.retrieve(question, k=8)
+def ask_question(question, user_id, api_key=None):
+    r = Retriever(user_id=user_id, api_key=api_key)
+    results = r.retrieve(question, k=8)
     
-    if not relevant_texts:
+    if not results:
         return {
-            "answer": "I couldn't find any relevant information in your uploaded documents. Please ensure you've uploaded documents that contain the answer.",
+            "answer": "No relevant info found in your docs. Try uploading more files.",
             "context": ""
         }
         
-    context = "\n\n".join(relevant_texts)
+    context = "\n\n".join(results)
     
-    llm_client = LLMClient(api_key=api_key)
-    chain = llm_client.get_answer_chain()
+    llm = LLMClient(api_key=api_key)
+    chain = llm.get_answer_chain()
     
     answer = chain.invoke({"context": context, "question": question})
     
@@ -32,6 +27,6 @@ def ask_question(question: str, user_id: str, api_key: str = None) -> Dict[str, 
         "context": context
     }
 
-def clear_user_data(user_id: str, api_key: str = None):
-    retriever = Retriever(user_id=user_id, api_key=api_key)
-    retriever.clear_data()
+def clear_user_data(user_id, api_key=None):
+    r = Retriever(user_id=user_id, api_key=api_key)
+    r.clear_data()

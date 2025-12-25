@@ -1,7 +1,3 @@
-// Supabase Provider - Database Client Setup
-// 1. Fetches config from server and initializes Supabase client with loading/error states
-
-
 const SupabaseContext = createContext(null);
 
 function SupabaseProvider({ children }) {
@@ -10,64 +6,57 @@ function SupabaseProvider({ children }) {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchConfig = async () => {
-            try {
-                const response = await fetch(`${API_URL}/config`);
-                if (!response.ok) throw new Error('Failed to fetch config');
-                const config = await response.json();
-                if (!config.supabase_url || !config.supabase_anon_key) {
-                    throw new Error("Supabase URL or anon key is missing in config");
+        // fetch config and init client
+        fetch(`${API_URL}/config`)
+            .then(res => res.json())
+            .then(cfg => {
+                if (!cfg.url || !cfg.anon_key) {
+                    throw new Error("Missing keys");
                 }
-                const supabaseClient = window.supabase.createClient(config.supabase_url, config.supabase_anon_key);
-                setClient(supabaseClient);
-                supabase = supabaseClient;
-            } catch (error) {
-                console.error("Error loading Supabase config:", error);
-                setError(error.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchConfig();
+                const sc = window.supabase.createClient(cfg.url, cfg.anon_key);
+                setClient(sc);
+                supabase = sc; // global ref
+            })
+            .catch(err => {
+                console.error("Config failed:", err);
+                setError(err.message);
+            })
+            .finally(() => setLoading(false));
     }, []);
 
-    if (loading) {
-        return (
-            <div className="auth-container">
-                <div className="auth-form">
-                    <div className="logo" style={{justifyContent: 'center'}}>
-                        <div className="logo-icon lava-lamp-bg">
-                            <i className="ti ti-brain" style={{fontSize: 20}}></i>
-                        </div>
-                        <div className="logo-text">
-                            <h1>Arkiv</h1>
-                        </div>
+    if (loading) return (
+        <div className="auth-container">
+            <div className="auth-form">
+                <div className="logo" style={{justifyContent: 'center'}}>
+                    <div className="logo-icon lava-lamp-bg">
+                        <i className="ti ti-brain" style={{fontSize: 20}}></i>
                     </div>
-                    <p style={{color: '#737373', marginTop: 20}}>Loading...</p>
+                    <div className="logo-text"><h1>Arkiv</h1></div>
                 </div>
+                <p style={{color: '#737373', marginTop: 20}}>Loading...</p>
             </div>
-        );
-    }
+        </div>
+    );
 
-    if (error) {
-        return (
-            <div className="auth-container">
-                <div className="auth-form">
-                    <div className="logo" style={{justifyContent: 'center'}}>
-                        <div className="logo-icon lava-lamp-bg">
-                            <i className="ti ti-brain" style={{fontSize: 20}}></i>
-                        </div>
-                        <div className="logo-text">
-                            <h1>Arkiv</h1>
-                        </div>
+    if (error) return (
+        <div className="auth-container">
+            <div className="auth-form">
+                <div className="logo" style={{justifyContent: 'center'}}>
+                    <div className="logo-icon lava-lamp-bg">
+                        <i className="ti ti-brain" style={{fontSize: 20}}></i>
                     </div>
-                    <p className="error" style={{marginTop: 20}}>Error: {error}</p>
+                    <div className="logo-text"><h1>Arkiv</h1></div>
                 </div>
+                <p className="error" style={{marginTop: 20}}>Error: {error}</p>
             </div>
-        );
-    }
+        </div>
+    );
 
-    return <SupabaseContext.Provider value={client}>{children}</SupabaseContext.Provider>;
+    return (
+        <SupabaseContext.Provider value={client}>
+            {children}
+        </SupabaseContext.Provider>
+    );
 }
 
 function useSupabase() {

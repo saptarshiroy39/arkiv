@@ -1,7 +1,3 @@
-/* Settings Styles - Settings Page, Tabs, Forms */
-/* Settings page layout, navigation tabs, profile card, stats, plan cards, buttons */
-
-
 /* Settings Page - Tabbed Layout */
 .settings-page {
   flex: 1;
@@ -109,16 +105,7 @@
   margin-bottom: 16px;
 }
 
-.coming-soon-badge {
-  display: inline-block;
-  padding: 4px 10px;
-  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 600;
-  border-radius: 12px;
-  text-transform: uppercase;
-}
+
 
 /* Profile Card */
 .profile-card {
@@ -259,10 +246,12 @@
   cursor: not-allowed;
 }
 
+
 .session-section {
+  margin-top: 16px;
   padding: 16px 20px;
   background: rgba(38, 38, 38, 0.5);
-  border: 1px solid #333;
+  border: 1px solid #404040;
   border-radius: 12px;
 }
 
@@ -448,25 +437,4 @@
 
 .about-link-left i {
   color: #737373;
-}
-
-.about-footer {
-  text-align: center;
-  padding: 24px;
-}
-
-.about-footer p {
-  font-size: 13px;
-  color: #737373;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-}
-
-.about-footer .about-copyright {
-  margin-top: 8px;
-  font-size: 11px;
-  color: #525252;
 }

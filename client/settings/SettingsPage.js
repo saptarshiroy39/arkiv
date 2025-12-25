@@ -1,107 +1,107 @@
-// Settings Page Component - Main Settings Wrapper
-// 1. Manages tabs and state, renders GeneralTab, PrivacyTab, and BillingTab components
-
-
 function SettingsPage({ user, onClose, updateProfile, updateEmail, updatePassword, signOut, deleteAccount, resetKnowledgeBase, isResettingKnowledge, hasIndexedDocuments }) {
-    const [activeTab, setActiveTab] = useState('general');
-    const [displayName, setDisplayName] = useState(user?.user_metadata?.display_name || user?.user_metadata?.full_name || '');
-    const [newEmail, setNewEmail] = useState('');
-    const [newPassword, setNewPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [message, setMessage] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const [isEmailLoading, setIsEmailLoading] = useState(false);
-    const [isPasswordLoading, setIsPasswordLoading] = useState(false);
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [deleteConfirmText, setDeleteConfirmText] = useState('');
-    const [showNewPassword, setShowNewPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [tab, setTab] = useState('general');
+    const [name, setName] = useState(user?.user_metadata?.display_name || user?.user_metadata?.full_name || '');
+    const [email, setEmail] = useState('');
+    const [pass, setPass] = useState('');
+    const [confirm, setConfirm] = useState('');
+    const [toasts, setToasts] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [emailLoading, setEmailLoading] = useState(false);
+    const [passLoading, setPassLoading] = useState(false);
+    const [showDelete, setShowDelete] = useState(false);
+    const [confirmText, setConfirmText] = useState('');
+    const [showPass, setShowPass] = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false);
 
-    const showMessage = (text, type = 'success') => {
-        setMessage({ text, type });
-        setTimeout(() => setMessage(null), 4000);
+    const showToast = (text, type = 'success') => {
+        const id = Date.now();
+        setToasts(prev => [...prev, { id, text, type }]);
     };
 
-    const handleUpdateName = async (e) => {
+    const removeToast = (id) => {
+        setToasts(prev => prev.filter(t => t.id !== id));
+    };
+
+    const onUpdateName = async (e) => {
         e.preventDefault();
-        if (!displayName.trim()) return;
+        if (!name.trim()) return;
         
-        setIsLoading(true);
+        setLoading(true);
         try {
             const { error } = await updateProfile({ 
-                display_name: displayName.trim(),
-                full_name: displayName.trim()
+                display_name: name.trim(),
+                full_name: name.trim()
             });
             if (error) throw error;
-            showMessage('Display name updated successfully!');
-        } catch (error) {
-            showMessage(error.message, 'error');
+            showToast('Name updated!');
+        } catch (err) {
+            showToast(err.message, 'error');
         } finally {
-            setIsLoading(false);
+            setLoading(false);
         }
     };
 
-    const handleUpdateEmail = async (e) => {
+    const onUpdateEmail = async (e) => {
         e.preventDefault();
-        if (!newEmail.trim()) {
-            showMessage('Please enter a new email address', 'error');
+        if (!email.trim()) {
+            showToast('Enter a new email', 'error');
             return;
         }
         
-        setIsEmailLoading(true);
+        setEmailLoading(true);
         try {
-            const { error } = await updateEmail(newEmail.trim());
+            const { error } = await updateEmail(email.trim());
             if (error) throw error;
-            showMessage('Verification email sent! Please check your new email inbox and click the link to confirm.');
-            setNewEmail('');
-        } catch (error) {
-            showMessage(error.message, 'error');
+            showToast('Verification sent! Check your new email inbox.');
+            setEmail('');
+        } catch (err) {
+            showToast(err.message, 'error');
         } finally {
-            setIsEmailLoading(false);
+            setEmailLoading(false);
         }
     };
 
-    const handleUpdatePassword = async (e) => {
+    const onUpdatePass = async (e) => {
         e.preventDefault();
-        if (!newPassword || !confirmPassword) return;
+        if (!pass || !confirm) return;
         
-        if (newPassword !== confirmPassword) {
-            showMessage('Passwords do not match', 'error');
+        if (pass !== confirm) {
+            showToast('Passwords do not match', 'error');
             return;
         }
         
-        if (newPassword.length < 6) {
-            showMessage('Password must be at least 6 characters', 'error');
+        if (pass.length < 6) {
+            showToast('Password too short', 'error');
             return;
         }
         
-        setIsPasswordLoading(true);
+        setPassLoading(true);
         try {
-            const { error } = await updatePassword(newPassword);
+            const { error } = await updatePassword(pass);
             if (error) throw error;
-            showMessage('Password updated successfully!');
-            setNewPassword('');
-            setConfirmPassword('');
-        } catch (error) {
-            showMessage(error.message, 'error');
+            showToast('Password updated!');
+            setPass('');
+            setConfirm('');
+        } catch (err) {
+            showToast(err.message, 'error');
         } finally {
-            setIsPasswordLoading(false);
+            setPassLoading(false);
         }
     };
 
-    const handleDeleteAccount = async () => {
-        if (deleteConfirmText !== 'DELETE') return;
+    const onDelete = async () => {
+        if (confirmText !== 'DELETE') return;
         
-        setIsLoading(true);
+        setLoading(true);
         try {
             const { error } = await deleteAccount();
             if (error) throw error;
-            showMessage('Account deleted successfully.');
-        } catch (error) {
-            showMessage(error.message || 'Failed to delete account', 'error');
+            showToast('Account deleted.');
+        } catch (err) {
+            showToast(err.message || 'Failed', 'error');
         } finally {
-            setIsLoading(false);
-            setShowDeleteModal(false);
+            setLoading(false);
+            setShowDelete(false);
         }
     };
 
@@ -114,7 +114,6 @@ function SettingsPage({ user, onClose, updateProfile, updateEmail, updatePasswor
 
     return (
         <div className="settings-page">
-            {/* Settings Header */}
             <div className="settings-header">
                 <button className="profile-back-btn" onClick={onClose}>
                     <i className="ti ti-arrow-left" style={{fontSize: 18}}></i>
@@ -123,114 +122,92 @@ function SettingsPage({ user, onClose, updateProfile, updateEmail, updatePasswor
                 <h1 className="settings-title">Settings</h1>
             </div>
 
-            {message && (
-                <div className={`profile-message ${message.type}`}>
-                    <i className={`ti ti-${message.type === 'success' ? 'check' : 'alert-triangle'}`} style={{fontSize: 16}}></i>
-                    {message.text}
-                </div>
-            )}
-
             <div className="settings-layout">
-                {/* Sidebar Navigation */}
                 <nav className="settings-nav">
-                    {tabs.map(tab => (
+                    {tabs.map(t => (
                         <button
-                            key={tab.id}
-                            className={`settings-nav-item ${activeTab === tab.id ? 'active' : ''}`}
-                            onClick={() => setActiveTab(tab.id)}
+                            key={t.id}
+                            className={`settings-nav-item ${tab === t.id ? 'active' : ''}`}
+                            onClick={() => setTab(t.id)}
                         >
-                            <i className={`ti ti-${tab.icon}`} style={{fontSize: 20}}></i>
-                            {tab.label}
+                            <i className={`ti ti-${t.icon}`} style={{fontSize: 20}}></i>
+                            {t.label}
                         </button>
                     ))}
                 </nav>
 
-                {/* Content Area */}
                 <div className="settings-content">
-                    {activeTab === 'general' && (
+                    {tab === 'general' && (
                         <GeneralTab
                             user={user}
-                            displayName={displayName}
-                            setDisplayName={setDisplayName}
-                            handleUpdateName={handleUpdateName}
-                            isLoading={isLoading}
+                            displayName={name}
+                            setDisplayName={setName}
+                            handleUpdateName={onUpdateName}
+                            isLoading={loading}
                             resetKnowledgeBase={resetKnowledgeBase}
                             isResettingKnowledge={isResettingKnowledge}
                             hasIndexedDocuments={hasIndexedDocuments}
+                            showToast={showToast}
                         />
                     )}
 
-                    {activeTab === 'privacy' && (
+                    {tab === 'privacy' && (
                         <PrivacyTab
                             user={user}
-                            newEmail={newEmail}
-                            setNewEmail={setNewEmail}
-                            handleUpdateEmail={handleUpdateEmail}
-                            newPassword={newPassword}
-                            setNewPassword={setNewPassword}
-                            confirmPassword={confirmPassword}
-                            setConfirmPassword={setConfirmPassword}
-                            showNewPassword={showNewPassword}
-                            setShowNewPassword={setShowNewPassword}
-                            showConfirmPassword={showConfirmPassword}
-                            setShowConfirmPassword={setShowConfirmPassword}
-                            handleUpdatePassword={handleUpdatePassword}
-                            isEmailLoading={isEmailLoading}
-                            isPasswordLoading={isPasswordLoading}
+                            newEmail={email}
+                            setNewEmail={setEmail}
+                            handleUpdateEmail={onUpdateEmail}
+                            newPassword={pass}
+                            setNewPassword={setPass}
+                            confirmPassword={confirm}
+                            setConfirmPassword={setConfirm}
+                            showNewPassword={showPass}
+                            setShowNewPassword={setShowPass}
+                            showConfirmPassword={showConfirm}
+                            setShowConfirmPassword={setShowConfirm}
+                            handleUpdatePassword={onUpdatePass}
+                            isEmailLoading={emailLoading}
+                            isPasswordLoading={passLoading}
                             signOut={signOut}
-                            setShowDeleteModal={setShowDeleteModal}
+                            setShowDeleteModal={setShowDelete}
                         />
                     )}
 
-                    {activeTab === 'apikeys' && (
-                        <ApiKeysTab />
-                    )}
-
-                    {activeTab === 'about' && (
-                        <AboutTab />
-                    )}
+                    {tab === 'apikeys' && <ApiKeysTab showToast={showToast} />}
+                    {tab === 'about' && <AboutTab />}
                 </div>
             </div>
 
-            {/* Delete Confirmation Modal */}
-            {showDeleteModal && (
+            {showDelete && (
                 <div className="modal-overlay">
                     <div className="modal-content">
                         <h3 className="modal-title">Delete Account</h3>
-                        <p className="modal-desc">
-                            This action cannot be undone. All your data will be permanently deleted.
-                        </p>
-                        <p className="modal-desc">
-                            Type <strong>DELETE</strong> to confirm:
-                        </p>
+                        <p className="modal-desc">This action cannot be undone. All data will be lost.</p>
+                        <p className="modal-desc">Type <strong>DELETE</strong> to confirm:</p>
                         <input
                             type="text"
-                            value={deleteConfirmText}
-                            onChange={(e) => setDeleteConfirmText(e.target.value)}
+                            value={confirmText}
+                            onChange={(e) => setConfirmText(e.target.value)}
                             placeholder="Type DELETE"
                             className="settings-input"
                         />
                         <div className="modal-actions">
-                            <button 
-                                className="settings-btn-secondary" 
-                                onClick={() => {
-                                    setShowDeleteModal(false);
-                                    setDeleteConfirmText('');
-                                }}
-                            >
+                            <button className="settings-btn-secondary" onClick={() => { setShowDelete(false); setConfirmText(''); }}>
                                 Cancel
                             </button>
                             <button 
                                 className="settings-btn-danger" 
-                                onClick={handleDeleteAccount}
-                                disabled={deleteConfirmText !== 'DELETE' || isLoading}
+                                onClick={onDelete}
+                                disabled={confirmText !== 'DELETE' || loading}
                             >
-                                {isLoading ? 'Deleting...' : 'Delete Account'}
+                                {loading ? 'Deleting...' : 'Delete Account'}
                             </button>
                         </div>
                     </div>
                 </div>
             )}
+
+            <ToastContainer toasts={toasts} removeToast={removeToast} />
         </div>
     );
 }

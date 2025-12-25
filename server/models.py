@@ -4,21 +4,19 @@ from pydantic import BaseModel, Field
 class Chunk(BaseModel):
     text: str
     source: str
-    page_number: Optional[int] = None
-    chunk_index: int
-    metadata: Dict[str, Any] = Field(default_factory=dict)
+    page: Optional[int] = None
+    idx: int
+    meta: Dict[str, Any] = Field(default_factory=dict)
 
-# -- API Models --
+class Question(BaseModel):
+    text: str
 
-class QuestionRequest(BaseModel):
-    question: str
+class Answer(BaseModel):
+    text: str
 
-class AnswerResponse(BaseModel):
-    answer: str
+class KeyRequest(BaseModel):
+    key: str
 
-class VerifyKeyRequest(BaseModel):
-    api_key: str
-
-class ConfigResponse(BaseModel):
-    supabase_url: str
-    supabase_anon_key: str
+class Config(BaseModel):
+    url: str
+    anon_key: str

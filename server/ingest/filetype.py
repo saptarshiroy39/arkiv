@@ -1,45 +1,33 @@
-from pathlib import Path
+import os
 
-def get_file_type(path: str) -> str:
-    ext = Path(path).suffix.lower()
+def get_file_type(fname):
+    ext = os.path.splitext(fname)[1].lower()
 
-    ext_map = {
-        # PDF
+    mapping = {
         ".pdf": "pdf",
-        
-        # Images
-        ".png": "image",
-        ".jpg": "image",
-        ".jpeg": "image",
-        ".gif": "image",
+
+        ".png": "image", 
+        ".jpg": "image", 
+        ".jpeg": "image", 
+        ".gif": "image", 
         ".webp": "image",
-        
-        # Documents
-        ".doc": "docs",
+
+        ".doc": "docs", 
         ".docx": "docs",
-        
-        # Sheets/Data
-        ".xls": "sheets",
+
+        ".xls": "sheets", 
         ".xlsx": "sheets",
+
         ".csv": "csv",
-        
-        # Slides
-        ".ppt": "slides",
+
+        ".ppt": "slides", 
         ".pptx": "slides",
         
-        # Text/Code
-        ".txt": "text",
-        ".rtf": "text",
-        ".md": "text",
-        ".py": "text",
-        ".js": "text",
-        ".json": "text",
-        ".xml": "text",
-        ".html": "text",
-        ".css": "text",
+        ".txt": "text", 
+        ".md": "text", 
+        ".py": "text", 
+        ".js": "text", 
+        ".json": "text"
     }
 
-    if ext not in ext_map:
-        return "unknown"
-
-    return ext_map[ext]
+    return mapping.get(ext, "unknown")

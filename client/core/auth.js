@@ -1,124 +1,95 @@
-// Authentication - Auth Context and Login/Signup UI
-// 1. Provides auth context with signIn, signUp, password reset, OTP verification, and profile management
-
-
 const AuthContext = createContext(null);
 
 function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [passwordResetInProgress, setPasswordResetInProgress] = useState(false);
-    const supabaseClient = useSupabase();
+    const [isResetting, setIsResetting] = useState(false);
+    const sb = useSupabase();
 
     useEffect(() => {
-        if (!supabaseClient) {
+        if (!sb) {
             setLoading(false);
             return;
-        };
+        }
 
-        const getSession = async () => {
-            const { data: { session } } = await supabaseClient.auth.getSession();
+        // initial session check
+        sb.auth.getSession().then(({ data: { session } }) => {
             setUser(session?.user ?? null);
             setLoading(false);
-        };
+        });
 
-        getSession();
-
-        const { data: { subscription } } = supabaseClient.auth.onAuthStateChange((_event, session) => {
+        // listen for changes
+        const { data: { subscription } } = sb.auth.onAuthStateChange((_event, session) => {
             setUser(session?.user ?? null);
         });
 
         return () => subscription.unsubscribe();
-    }, [supabaseClient]);
-
-    const handleSignOut = () => {
-        return supabaseClient.auth.signOut();
-    };
-
-    const handleSignIn = (data) => {
-        return supabaseClient.auth.signInWithPassword(data);
-    };
+    }, [sb]);
 
     const value = {
-        signUp: (data) => {
-            const { email, password, name } = data;
-            const redirectTo = window.location.origin;
-            return supabaseClient.auth.signUp({
+        user,
+        loading,
+        isResetting,
+        setIsResetting,
+        
+        signIn: (data) => sb.auth.signInWithPassword(data),
+        signOut: () => sb.auth.signOut(),
+        
+        signUp: ({ email, password, name }) => {
+            return sb.auth.signUp({
                 email,
                 password,
                 options: { 
-                    emailRedirectTo: redirectTo,
-                    data: {
-                        display_name: name,
-                        full_name: name
-                    }
+                    emailRedirectTo: window.location.origin,
+                    data: { display_name: name, full_name: name }
                 }
             });
         },
-        signIn: handleSignIn,
-        signOut: handleSignOut,
-        resetPassword: (email) => {
-            return supabaseClient.auth.resetPasswordForEmail(email);
-        },
+        
+        resetPassword: (email) => sb.auth.resetPasswordForEmail(email),
+        
         verifyOtp: (email, token, type = 'signup') => {
-            return supabaseClient.auth.verifyOtp({
-                email,
-                token,
-                type: type
-            });
+            return sb.auth.verifyOtp({ email, token, type });
         },
+        
         resendOtp: (email, type = 'signup') => {
-            return supabaseClient.auth.resend({
-                type: type,
-                email: email
-            });
+            return sb.auth.resend({ type, email });
         },
-        updateProfile: (data) => {
-            return supabaseClient.auth.updateUser({
-                data: data
-            });
+        
+        updateProfile: (data) => sb.auth.updateUser({ data }),
+        
+        updateEmail: async (email) => {
+            const res = await sb.auth.updateUser({ email });
+            if (res.data?.user) setUser(res.data.user);
+            return res;
         },
-        updateEmail: async (newEmail) => {
-            const result = await supabaseClient.auth.updateUser({
-                email: newEmail
-            });
-            if (result.data?.user) {
-                setUser(result.data.user);
-            }
-            return result;
-        },
-        updatePassword: (newPassword) => {
-            return supabaseClient.auth.updateUser({
-                password: newPassword
-            });
-        },
+        
+        updatePassword: (password) => sb.auth.updateUser({ password }),
+        
         deleteAccount: async () => {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (!session) {
-                return { error: { message: 'No active session' } };
-            }
+            const { data: { session } } = await sb.auth.getSession();
+            if (!session) return { error: { message: 'No session' } };
             
-            const response = await fetch(`${API_URL}/account`, {
+            const res = await fetch(`${API_URL}/account`, {
                 method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${session.access_token}`
-                }
+                headers: { 'Authorization': `Bearer ${session.access_token}` }
             });
             
-            if (!response.ok) {
-                const errorData = await response.json();
-                return { error: { message: errorData.detail || 'Failed to delete account' } };
+            if (!res.ok) {
+                const err = await res.json();
+                return { error: { message: err.detail || 'Delete failed' } };
             }
             
-            await supabaseClient.auth.signOut();
+            await sb.auth.signOut();
             return { error: null };
-        },
-        user,
-        passwordResetInProgress,
-        setPasswordResetInProgress,
+        }
     };
 
-    return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
+    return (
+        <AuthContext.Provider value={value}>
+            {!loading && children}
+        </AuthContext.Provider>
+    );
 }
 
 function useAuth() {
@@ -131,119 +102,112 @@ function useAuth() {
 function Auth() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
+    const [confirm, setConfirm] = useState('');
     const [name, setName] = useState('');
     const [otp, setOtp] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [isSignUp, setIsSignUp] = useState(false);
-    const [isForgotPassword, setIsForgotPassword] = useState(false);
-    const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+    const [showPass, setShowPass] = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false);
+    
+    // mode flags
+    const [mode, setMode] = useState('login'); // login, signup, forgot, verify, reset
     const [pendingEmail, setPendingEmail] = useState('');
+    const [resetEmail, setResetEmail] = useState('');
+    
     const [loading, setLoading] = useState(false);
     const [resending, setResending] = useState(false);
     const [error, setError] = useState(null);
-    const [message, setMessage] = useState(null);
-    const [isResettingPassword, setIsResettingPassword] = useState(false);
-    const [resetEmail, setResetEmail] = useState('');
-    const [passwordResetComplete, setPasswordResetComplete] = useState(false);
-    const { signUp, signIn, resetPassword, verifyOtp, resendOtp, updatePassword, signOut, setPasswordResetInProgress } = useAuth();
+    const [msg, setMsg] = useState(null);
+    const [resetDone, setResetDone] = useState(false);
 
-    const handleSubmit = async (e) => {
+    const { 
+        signUp, signIn, resetPassword, verifyOtp, resendOtp, updatePassword, signOut, setIsResetting 
+    } = useAuth();
+
+    const onSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
-        setMessage(null);
+        setMsg(null);
+        
         try {
-            if (isVerifyingOtp) {
-                if (otp.length !== 6) {
-                    throw new Error('Please enter a 6-digit code');
-                }
+            if (mode === 'verify') {
+                if (otp.length !== 6) throw new Error('Enter 6-digit code');
                 const { error } = await verifyOtp(pendingEmail, otp, 'signup');
                 if (error) throw error;
-            } else if (isForgotPassword) {
+            } else if (mode === 'forgot') {
                 const { error } = await resetPassword(email);
                 if (error) throw error;
                 setResetEmail(email);
-                setIsResettingPassword(true);
-                setIsForgotPassword(false);
+                setMode('reset');
                 setEmail('');
-            } else if (isSignUp) {
-                if (password !== confirmPassword) {
-                    throw new Error('Passwords do not match');
-                }
-                if (password.length < 6) {
-                    throw new Error('Password must be at least 6 characters');
-                }
+            } else if (mode === 'signup') {
+                if (password !== confirm) throw new Error('Passwords do not match');
+                if (password.length < 6) throw new Error('Min 6 characters');
                 const { error } = await signUp({ email, password, name });
                 if (error) throw error;
                 setPendingEmail(email);
-                setIsVerifyingOtp(true);
+                setMode('verify');
             } else {
                 const { error } = await signIn({ email, password });
                 if (error) throw error;
             }
-        } catch (error) {
-            setError(error.message);
+        } catch (err) {
+            setError(err.message);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleResendOtp = async () => {
+    const onResend = async () => {
         setResending(true);
         setError(null);
         try {
             const { error } = await resendOtp(pendingEmail, 'signup');
             if (error) throw error;
-            setMessage('New code sent to your email!');
-        } catch (error) {
-            setError(error.message);
+            setMsg('New code sent!');
+        } catch (err) {
+            setError(err.message);
         } finally {
             setResending(false);
         }
     };
 
-    const handlePasswordReset = async (e) => {
+    const onPasswordReset = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
         try {
-            if (otp.length !== 6) {
-                throw new Error('Please enter a 6-digit code');
-            }
-            if (password !== confirmPassword) {
-                throw new Error('Passwords do not match');
-            }
-            if (password.length < 6) {
-                throw new Error('Password must be at least 6 characters');
-            }
-            setPasswordResetInProgress(true);
-            const { error: verifyError } = await verifyOtp(resetEmail, otp, 'recovery');
-            if (verifyError) throw verifyError;
-            const { error: updateError } = await updatePassword(password);
-            if (updateError) throw updateError;
+            if (otp.length !== 6) throw new Error('Enter 6-digit code');
+            if (password !== confirm) throw new Error('Passwords do not match');
+            if (password.length < 6) throw new Error('Min 6 characters');
+            
+            setIsResetting(true);
+            const { error: vo } = await verifyOtp(resetEmail, otp, 'recovery');
+            if (vo) throw vo;
+            const { error: up } = await updatePassword(password);
+            if (up) throw up;
+            
             await signOut();
-            setPasswordResetInProgress(false);
-            setPasswordResetComplete(true);
-            setIsResettingPassword(false);
-        } catch (error) {
-            setPasswordResetInProgress(false);
-            setError(error.message);
+            setIsResetting(false);
+            setResetDone(true);
+            setMode('login'); // go back to login after reset success
+        } catch (err) {
+            setIsResetting(false);
+            setError(err.message);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleResendPasswordResetOtp = async () => {
+    const resendResetCode = async () => {
         setResending(true);
         setError(null);
         try {
             const { error } = await resetPassword(resetEmail);
             if (error) throw error;
-            setMessage('New code sent to your email!');
-        } catch (error) {
-            setError(error.message);
+            setMsg('New code sent!');
+        } catch (err) {
+            setError(err.message);
         } finally {
             setResending(false);
         }
@@ -262,7 +226,7 @@ function Auth() {
                         </div>
                     </div>
                     
-                    {passwordResetComplete ? (
+                    {resetDone ? (
                         <>
                             <h2>Password Reset</h2>
                             <p className="auth-subtitle">Your password has been reset successfully!</p>
@@ -270,33 +234,33 @@ function Auth() {
                                 type="button"
                                 className="primary-btn"
                                 onClick={() => {
-                                    setPasswordResetComplete(false);
+                                    setResetDone(false);
                                     setOtp('');
                                     setPassword('');
-                                    setConfirmPassword('');
+                                    setConfirm('');
                                     setResetEmail('');
                                     setError(null);
-                                    setMessage(null);
+                                    setMsg(null);
                                 }}
                             >
                                 Log In Now
                             </button>
                         </>
-                    ) : isResettingPassword ? (
+                    ) : mode === 'reset' ? (
                         <>
                             <h2>Reset Password</h2>
                             <p className="auth-subtitle">
                                 Enter the 6-digit code sent to<br/>
                                 <strong style={{color: '#ffffff7e'}}>{resetEmail}</strong>
                             </p>
-                            <form onSubmit={handlePasswordReset}>
+                            <form onSubmit={onPasswordReset}>
                                 <input
                                     type="text"
                                     placeholder="Enter OTP"
                                     value={otp}
                                     onChange={(e) => {
-                                        const value = e.target.value.replace(/\D/g, '').slice(0, 6);
-                                        setOtp(value);
+                                        const val = e.target.value.replace(/\D/g, '').slice(0, 6);
+                                        setOtp(val);
                                     }}
                                     maxLength={6}
                                     style={{textAlign: 'center', letterSpacing: '8px', fontSize: 20, fontWeight: 600}}
@@ -305,7 +269,7 @@ function Auth() {
                                 />
                                 <div className="password-input-wrapper">
                                     <input
-                                        type={showPassword ? "text" : "password"}
+                                        type={showPass ? "text" : "password"}
                                         placeholder="New Password"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
@@ -314,27 +278,27 @@ function Auth() {
                                     <button 
                                         type="button" 
                                         className="password-toggle"
-                                        onClick={() => setShowPassword(!showPassword)}
+                                        onClick={() => setShowPass(!showPass)}
                                         tabIndex={-1}
                                     >
-                                        <i className={`ti ti-eye${showPassword ? '-off' : ''}`}></i>
+                                        <i className={`ti ti-eye${showPass ? '-off' : ''}`}></i>
                                     </button>
                                 </div>
                                 <div className="password-input-wrapper">
                                     <input
-                                        type={showConfirmPassword ? 'text' : 'password'}
+                                        type={showConfirm ? 'text' : 'password'}
                                         placeholder="Confirm New Password"
-                                        value={confirmPassword}
-                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        value={confirm}
+                                        onChange={(e) => setConfirm(e.target.value)}
                                         required
                                     />
                                     <button 
                                         type="button" 
                                         className="password-toggle"
-                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        onClick={() => setShowConfirm(!showConfirm)}
                                         tabIndex={-1}
                                     >
-                                        <i className={`ti ti-eye${showConfirmPassword ? '-off' : ''}`}></i>
+                                        <i className={`ti ti-eye${showConfirm ? '-off' : ''}`}></i>
                                     </button>
                                 </div>
                                 <button type="submit" disabled={loading || otp.length !== 6}>
@@ -342,11 +306,11 @@ function Auth() {
                                 </button>
                             </form>
                             {error && <p className="error">{error}</p>}
-                            {message && <p className="message">{message}</p>}
+                            {msg && <p className="message">{msg}</p>}
                             <p>
                                 Didn't receive the code?
                                 <button 
-                                    onClick={handleResendPasswordResetOtp} 
+                                    onClick={resendResetCode} 
                                     className="toggle-auth"
                                     disabled={loading || resending}
                                 >
@@ -355,33 +319,33 @@ function Auth() {
                             </p>
                             <p>
                                 <button onClick={() => {
-                                    setIsResettingPassword(false);
+                                    setMode('login');
                                     setOtp('');
                                     setPassword('');
-                                    setConfirmPassword('');
+                                    setConfirm('');
                                     setResetEmail('');
                                     setError(null);
-                                    setMessage(null);
+                                    setMsg(null);
                                 }} className="toggle-auth" style={{marginLeft: 0}}>
                                     ← Back to Sign In
                                 </button>
                             </p>
                         </>
-                    ) : isVerifyingOtp ? (
+                    ) : mode === 'verify' ? (
                         <>
                             <h2>Verify Email</h2>
                             <p className="auth-subtitle">
                                 Enter the 6-digit code sent to<br/>
                                 <strong style={{color: '#fff'}}>{pendingEmail}</strong>
                             </p>
-                            <form onSubmit={handleSubmit}>
+                            <form onSubmit={onSubmit}>
                                 <input
                                     type="text"
                                     placeholder="Enter OTP"
                                     value={otp}
                                     onChange={(e) => {
-                                        const value = e.target.value.replace(/\D/g, '').slice(0, 6);
-                                        setOtp(value);
+                                        const val = e.target.value.replace(/\D/g, '').slice(0, 6);
+                                        setOtp(val);
                                     }}
                                     maxLength={6}
                                     style={{textAlign: 'center', letterSpacing: '8px', fontSize: 20, fontWeight: 600}}
@@ -393,11 +357,11 @@ function Auth() {
                                 </button>
                             </form>
                             {error && <p className="error">{error}</p>}
-                            {message && <p className="message">{message}</p>}
+                            {msg && <p className="message">{msg}</p>}
                             <p>
                                 Didn't receive the code?
                                 <button 
-                                    onClick={handleResendOtp} 
+                                    onClick={onResend} 
                                     className="toggle-auth"
                                     disabled={loading || resending}
                                 >
@@ -406,11 +370,11 @@ function Auth() {
                             </p>
                             <p>
                                 <button onClick={() => {
-                                    setIsVerifyingOtp(false);
+                                    setMode('signup');
                                     setOtp('');
                                     setPendingEmail('');
                                     setError(null);
-                                    setMessage(null);
+                                    setMsg(null);
                                 }} className="toggle-auth" style={{marginLeft: 0}}>
                                     ← Back to Sign Up
                                 </button>
@@ -418,16 +382,16 @@ function Auth() {
                         </>
                     ) : (
                         <>
-                            <h2>{isForgotPassword ? 'Reset Password' : (isSignUp ? 'Create Account' : 'Welcome Back')}</h2>
+                            <h2>{mode === 'forgot' ? 'Reset Password' : (mode === 'signup' ? 'Create Account' : 'Welcome Back')}</h2>
                             <p className="auth-subtitle">
-                                {isForgotPassword 
+                                {mode === 'forgot'
                                     ? 'Enter your email to receive a reset code' 
-                                    : (isSignUp 
+                                    : (mode === 'signup'
                                         ? 'Start organizing your knowledge today' 
                                         : 'Sign in to continue to Arkiv')}
                             </p>
-                            <form onSubmit={handleSubmit}>
-                                {isSignUp && !isForgotPassword && (
+                            <form onSubmit={onSubmit}>
+                                {mode === 'signup' && (
                                     <input
                                         type="text"
                                         placeholder="Full Name"
@@ -443,10 +407,10 @@ function Auth() {
                                     onChange={(e) => setEmail(e.target.value)}
                                     required
                                 />
-                                {!isForgotPassword && (
+                                {mode !== 'forgot' && (
                                     <div className="password-input-wrapper">
                                         <input
-                                            type={showPassword ? "text" : "password"}
+                                            type={showPass ? "text" : "password"}
                                             placeholder="Password"
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
@@ -455,75 +419,75 @@ function Auth() {
                                         <button 
                                             type="button" 
                                             className="password-toggle"
-                                            onClick={() => setShowPassword(!showPassword)}
+                                            onClick={() => setShowPass(!showPass)}
                                             tabIndex={-1}
                                         >
-                                            <i className={`ti ti-eye${showPassword ? '-off' : ''}`}></i>
+                                            <i className={`ti ti-eye${showPass ? '-off' : ''}`}></i>
                                         </button>
                                     </div>
                                 )}
-                                {isSignUp && !isForgotPassword && (
+                                {mode === 'signup' && (
                                     <div className="password-input-wrapper">
                                         <input
-                                            type={showConfirmPassword ? 'text' : 'password'}
+                                            type={showConfirm ? 'text' : 'password'}
                                             placeholder="Confirm Password"
-                                            value={confirmPassword}
-                                            onChange={(e) => setConfirmPassword(e.target.value)}
+                                            value={confirm}
+                                            onChange={(e) => setConfirm(e.target.value)}
                                             required
                                         />
                                         <button 
                                             type="button" 
                                             className="password-toggle"
-                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            onClick={() => setShowConfirm(!showConfirm)}
                                             tabIndex={-1}
                                         >
-                                            <i className={`ti ti-eye${showConfirmPassword ? '-off' : ''}`}></i>
+                                            <i className={`ti ti-eye${showConfirm ? '-off' : ''}`}></i>
                                         </button>
                                     </div>
                                 )}
-                                {!isSignUp && !isForgotPassword && (
+                                {mode === 'login' && (
                                     <button 
                                         type="button" 
                                         className="forgot-password-link"
                                         onClick={() => {
-                                            setIsForgotPassword(true);
+                                            setMode('forgot');
                                             setError(null);
-                                            setMessage(null);
+                                            setMsg(null);
                                         }}
                                     >
                                         Forgot Password?
                                     </button>
                                 )}
                                 <button type="submit" disabled={loading}>
-                                    {loading ? 'Loading...' : (isForgotPassword ? 'Send Reset Code' : (isSignUp ? 'Create Account' : 'Sign In'))}
+                                    {loading ? 'Loading...' : (mode === 'forgot' ? 'Send Reset Code' : (mode === 'signup' ? 'Create Account' : 'Sign In'))}
                                 </button>
                             </form>
                             {error && <p className="error">{error}</p>}
-                            {message && <p className="message">{message}</p>}
-                            {isForgotPassword ? (
+                            {msg && <p className="message">{msg}</p>}
+                            {mode === 'forgot' ? (
                                 <p>
                                     Remember your password?
                                     <button onClick={() => {
-                                        setIsForgotPassword(false);
+                                        setMode('login');
                                         setError(null);
-                                        setMessage(null);
+                                        setMsg(null);
                                     }} className="toggle-auth">
                                         Sign In
                                     </button>
                                 </p>
                             ) : (
                                 <p>
-                                    {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+                                    {mode === 'signup' ? 'Already have an account?' : "Don't have an account?"}
                                     <button onClick={() => {
-                                        setIsSignUp(!isSignUp);
+                                        setMode(mode === 'signup' ? 'login' : 'signup');
                                         setEmail('');
                                         setPassword('');
-                                        setConfirmPassword('');
+                                        setConfirm('');
                                         setName('');
                                         setError(null);
-                                        setMessage(null);
+                                        setMsg(null);
                                     }} className="toggle-auth">
-                                        {isSignUp ? 'Sign In' : 'Sign Up'}
+                                        {mode === 'signup' ? 'Sign In' : 'Sign Up'}
                                     </button>
                                 </p>
                             )}
