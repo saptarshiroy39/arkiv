@@ -10,7 +10,7 @@ from .ingest.chunker import chunk_text
 from .rag.rag import ingest_chunks, ask_question, clear_user_data as rag_clear_user_data
 
 def get_app_config():
-    return {"supabase_url": SUPABASE_URL, "supabase_anon_key": SUPABASE_KEY}
+    return {"url": SUPABASE_URL, "anon_key": SUPABASE_KEY}
 
 def get_health_status():
     return {"status": "ok", "db": "connected"}

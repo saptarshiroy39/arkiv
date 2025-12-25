@@ -27,7 +27,7 @@ if not PINECONE_API_KEY:
     logger.warning("No Pinecone key - vector search will be disabled")
 
 SUPABASE_URL = get_env("SUPABASE_URL", required=True)
-SUPABASE_KEY = get_env("SUPABASE_ANON_KEY")
+SUPABASE_KEY = get_env("SUPABASE_ANON_KEY", required=True)
 SUPABASE_SERVICE_ROLE_KEY = get_env("SUPABASE_SERVICE_ROLE_KEY", required=True)
 
 supabase = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)

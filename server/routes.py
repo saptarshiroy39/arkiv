@@ -8,8 +8,7 @@ router = APIRouter()
 
 @router.get("/config", response_model=Config)
 async def get_config():
-    c = services.get_app_config()
-    return {"url": c["supabase_url"], "anon_key": c["supabase_anon_key"]}
+    return services.get_app_config()
 
 @router.get("/health")
 async def health():
