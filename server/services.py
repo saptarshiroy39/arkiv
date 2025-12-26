@@ -9,6 +9,18 @@ from .ingest.cleaner import normalize_text, sanitize_filename
 from .ingest.chunker import chunk_text
 from .rag.rag import ingest_chunks, ask_question, clear_user_data as rag_clear_user_data
 
+def simplify_error(e: Exception) -> str:
+    msg = str(e).lower()
+    if "api_key_invalid" in msg or "api key not valid" in msg:
+        return "Invalid API key"
+    if "quota" in msg or "rate limit" in msg:
+        return "API quota exceeded"
+    if "permission" in msg or "forbidden" in msg:
+        return "API access denied"
+    if "not found" in msg:
+        return "Resource not found"
+    return str(e)[:50] if len(str(e)) > 50 else str(e)
+
 def get_app_config():
     return {"url": SUPABASE_URL, "anon_key": SUPABASE_KEY}
 
@@ -68,7 +80,7 @@ async def process_uploaded_files(files: List[UploadFile], user, api_key: str = N
         }
     except Exception as e:
         logger.error(f"Upload error for {user.email}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=simplify_error(e))
 
 async def verify_key_status(req: KeyRequest):
     try:
@@ -96,7 +108,7 @@ async def process_question(req: Question, user, api_key: str = None):
         return Answer(text=res["answer"])
     except Exception as e:
         logger.error(f"Chat error for {user.email}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=simplify_error(e))
 
 async def clear_user_data(user, api_key: str = None):
     try:

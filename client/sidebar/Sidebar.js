@@ -83,11 +83,7 @@ function Sidebar({
                             <i className="ti ti-trash" style={{fontSize: 20, color: '#f87171'}}></i>
                         </div>
                     )}
-                    {status?.type === 'error' && (
-                        <div className="sidebar-icon error-indicator" title={status.msg}>
-                            <i className="ti ti-alert-triangle" style={{fontSize: 20, color: '#f87171'}}></i>
-                        </div>
-                    )}
+
                 </div>
                 <div className="sidebar-profile-section" ref={menuRef}>
                     <ProfileDropdown

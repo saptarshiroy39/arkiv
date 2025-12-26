@@ -651,12 +651,6 @@
   border: 1px solid #166534;
 }
 
-.status.error {
-  background: #450a0a;
-  color: #f87171;
-  border: 1px solid #7f1d1d;
-}
-
 /* Status Action Button */
 .status-action-btn {
   padding: 10px 12px;

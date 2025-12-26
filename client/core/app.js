@@ -6,10 +6,20 @@ function App() {
     const [files, setFiles] = useState([]);
     const [uploading, setUploading] = useState(false);
     const [status, setStatus] = useState(null);
+    const [toasts, setToasts] = useState([]);
     const [indexReady, setIndexReady] = useState(false);
     const [showSidebar, setShowSidebar] = useState(window.innerWidth >= 1000);
     const [sidebarPref, setSidebarPref] = useState(true);
     const prevWidth = useRef(window.innerWidth);
+
+    const showToast = (text, type = 'error') => {
+        const id = Date.now();
+        setToasts(prev => [...prev, { id, text, type }]);
+    };
+
+    const removeToast = (id) => {
+        setToasts(prev => prev.filter(t => t.id !== id));
+    };
 
     const toggleSidebar = (val) => {
         const next = typeof val === 'function' ? val(showSidebar) : val;
@@ -147,7 +157,7 @@ function App() {
             setIndexReady(true);
             localStorage.setItem(`ready_${user.id}`, 'true');
         } catch (err) {
-            setStatus({ type: 'error', msg: err.message });
+            showToast(err.message, 'error');
         } finally {
             setUploading(false);
         }
@@ -319,6 +329,7 @@ function App() {
                 )}
             </main>
             <SnowEffect enabled={snow} />
+            <ToastContainer toasts={toasts} removeToast={removeToast} />
         </div>
     );
 }

@@ -74,12 +74,12 @@ function FileUpload({
                 </>
             )}
 
-            {(status || hasMessages) && (
+            {(status?.type === 'success' || hasMessages) && (
                 hasMessages ? (
                     <div style={{display: 'flex', gap: 8}}>
-                        {status ? (
-                            <div className={`status ${status.type}`} style={{flex: 1, margin: 0}}>
-                                <i className={`ti ti-${status.type === 'success' ? 'check' : 'alert-triangle'}`} style={{fontSize: 16}}></i>
+                        {status?.type === 'success' ? (
+                            <div className="status success" style={{flex: 1, margin: 0}}>
+                                <i className="ti ti-check" style={{fontSize: 16}}></i>
                                 {status.msg}
                             </div>
                         ) : (
@@ -99,8 +99,8 @@ function FileUpload({
                         </button>
                     </div>
                 ) : (
-                    <div className={`status ${status.type}`}>
-                        <i className={`ti ti-${status.type === 'success' ? 'check' : 'alert-triangle'}`} style={{fontSize: 16}}></i>
+                    <div className="status success">
+                        <i className="ti ti-check" style={{fontSize: 16}}></i>
                         {status.msg}
                     </div>
                 )
