@@ -264,14 +264,6 @@
   color: #fff;
 }
 
-.profile-dropdown-email {
-  font-size: 12px;
-  color: #737373;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .profile-menu-item {
   width: 100%;
   display: flex;
@@ -676,4 +668,48 @@
 
 .status-action-btn:active {
   transform: scale(0.95);
+}
+
+/* Profile Trigger - Collapsed */
+.profile-trigger-collapsed {
+  padding: 8px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.profile-trigger-collapsed:hover {
+  background: #262626;
+}
+
+/* Profile Trigger - Expanded */
+.profile-trigger-expanded {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.profile-trigger-expanded:hover {
+  background: #262626;
+}
+
+.profile-trigger-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-trigger-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
 }

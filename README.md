@@ -1,7 +1,7 @@
 <h1 align="center"><b>Arkiv</b></h1>
 
 <p align="center">
-  <a href="https://arkiv.up.railway.app/"><b>Arkiv</b></a> is an AI-powered document assistant that lets you upload files and have intelligent conversations about their content. Built with <a href="https://fastapi.tiangolo.com"><b>FastAPI</b></a> and powered by <a href="https://ai.google.dev"><b>Google Gemini</b></a>, Arkiv uses RAG (Retrieval Augmented Generation) to provide accurate, context-aware answers from your documents.
+  <a href="https://arkiv.bysr.me/"><b>Arkiv</b></a> is an AI-powered document assistant that lets you upload files and have intelligent conversations about their content. Built with <a href="https://fastapi.tiangolo.com"><b>FastAPI</b></a> and powered by <a href="https://ai.google.dev"><b>Google Gemini</b></a>, Arkiv uses RAG (Retrieval Augmented Generation) to provide accurate, context-aware answers from your documents.
 </p>
 
 ![Arkiv](Arkiv.png)
@@ -17,7 +17,7 @@
 | 🖼️ **Image Analysis**       | Automatic description and text extraction from images using vision AI | ***Gemini Vision***                     |
 | 🔑 **BYOK Support**         | Bring Your Own Key - use your personal Google Gemini API key          | ***Built-in***                          |
 | 💬 **Chat History**         | Save and restore previous conversations with local storage            | ***Built-in***                          |
-| 🔐 **User Authentication**  | Secure login, signup, password reset with email verification          | ***Supabase Auth***                     |
+| 🔐 **User Authentication**  | Secure login, signup with OTP verification                            | ***Supabase Auth***                     |
 | 🧠 **Vector Search**        | Semantic document search using embeddings for accurate retrieval      | ***Pinecone***, ***Google Embeddings*** |
 | ⚡ **Real-time Processing** | Fast document chunking and indexing for instant querying              | ***LangChain Splitters***               |
 
@@ -59,5 +59,5 @@ Arkiv uses a modern RAG (Retrieval Augmented Generation) architecture:
 ---
 
 <p align="center">
-  Made with ❤️ by <a href="https://arkiv.up.railway.app/">Saptarshi Roy</a>
+  Made with ❤️ by <a href="https://arkiv.bysr.me/">Saptarshi Roy</a>
 </p>

@@ -17,6 +17,3 @@ arkiv.log
 
 # Documentation
 README.md
-
-# Email templates (for Supabase config, not needed in deployment)
-email_templates/

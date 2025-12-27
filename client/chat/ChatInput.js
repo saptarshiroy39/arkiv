@@ -25,7 +25,7 @@ function ChatInput({ input, setInput, handleSubmit, indexReady: ready, isLoading
                             }
                         }
                     }}
-                    placeholder={ready ? "Ask a question..." : "Upload documents first..."}
+                    placeholder={ready ? "Ask a question..." : "Upload docs first..."}
                     disabled={!ready || loading}
                     rows={1}
                     style={{resize: 'none', minHeight: '56px', maxHeight: '150px', overflowY: 'auto'}}

@@ -137,10 +137,7 @@
   align-items: flex-start;
 }
 
-.settings-form .password-input-wrapper {
-  flex: 1;
-  margin-bottom: 0;
-}
+
 
 .settings-input {
   flex: 1;
@@ -284,27 +281,7 @@
   color: #fff;
 }
 
-.profile-message {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  border-radius: 8px;
-  margin-bottom: 24px;
-  font-size: 13px;
-}
 
-.profile-message.success {
-  background: #052e16;
-  color: #4ade80;
-  border: 1px solid #166534;
-}
-
-.profile-message.error {
-  background: #450a0a;
-  color: #f87171;
-  border: 1px solid #7f1d1d;
-}
 
 .profile-avatar-large {
   width: 64px;
@@ -318,33 +295,6 @@
   font-size: 24px;
   font-weight: 700;
   flex-shrink: 0;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .settings-page {
-    padding: 24px 16px;
-  }
-
-  .settings-layout {
-    flex-direction: column;
-    gap: 24px;
-  }
-
-  .settings-nav {
-    flex-direction: row;
-    overflow-x: auto;
-    min-width: 0;
-  }
-
-  .settings-nav-item {
-    white-space: nowrap;
-  }
-
-  .settings-form {
-    flex-direction: column;
-  }
-
 }
 
 /* About Tab */

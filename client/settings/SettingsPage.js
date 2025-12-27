@@ -1,17 +1,11 @@
-function SettingsPage({ user, onClose, updateProfile, updateEmail, updatePassword, signOut, deleteAccount, resetKnowledgeBase, isResettingKnowledge, hasIndexedDocuments }) {
+function SettingsPage({ user, onClose, updateProfile, signOut, deleteAccount, resetKnowledgeBase, isResettingKnowledge, hasIndexedDocuments }) {
     const [tab, setTab] = useState('general');
     const [name, setName] = useState(user?.user_metadata?.display_name || user?.user_metadata?.full_name || '');
-    const [email, setEmail] = useState('');
-    const [pass, setPass] = useState('');
-    const [confirm, setConfirm] = useState('');
     const [toasts, setToasts] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [emailLoading, setEmailLoading] = useState(false);
-    const [passLoading, setPassLoading] = useState(false);
     const [showDelete, setShowDelete] = useState(false);
     const [confirmText, setConfirmText] = useState('');
-    const [showPass, setShowPass] = useState(false);
-    const [showConfirm, setShowConfirm] = useState(false);
+
 
     const showToast = (text, type = 'success') => {
         const id = Date.now();
@@ -41,54 +35,6 @@ function SettingsPage({ user, onClose, updateProfile, updateEmail, updatePasswor
         }
     };
 
-    const onUpdateEmail = async (e) => {
-        e.preventDefault();
-        if (!email.trim()) {
-            showToast('Enter a new email', 'error');
-            return;
-        }
-        
-        setEmailLoading(true);
-        try {
-            const { error } = await updateEmail(email.trim());
-            if (error) throw error;
-            showToast('Verification sent! Check your new email inbox.');
-            setEmail('');
-        } catch (err) {
-            showToast(err.message, 'error');
-        } finally {
-            setEmailLoading(false);
-        }
-    };
-
-    const onUpdatePass = async (e) => {
-        e.preventDefault();
-        if (!pass || !confirm) return;
-        
-        if (pass !== confirm) {
-            showToast('Passwords do not match', 'error');
-            return;
-        }
-        
-        if (pass.length < 6) {
-            showToast('Password too short', 'error');
-            return;
-        }
-        
-        setPassLoading(true);
-        try {
-            const { error } = await updatePassword(pass);
-            if (error) throw error;
-            showToast('Password updated!');
-            setPass('');
-            setConfirm('');
-        } catch (err) {
-            showToast(err.message, 'error');
-        } finally {
-            setPassLoading(false);
-        }
-    };
-
     const onDelete = async () => {
         if (confirmText !== 'DELETE') return;
         
@@ -107,7 +53,7 @@ function SettingsPage({ user, onClose, updateProfile, updateEmail, updatePasswor
 
     const tabs = [
         { id: 'general', label: 'General', icon: 'user-circle' },
-        { id: 'privacy', label: 'Security', icon: 'shield-lock' },
+
         { id: 'apikeys', label: 'API Keys', icon: 'key' },
         { id: 'about', label: 'About', icon: 'info-octagon' }
     ];
@@ -148,26 +94,6 @@ function SettingsPage({ user, onClose, updateProfile, updateEmail, updatePasswor
                             isResettingKnowledge={isResettingKnowledge}
                             hasIndexedDocuments={hasIndexedDocuments}
                             showToast={showToast}
-                        />
-                    )}
-
-                    {tab === 'privacy' && (
-                        <PrivacyTab
-                            user={user}
-                            newEmail={email}
-                            setNewEmail={setEmail}
-                            handleUpdateEmail={onUpdateEmail}
-                            newPassword={pass}
-                            setNewPassword={setPass}
-                            confirmPassword={confirm}
-                            setConfirmPassword={setConfirm}
-                            showNewPassword={showPass}
-                            setShowNewPassword={setShowPass}
-                            showConfirmPassword={showConfirm}
-                            setShowConfirmPassword={setShowConfirm}
-                            handleUpdatePassword={onUpdatePass}
-                            isEmailLoading={emailLoading}
-                            isPasswordLoading={passLoading}
                             signOut={signOut}
                             setShowDeleteModal={setShowDelete}
                         />

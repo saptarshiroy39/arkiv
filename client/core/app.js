@@ -1,5 +1,5 @@
 function App() {
-    const { user, signOut, updateProfile, updateEmail, updatePassword, deleteAccount, passwordResetInProgress } = useAuth();
+    const { user, signOut, updateProfile, updateEmail, deleteAccount } = useAuth();
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
@@ -83,7 +83,7 @@ function App() {
         scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
-    if (!user || passwordResetInProgress) return <Auth />;
+    if (!user) return <Auth />;
 
     const saveChat = (msgs, files = []) => {
         if (!msgs.length) return;
@@ -295,8 +295,6 @@ function App() {
                         user={user}
                         onClose={() => setShowProfile(false)}
                         updateProfile={updateProfile}
-                        updateEmail={updateEmail}
-                        updatePassword={updatePassword}
                         signOut={signOut}
                         deleteAccount={deleteAccount}
                         resetKnowledgeBase={clearDocs}

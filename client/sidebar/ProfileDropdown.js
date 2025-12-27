@@ -15,7 +15,6 @@ function ProfileDropdown({
                 <div className="profile-avatar-mini"><span>{initial}</span></div>
                 <div className="profile-dropdown-info">
                     <span className="profile-dropdown-name">{name}</span>
-                    <span className="profile-dropdown-email">{user.email}</span>
                 </div>
             </div>
             <div className="profile-divider"></div>
