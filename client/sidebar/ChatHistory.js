@@ -28,7 +28,7 @@ function ChatHistory({
                     </div>
                     <button className="btn-danger" onClick={onClearAll}>
                         <i className="ti ti-trash" style={{fontSize: 14}}></i>
-                        Delete All
+                        Erase All
                     </button>
                 </>
             )}

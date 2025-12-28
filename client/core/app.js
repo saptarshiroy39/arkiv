@@ -83,23 +83,19 @@ function App() {
         if (saved) setHistory(JSON.parse(saved));
     }, [user]);
 
-    // Critical: Auto-save history whenever it changes
     useEffect(() => {
-        if (!user || !history.length) return;
+        if (!user) return;
         localStorage.setItem(`history_${user.id}`, JSON.stringify(history));
     }, [history, user]);
 
-    // Refactored saveChat to be "reactive" and strictly functional
     const saveChat = (msgs, files = [], explicitId = null) => {
         if (!msgs.length && !files.length) return; // Don't save empty
         
-        // Use functional state update to ensure we always have latest history
         setHistory(prevHistory => {
             const first = msgs.find(m => m.role === 'user');
             const title = first ? first.content.slice(0, 30) + '...' : 'New Chat';
             const targetId = explicitId || chatId || Date.now();
             
-            // Check if this chat already exists in history
             const exists = prevHistory.some(c => c.id === targetId);
             
             const chatObj = {
@@ -110,7 +106,6 @@ function App() {
                 time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
             };
 
-            // If it's a new chat (not in history), set the ID state
             if (!exists && !chatId) {
                 setChatId(targetId);
             }
@@ -158,7 +153,6 @@ function App() {
         const headers = { 'Authorization': `Bearer ${session.access_token}` };
         if (key) headers['X-Custom-Api-Key'] = key;
         
-        // Critical: Update ID locally to prevent race condition
         let activeChatId = chatId;
         if (!activeChatId) {
             activeChatId = Date.now();
