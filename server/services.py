@@ -27,7 +27,7 @@ def get_app_config():
 def get_health_status():
     return {"status": "ok", "db": "connected"}
 
-async def process_uploaded_files(files: List[UploadFile], user, api_key: str = None):
+async def process_uploaded_files(files: List[UploadFile], user, chat_id: str = None, api_key: str = None):
     logger.info(f"Uploading {len(files)} files for {user.email}")
     try:
         if not files:
@@ -46,21 +46,26 @@ async def process_uploaded_files(files: List[UploadFile], user, api_key: str = N
             try:
                 # read and clean
                 blob = await f.read()
-                raw = read_file(blob, fname, ftype, api_key=api_key)
-                txt = normalize_text(raw)
+                segments = read_file(blob, fname, ftype, api_key=api_key)
                 
-                if not txt:
+                if not segments:
                     logger.warning(f"Empty text in {fname}")
                     continue
                     
                 # chunk it
-                for i, piece in enumerate(chunk_text(txt)):
-                    chunks.append(Chunk(
-                        text=piece,
-                        source=fname,
-                        idx=i,
-                        meta={"type": ftype}
-                    ))
+                file_chunk_idx = 0
+                for seg in segments:
+                    txt = normalize_text(seg["text"])
+                    if not txt: continue
+                    
+                    for piece in chunk_text(txt):
+                        chunks.append(Chunk(
+                            text=piece,
+                            source=fname,
+                            idx=file_chunk_idx,
+                            meta={"type": ftype, "page": seg["page"]}
+                        ))
+                        file_chunk_idx += 1
 
             except Exception as e:
                 logger.error(f"Failed handling {fname}: {e}")
@@ -70,7 +75,7 @@ async def process_uploaded_files(files: List[UploadFile], user, api_key: str = N
             raise HTTPException(status_code=400, detail="Couldn't extract any text")
             
         # save to vector store
-        ingest_chunks(chunks, user.id, api_key=api_key)
+        ingest_chunks(chunks, user.id, chat_id=chat_id, api_key=api_key)
         logger.info(f"Saved {len(chunks)} chunks for {user.id}")
 
         return {
@@ -90,11 +95,10 @@ async def verify_key_status(req: KeyRequest):
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Invalid Key: {e}")
 
-async def process_question(req: Question, user, api_key: str = None):
+async def process_question(req: Question, user, chat_id: str = None, api_key: str = None):
     try:
-        res = ask_question(req.text, user.id, api_key=api_key)
+        res = ask_question(req.text, user.id, chat_id=chat_id, api_key=api_key)
         
-        # save to db history
         try:
             supabase.table("conversations").insert({
                 "user_id": user.id,
@@ -110,9 +114,10 @@ async def process_question(req: Question, user, api_key: str = None):
         logger.error(f"Chat error for {user.email}: {e}")
         raise HTTPException(status_code=500, detail=simplify_error(e))
 
-async def clear_user_data(user, api_key: str = None):
+async def clear_user_data(user, chat_id: str = None, api_key: str = None):
     try:
-        rag_clear_user_data(user.id, api_key=api_key)
+        rag_clear_user_data(user.id, chat_id=chat_id, api_key=api_key)
+        
         return {"message": "Data cleared"}
     except Exception as e:
         logger.error(f"Clear failed: {e}")
@@ -121,18 +126,15 @@ async def clear_user_data(user, api_key: str = None):
 async def delete_user_account(user):
     try:
         uid = user.id
-        # delete chats
         supabase.table("conversations").delete().eq("user_id", uid).execute()
-
-        # delete vectors
+        
         try:
-            from .storage.pinecone import PineconeClient
-            if os.getenv("PINECONE_API_KEY"):
-                PineconeClient().delete_namespace(str(uid))
+            from .rag.retriever import Retriever
+            Retriever(uid).clear_data()
+            
         except Exception:
             pass
 
-        # delete auth user
         supabase.auth.admin.delete_user(uid)
         logger.info(f"Deleted user: {user.email}")
         

@@ -1,9 +1,14 @@
-function ChatInput({ input, setInput, handleSubmit, indexReady: ready, isLoading: loading, inputRef }) {
+function ChatInput({ input, setInput, handleSubmit, indexReady: ready, isLoading: loading, inputRef, hasUnprocessedFiles }) {
     React.useEffect(() => {
         if (!input && inputRef.current) {
             inputRef.current.style.height = '56px';
         }
     }, [input, inputRef]);
+
+    const canChat = ready && !hasUnprocessedFiles;
+    const placeholder = hasUnprocessedFiles 
+        ? "Process files first..." 
+        : (ready ? "Ask a question..." : "Upload docs first...");
 
     return (
         <div className="input-area">
@@ -20,17 +25,17 @@ function ChatInput({ input, setInput, handleSubmit, indexReady: ready, isLoading
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
-                            if (input.trim() && ready && !loading) {
+                            if (input.trim() && canChat && !loading) {
                                 handleSubmit(e);
                             }
                         }
                     }}
-                    placeholder={ready ? "Ask a question..." : "Upload docs first..."}
-                    disabled={!ready || loading}
+                    placeholder={placeholder}
+                    disabled={!canChat || loading}
                     rows={1}
                     style={{resize: 'none', minHeight: '56px', maxHeight: '150px', overflowY: 'auto'}}
                 />
-                <button type="submit" className="btn-send" disabled={!input.trim() || !ready || loading}>
+                <button type="submit" className="btn-send" disabled={!input.trim() || !canChat || loading}>
                     {loading ? (
                         <i className="ti ti-loader-2 spin" style={{fontSize: 18}}></i>
                     ) : (

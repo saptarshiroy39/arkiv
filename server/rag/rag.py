@@ -1,12 +1,12 @@
 from .retriever import Retriever
 from .client import LLMClient
 
-def ingest_chunks(chunks, user_id, api_key=None):
-    r = Retriever(user_id=user_id, api_key=api_key)
+def ingest_chunks(chunks, user_id, chat_id=None, api_key=None):
+    r = Retriever(user_id=user_id, chat_id=chat_id, api_key=api_key)
     r.ingest_chunks(chunks)
 
-def ask_question(question, user_id, api_key=None):
-    r = Retriever(user_id=user_id, api_key=api_key)
+def ask_question(question, user_id, chat_id=None, api_key=None):
+    r = Retriever(user_id=user_id, chat_id=chat_id, api_key=api_key)
     results = r.retrieve(question, k=8)
     
     if not results:
@@ -27,6 +27,6 @@ def ask_question(question, user_id, api_key=None):
         "context": context
     }
 
-def clear_user_data(user_id, api_key=None):
-    r = Retriever(user_id=user_id, api_key=api_key)
+def clear_user_data(user_id, chat_id=None, api_key=None):
+    r = Retriever(user_id=user_id, chat_id=chat_id, api_key=api_key)
     r.clear_data()

@@ -4,8 +4,6 @@
   <a href="https://arkiv.bysr.me/"><b>Arkiv</b></a> is an AI-powered document assistant that lets you upload files and have intelligent conversations about their content. Built with <a href="https://fastapi.tiangolo.com"><b>FastAPI</b></a> and powered by <a href="https://ai.google.dev"><b>Google Gemini</b></a>, Arkiv uses RAG (Retrieval Augmented Generation) to provide accurate, context-aware answers from your documents.
 </p>
 
-![Arkiv](Arkiv.png)
-
 ---
 
 ## ✨ Features

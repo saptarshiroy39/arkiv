@@ -24,9 +24,7 @@ def get_file_type(fname):
         ".pptx": "slides",
         
         ".txt": "text", 
-        ".md": "text", 
-        ".py": "text", 
-        ".js": "text", 
+        ".md": "text",
         ".json": "text"
     }
 

@@ -13,7 +13,8 @@ function FileUpload({
     getFileIcon,
     messages,
     setMessages,
-    setCurrentChatId
+    setCurrentChatId,
+    onClearChat
 }) {
     const hasMessages = messages && messages.length > 0;
     
@@ -90,7 +91,7 @@ function FileUpload({
                         )}
                         <button 
                             className="status-action-btn" 
-                            onClick={() => { setMessages([]); setCurrentChatId(null); }}
+                            onClick={onClearChat}
                             title="Clear Chat"
                             style={{flex: 1}}
                         >

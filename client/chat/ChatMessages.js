@@ -34,15 +34,30 @@ function ChatMessages({ messages, isLoading: loading, messagesEndRef, user }) {
         <div className="messages">
             {!messages.length ? (
                 <div className="empty-state">
-                    <div className="empty-icon lava-lamp-bg">
-                        <i className="ti ti-brain" style={{fontSize: 28}}></i>
-                    </div>
-                    <h2 className="empty-title">Arkiv</h2>
-                    <p className="empty-desc">AI-powered RAG for documents</p>
-                    <div className="tips">
-                        <div className="tip"><span className="tip-num">1</span><span className="tip-text">Upload Files</span></div>
-                        <div className="tip"><span className="tip-num">2</span><span className="tip-text">Ask questions</span></div>
-                        <div className="tip"><span className="tip-num">3</span><span className="tip-text">Get answers</span></div>
+                    <div className="welcome-container">
+                        <div className="welcome-text">
+                            {(() => {
+                                const name = user?.user_metadata?.first_name || user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || '';
+                                const greetings = [
+                                    `Hey, ${name}...`,
+                                    `Welcome back, ${name}...`,
+                                    `Hello, ${name}...`,
+                                    `Hi, ${name}...`,
+                                    `Hey there, ${name}...`,
+                                    `Hi there, ${name}...`
+                                ];
+
+                                const randomGreeting = React.useMemo(() => {
+                                    return greetings[Math.floor(Math.random() * greetings.length)];
+                                }, [name]);
+
+                                return (
+                                    <>
+                                        <h1 className="welcome-title">{randomGreeting}</h1>
+                                    </>
+                                );
+                            })()}
+                        </div>
                     </div>
                 </div>
             ) : (

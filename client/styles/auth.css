@@ -256,3 +256,76 @@
     transform: rotate(360deg);
   }
 }
+
+/* Responsive Auth Page */
+@media (max-width: 1024px) {
+  .auth-container {
+    padding: 16px;
+  }
+
+  .auth-decorative-panel {
+    padding: 40px;
+  }
+
+  .auth-decorative-tagline {
+    font-size: 42px;
+  }
+}
+
+@media (max-width: 768px) {
+  .auth-container {
+    flex-direction: column-reverse;
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .auth-form-section {
+    padding: 24px 16px;
+  }
+
+  .auth-decorative-panel {
+    min-height: 200px;
+    padding: 32px 24px;
+    border-radius: 20px;
+  }
+
+  .auth-decorative-tagline {
+    font-size: 36px;
+  }
+
+  .auth-decorative-subtitle {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-container {
+    padding: 8px;
+  }
+
+  .auth-form-section {
+    padding: 20px 12px;
+  }
+
+  .auth-form {
+    max-width: 100%;
+  }
+
+  .auth-form h2 {
+    font-size: 20px;
+  }
+
+  .auth-decorative-panel {
+    min-height: 160px;
+    padding: 24px 16px;
+    border-radius: 16px;
+  }
+
+  .auth-decorative-tagline {
+    font-size: 28px;
+  }
+
+  .auth-decorative-subtitle {
+    font-size: 12px;
+  }
+}

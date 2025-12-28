@@ -1,4 +1,4 @@
-function SettingsPage({ user, onClose, updateProfile, signOut, deleteAccount, resetKnowledgeBase, isResettingKnowledge, hasIndexedDocuments }) {
+function SettingsPage({ user, onClose, updateProfile, signOut, deleteAccount }) {
     const [tab, setTab] = useState('general');
     const [name, setName] = useState(user?.user_metadata?.display_name || user?.user_metadata?.full_name || '');
     const [toasts, setToasts] = useState([]);
@@ -60,15 +60,15 @@ function SettingsPage({ user, onClose, updateProfile, signOut, deleteAccount, re
 
     return (
         <div className="settings-page">
-            <div className="settings-header">
-                <button className="profile-back-btn" onClick={onClose}>
-                    <i className="ti ti-arrow-left" style={{fontSize: 18}}></i>
-                    Back
-                </button>
-                <h1 className="settings-title">Settings</h1>
-            </div>
+            <div className="settings-modal">
+                <div className="settings-header">
+                    <h1 className="settings-title">Settings</h1>
+                    <button className="settings-close-btn" onClick={onClose}>
+                        <i className="ti ti-x" style={{fontSize: 20}}></i>
+                    </button>
+                </div>
 
-            <div className="settings-layout">
+                <div className="settings-layout">
                 <nav className="settings-nav">
                     {tabs.map(t => (
                         <button
@@ -90,9 +90,7 @@ function SettingsPage({ user, onClose, updateProfile, signOut, deleteAccount, re
                             setDisplayName={setName}
                             handleUpdateName={onUpdateName}
                             isLoading={loading}
-                            resetKnowledgeBase={resetKnowledgeBase}
-                            isResettingKnowledge={isResettingKnowledge}
-                            hasIndexedDocuments={hasIndexedDocuments}
+
                             showToast={showToast}
                             signOut={signOut}
                             setShowDeleteModal={setShowDelete}
@@ -132,6 +130,8 @@ function SettingsPage({ user, onClose, updateProfile, signOut, deleteAccount, re
                     </div>
                 </div>
             )}
+
+            </div>
 
             <ToastContainer toasts={toasts} removeToast={removeToast} />
         </div>

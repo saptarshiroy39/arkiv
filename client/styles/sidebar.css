@@ -1,7 +1,7 @@
 /* Sidebar */
 .sidebar {
   width: 280px;
-  background: #0f0f0f;
+  background: #171717;
   border-right: 1px solid #262626;
   display: flex;
   flex-direction: column;
@@ -65,7 +65,7 @@
 }
 
 .sidebar-badge.success {
-  background: #22c55e;
+  background: #047857;
 }
 
 .sidebar-top-row {
@@ -482,7 +482,7 @@
 }
 
 .processed-file-icon {
-  color: #4ade80;
+  color: #047857;
 }
 
 .processed-file-name {
@@ -603,13 +603,13 @@
 .btn-danger {
   width: 100%;
   padding: 10px 16px;
-  background: #2a0a0a;
-  color: #f87171;
-  border: 1px solid #7f1d1d;
+  background: #b91c1c;
+  color: #fff;
+  border: 1px solid #b91c1c;
   border-radius: 8px;
   font-family: inherit;
   font-size: 12px;
-  font-weight: 400;
+  font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -620,7 +620,7 @@
 }
 
 .btn-danger:hover {
-  background: #450a0a;
+  background: #991b1b;
   border-color: #991b1b;
 }
 
@@ -630,6 +630,7 @@
   border-radius: 8px;
   font-size: 12px;
   font-weight: 500;
+  font-family: inherit;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -638,9 +639,10 @@
 }
 
 .status.success {
-  background: #14532d;
-  color: #4ade80;
-  border: 1px solid #166534;
+  background: #047857;
+  color: #fff;
+  border: 1px solid #047857;
+  font-weight: 600;
 }
 
 /* Status Action Button */
@@ -650,20 +652,21 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  background: rgba(248, 113, 113, 0.1);
-  border: 1px solid rgba(248, 113, 113, 0.2);
+  background: #b91c1c;
+  border: 1px solid #b91c1c;
   border-radius: 8px;
-  color: #f87171;
+  color: #fff;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
+  font-family: inherit;
   cursor: pointer;
   transition: all 0.2s;
   box-sizing: border-box;
 }
 
 .status-action-btn:hover {
-  background: rgba(248, 113, 113, 0.2);
-  border-color: rgba(248, 113, 113, 0.3);
+  background: #991b1b;
+  border-color: #991b1b;
 }
 
 .status-action-btn:active {

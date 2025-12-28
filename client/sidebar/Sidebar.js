@@ -29,7 +29,9 @@ function Sidebar({
     showProfileMenu,
     setShowProfileMenu,
     profileMenuRef: menuRef,
-    setShowProfile
+    setShowProfile,
+    onClearChat,
+    onClearAll
 }) {
     const getIcon = (name) => {
         const ext = name.split('.').pop().toLowerCase();
@@ -68,19 +70,19 @@ function Sidebar({
                     <div className="sidebar-divider"></div>
                     {files.length > 0 && (
                         <div className="sidebar-icon process-icon" title={`Process ${files.length} file(s)`} onClick={doUpload}>
-                            <i className={`ti ti-${uploading ? 'loader-2 spin' : 'bolt'}`} style={{fontSize: 20, color: '#3b82f6'}}></i>
+                            <i className={`ti ti-${uploading ? 'loader-2 spin' : 'bolt'}`} style={{fontSize: 20, color: '#2563eb'}}></i>
                             <span className="sidebar-badge">{files.length}</span>
                         </div>
                     )}
                     {processed.length > 0 && (
                         <div className="sidebar-icon active" title={`${processed.length} files indexed`}>
-                            <i className="ti ti-files" style={{fontSize: 20, color: '#4ade80'}}></i>
+                            <i className="ti ti-files" style={{fontSize: 20, color: '#047857'}}></i>
                             <span className="sidebar-badge success">{processed.length}</span>
                         </div>
                     )}
                     {messages.length > 0 && (
-                        <div className="sidebar-icon" title="Clear Chat" onClick={() => { setMessages([]); setChatId(null); }}>
-                            <i className="ti ti-trash" style={{fontSize: 20, color: '#f87171'}}></i>
+                        <div className="sidebar-icon" title="Clear Chat" onClick={onClearChat}>
+                            <i className="ti ti-trash" style={{fontSize: 20, color: '#b91c1c'}}></i>
                         </div>
                     )}
 
@@ -132,6 +134,7 @@ function Sidebar({
                     loadChat={loadChat}
                     deleteChat={deleteChat}
                     userId={user.id}
+                    onClearAll={onClearAll}
                 />
             ) : (
                 <FileUpload
@@ -150,6 +153,7 @@ function Sidebar({
                     messages={messages}
                     setMessages={setMessages}
                     setCurrentChatId={setChatId}
+                    onClearChat={onClearChat}
                 />
             )}
 

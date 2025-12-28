@@ -18,9 +18,10 @@ async def health():
 async def upload(
     files: List[UploadFile] = File(...), 
     user=Depends(get_user),
-    key: str = Header(None, alias="x-custom-api-key")
+    key: str = Header(None, alias="x-custom-api-key"),
+    chat_id: str = Header(None, alias="x-chat-id")
 ):
-    return await services.process_uploaded_files(files, user, api_key=key)
+    return await services.process_uploaded_files(files, user, chat_id=chat_id, api_key=key)
 
 @router.post("/ask", response_model=Answer)
 async def ask(
@@ -28,7 +29,7 @@ async def ask(
     user=Depends(get_user),
     key: str = Header(None, alias="x-custom-api-key")
 ):
-    return await services.process_question(req, user, api_key=key)
+    return await services.process_question(req, user, chat_id=req.chat_id, api_key=key)
 
 @router.post("/verify-key")
 async def verify(req: KeyRequest):
@@ -37,9 +38,10 @@ async def verify(req: KeyRequest):
 @router.delete("/clear-data")
 async def clear(
     user=Depends(get_user),
-    key: str = Header(None, alias="x-custom-api-key")
+    key: str = Header(None, alias="x-custom-api-key"),
+    chat_id: str = Header(None, alias="x-chat-id")
 ):
-    return await services.clear_user_data(user, api_key=key)
+    return await services.clear_user_data(user, chat_id=chat_id, api_key=key)
 
 @router.delete("/account")
 async def delete_acc(user=Depends(get_user)):

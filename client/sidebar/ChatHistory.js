@@ -4,7 +4,9 @@ function ChatHistory({
     currentChatId: chatId,
     loadChat,
     deleteChat,
-    userId
+
+    userId,
+    onClearAll
 }) {
     return (
         <div className="history-section">
@@ -24,7 +26,7 @@ function ChatHistory({
                             </div>
                         ))}
                     </div>
-                    <button className="btn-danger" onClick={() => { setHistory([]); localStorage.removeItem(`history_${userId}`); }}>
+                    <button className="btn-danger" onClick={onClearAll}>
                         <i className="ti ti-trash" style={{fontSize: 14}}></i>
                         Delete All
                     </button>

@@ -1,6 +1,6 @@
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-def chunk_text(text, size=10000, overlap=1000):
+def chunk_text(text, size=1500, overlap=150):
     if not text:
         return []
 

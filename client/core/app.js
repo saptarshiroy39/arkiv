@@ -12,6 +12,20 @@ function App() {
     const [sidebarPref, setSidebarPref] = useState(true);
     const prevWidth = useRef(window.innerWidth);
 
+    useEffect(() => {
+        const outside = (e) => {
+            if (menuRef.current && !menuRef.current.contains(e.target)) {
+                setShowProfileMenu(false);
+            }
+        };
+        document.addEventListener('mousedown', outside);
+        return () => document.removeEventListener('mousedown', outside);
+    }, []);
+
+    useEffect(() => {
+        scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
+
     const showToast = (text, type = 'error') => {
         const id = Date.now();
         setToasts(prev => [...prev, { id, text, type }]);
@@ -69,43 +83,44 @@ function App() {
         if (saved) setHistory(JSON.parse(saved));
     }, [user]);
 
+    // Critical: Auto-save history whenever it changes
     useEffect(() => {
-        const outside = (e) => {
-            if (menuRef.current && !menuRef.current.contains(e.target)) {
-                setShowProfileMenu(false);
-            }
-        };
-        document.addEventListener('mousedown', outside);
-        return () => document.removeEventListener('mousedown', outside);
-    }, []);
+        if (!user || !history.length) return;
+        localStorage.setItem(`history_${user.id}`, JSON.stringify(history));
+    }, [history, user]);
 
-    useEffect(() => {
-        scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [messages]);
-
-    if (!user) return <Auth />;
-
-    const saveChat = (msgs, files = []) => {
-        if (!msgs.length) return;
-        const first = msgs.find(m => m.role === 'user');
-        const title = first ? first.content.slice(0, 30) + '...' : 'New Chat';
-        const chat = {
-            id: chatId || Date.now(),
-            title,
-            messages: msgs,
-            files: files,
-            time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-        };
+    // Refactored saveChat to be "reactive" and strictly functional
+    const saveChat = (msgs, files = [], explicitId = null) => {
+        if (!msgs.length && !files.length) return; // Don't save empty
         
-        let nextHistory;
-        if (chatId) {
-            nextHistory = history.map(c => c.id === chatId ? chat : c);
-        } else {
-            nextHistory = [chat, ...history];
-            setChatId(chat.id);
-        }
-        setHistory(nextHistory);
-        localStorage.setItem(`history_${user.id}`, JSON.stringify(nextHistory));
+        // Use functional state update to ensure we always have latest history
+        setHistory(prevHistory => {
+            const first = msgs.find(m => m.role === 'user');
+            const title = first ? first.content.slice(0, 30) + '...' : 'New Chat';
+            const targetId = explicitId || chatId || Date.now();
+            
+            // Check if this chat already exists in history
+            const exists = prevHistory.some(c => c.id === targetId);
+            
+            const chatObj = {
+                id: targetId,
+                title,
+                messages: msgs,
+                files: files,
+                time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+            };
+
+            // If it's a new chat (not in history), set the ID state
+            if (!exists && !chatId) {
+                setChatId(targetId);
+            }
+
+            if (exists) {
+                return prevHistory.map(c => c.id === targetId ? chatObj : c);
+            } else {
+                return [chatObj, ...prevHistory];
+            }
+        });
     };
 
     const isSupported = (f) => {
@@ -130,6 +145,8 @@ function App() {
 
     const doUpload = async () => {
         if (!files.length) return;
+        
+
         setUploading(true);
         setStatus(null);
 
@@ -140,6 +157,14 @@ function App() {
         const key = localStorage.getItem('custom_api_key_google');
         const headers = { 'Authorization': `Bearer ${session.access_token}` };
         if (key) headers['X-Custom-Api-Key'] = key;
+        
+        // Critical: Update ID locally to prevent race condition
+        let activeChatId = chatId;
+        if (!activeChatId) {
+            activeChatId = Date.now();
+            setChatId(activeChatId);
+        }
+        headers['X-Chat-Id'] = String(activeChatId);
 
         try {
             const res = await fetch(`${API_URL}/upload`, { 
@@ -181,11 +206,18 @@ function App() {
         };
         if (key) headers['X-Custom-Api-Key'] = key;
 
+        // Ensure we have an ID for this chat
+        let activeChatId = chatId;
+        if (!activeChatId) {
+            activeChatId = Date.now();
+            setChatId(activeChatId);
+        }
+
         try {
             const res = await fetch(`${API_URL}/ask`, {
                 method: 'POST',
                 headers,
-                body: JSON.stringify({ text: val })
+                body: JSON.stringify({ text: val, chat_id: String(activeChatId) })
             });
             if (!res.ok) throw new Error((await res.json()).detail || 'Failed');
             
@@ -193,7 +225,7 @@ function App() {
             const final = [...next, { role: 'assistant', content: data.text }];
             setLoading(false);
             setMessages(final);
-            saveChat(final, processed);
+            saveChat(final, processed, activeChatId);
         } catch (err) {
             setLoading(false);
             setMessages([...next, { role: 'assistant', content: err.message, isError: true }]);
@@ -219,7 +251,7 @@ function App() {
         setShowHistory(false);
     };
 
-    const clearDocs = async () => {
+    const clearDocs = async (isGlobal = false) => {
         setResetting(true);
         try {
             const { data: { session } } = await supabase.auth.getSession();
@@ -227,13 +259,43 @@ function App() {
             const headers = { 'Authorization': `Bearer ${session.access_token}` };
             if (key) headers['X-Custom-Api-Key'] = key;
             
-            const res = await fetch(`${API_URL}/clear-data`, { method: 'DELETE', headers });
-            if (!res.ok) throw new Error('Reset failed');
+            // If NOT global, we clear only the current chat
+            if (!isGlobal && chatId) {
+                headers['X-Chat-Id'] = String(chatId);
+                const res = await fetch(`${API_URL}/clear-data`, { method: 'DELETE', headers });
+                if (!res.ok) throw new Error('Reset failed');
+            } else if (isGlobal) {
+                // GLOBAL CLEAR: Iterate all known chats + legacy
+                const allIds = history.map(c => c.id).filter(Boolean);
+                // distinct IDs
+                const uniqueIds = [...new Set(allIds)];
+                
+                const promises = uniqueIds.map(id => {
+                    const h = { ...headers, 'X-Chat-Id': String(id) };
+                    return fetch(`${API_URL}/clear-data`, { method: 'DELETE', headers: h });
+                });
+                
+                // Also clear legacy (no chat ID)
+                promises.push(fetch(`${API_URL}/clear-data`, { method: 'DELETE', headers }));
+                
+                await Promise.all(promises);
+            }
             
-            setProcessed([]);
+            // If global, we clear everything local
+            if (isGlobal) {
+                setProcessed([]);
+                setMessages([]);
+                setHistory([]); // useEffect will wipe localStorage
+                setIndexReady(false);
+                localStorage.removeItem(`ready_${user.id}`);
+                setChatId(null);
+            } else {
+                // Local clear
+                setProcessed([]);
+                setIndexReady(false);
+            }
+            
             setStatus(null);
-            setIndexReady(false);
-            localStorage.removeItem(`ready_${user.id}`);
             return { success: true };
         } catch (err) {
             return { error: { message: err.message } };
@@ -241,12 +303,23 @@ function App() {
             setResetting(false);
         }
     };
+    
+    // Function for Sidebar "Trash" button - Clears CURRENT chat data from backend & frontend
+    const onClearCurrentChat = async () => {
+        if (!chatId) {
+             // If no chat ID, just clear UI
+             setMessages([]);
+             return;
+        }
+        
+        await clearDocs(false); // Clear specific
+        setMessages([]);
+        // Don't nullify chatId, keep context but empty
+    };
 
     const onChatDelete = (e, id) => {
         e.stopPropagation();
-        const next = history.filter(c => c.id !== id);
-        setHistory(next);
-        localStorage.setItem(`history_${user.id}`, JSON.stringify(next));
+        setHistory(prev => prev.filter(c => c.id !== id));
         if (chatId === id) {
             setMessages([]);
             setChatId(null);
@@ -273,12 +346,15 @@ function App() {
                 files={files}
                 setFiles={setFiles}
                 isUploading={uploading}
+
                 handleUpload={doUpload}
                 status={status}
                 processedFiles={processed}
                 messages={messages}
                 setMessages={setMessages}
                 setCurrentChatId={setChatId}
+                onClearChat={onClearCurrentChat}
+                onClearAll={() => clearDocs(true)}
                 collapsed={!showSidebar}
                 showSidebar={showSidebar}
                 setShowSidebar={toggleSidebar}
@@ -297,9 +373,6 @@ function App() {
                         updateProfile={updateProfile}
                         signOut={signOut}
                         deleteAccount={deleteAccount}
-                        resetKnowledgeBase={clearDocs}
-                        isResettingKnowledge={resetting}
-                        hasIndexedDocuments={indexReady}
                     />
                 ) : (
                     <>
@@ -322,6 +395,7 @@ function App() {
                             indexReady={indexReady}
                             isLoading={loading}
                             inputRef={inputRef}
+                            hasUnprocessedFiles={files.length > 0}
                         />
                     </>
                 )}

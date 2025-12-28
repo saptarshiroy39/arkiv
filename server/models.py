@@ -10,6 +10,7 @@ class Chunk(BaseModel):
 
 class Question(BaseModel):
     text: str
+    chat_id: str | None = None
 
 class Answer(BaseModel):
     text: str

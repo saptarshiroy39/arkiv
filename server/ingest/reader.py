@@ -9,16 +9,17 @@ import google.generativeai as genai
 from server.config import genai as def_genai, logger
 
 def read_pdf(blob, fname, **kwargs):
-    parts = []
+    segments = []
     try:
         with pdfplumber.open(io.BytesIO(blob)) as pdf:
-            for page in pdf.pages:
+            for i, page in enumerate(pdf.pages):
                 txt = page.extract_text()
-                if txt: parts.append(txt)
-        return "\n".join(parts) if parts else f"[No text in {fname}]"
+                if txt:
+                    segments.append({"text": txt, "page": i + 1})
+        return segments if segments else [{"text": f"[No text in {fname}]", "page": 1}]
     except Exception as e:
         logger.error(f"PDF error {fname}: {e}")
-        return ""
+        return []
 
 
 def read_docx(blob, fname, **kwargs):
@@ -31,10 +32,10 @@ def read_docx(blob, fname, **kwargs):
             for row in table.rows:
                 row_txt = "\t".join([c.text for c in row.cells])
                 if row_txt.strip(): parts.append(row_txt)
-        return "\n".join(parts)
+        return [{"text": "\n".join(parts), "page": 1}] if parts else []
     except Exception as e:
         logger.error(f"Docx error {fname}: {e}")
-        return ""
+        return []
 
 
 def read_excel(blob, fname, **kwargs):
@@ -48,41 +49,47 @@ def read_excel(blob, fname, **kwargs):
                 vals = [str(v) if v is not None else "" for v in row]
                 line = "\t".join(vals)
                 if line.strip(): parts.append(line)
-        return "\n".join(parts)
+        return [{"text": "\n".join(parts), "page": 1}] if parts else []
     except Exception as e:
         logger.error(f"Excel error {fname}: {e}")
-        return ""
+        return []
 
 
 def read_csv(blob, fname, **kwargs):
     try:
         txt = blob.decode('utf-8', errors='replace')
-        return "\n".join(["\t".join(r) for r in csv.reader(io.StringIO(txt)) if any(r)])
+        content = "\n".join(["\t".join(r) for r in csv.reader(io.StringIO(txt)) if any(r)])
+        return [{"text": content, "page": 1}] if content else []
     except Exception as e:
         logger.error(f"CSV error {fname}: {e}")
-        return ""
+        return []
 
 
 def read_pptx(blob, fname, **kwargs):
-    parts = []
+    segments = []
     try:
         prs = Presentation(io.BytesIO(blob))
         for i, slide in enumerate(prs.slides, 1):
-            parts.append(f"--- Slide {i} ---")
+            slide_parts = []
+            slide_parts.append(f"--- Slide {i} ---")
             for shape in slide.shapes:
                 if hasattr(shape, "text") and shape.text.strip():
-                    parts.append(shape.text)
-        return "\n".join(parts)
+                    slide_parts.append(shape.text)
+            
+            if slide_parts:
+                segments.append({"text": "\n".join(slide_parts), "page": i})
+        return segments
     except Exception as e:
         logger.error(f"PPTX error {fname}: {e}")
-        return ""
+        return []
 
 
 def read_text(blob, fname, **kwargs):
     try:
-        return blob.decode('utf-8', errors='ignore')
+        txt = blob.decode('utf-8', errors='ignore')
+        return [{"text": txt, "page": 1}] if txt else []
     except Exception:
-        return ""
+        return []
 
 
 def read_image(blob, fname, api_key=None, **kwargs):
@@ -94,14 +101,13 @@ def read_image(blob, fname, api_key=None, **kwargs):
             model = def_genai.GenerativeModel("gemini-flash-latest")
 
         img = Image.open(io.BytesIO(blob))
-        # simpler, more human prompt
         prompt = "Describe this image in detail. Extract any text, charts, or key data point you see."
         
         res = model.generate_content([prompt, img])
-        return f"[Analysis for {fname}]\n{res.text}"
+        return [{"text": f"[Analysis for {fname}]\n{res.text}", "page": 1}]
     except Exception as e:
         logger.error(f"Image error {fname}: {e}")
-        return ""
+        return []
 
 
 def read_file(blob, fname, ftype, api_key=None):
