@@ -4,7 +4,6 @@ function GeneralTab({
     setDisplayName: setName,
     handleUpdateName: onUpdate,
     isLoading: loading,
-    showToast,
     signOut,
     setShowDeleteModal: setShowDelete
 }) {
@@ -29,8 +28,6 @@ function GeneralTab({
                     </div>
                 </div>
             </div>
-
-
 
             <div className="settings-section inline-section session-section">
                 <h2 className="settings-section-title">Session</h2>

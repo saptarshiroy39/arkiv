@@ -1,7 +1,6 @@
 function applyMath(text) {
     if (!text || typeof text !== 'string') return text;
     
-    // block math
     let res = text.replace(/\$\$([\s\S]*?)\$\$/g, (match, math) => {
         try {
             return katex.renderToString(math.trim(), { displayMode: true, throwOnError: false });
@@ -10,7 +9,6 @@ function applyMath(text) {
         }
     });
     
-    // inline math
     res = res.replace(/\$([^\$\n]+?)\$/g, (match, math) => {
         if (match.includes('<') || match.includes('>')) return match;
         try {

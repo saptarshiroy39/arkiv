@@ -6,7 +6,6 @@ function SupabaseProvider({ children }) {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        // fetch config and init client
         fetch(`${API_URL}/config`)
             .then(res => res.json())
             .then(cfg => {
@@ -15,7 +14,7 @@ function SupabaseProvider({ children }) {
                 }
                 const sc = window.supabase.createClient(cfg.url, cfg.anon_key);
                 setClient(sc);
-                supabase = sc; // global ref
+                supabase = sc;
             })
             .catch(err => {
                 console.error("Config failed:", err);

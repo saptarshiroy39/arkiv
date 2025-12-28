@@ -12,8 +12,6 @@ function FileUpload({
     processedFiles: processed,
     getFileIcon,
     messages,
-    setMessages,
-    setCurrentChatId,
     onClearChat
 }) {
     const hasMessages = messages && messages.length > 0;

@@ -31,6 +31,14 @@
   <link rel="stylesheet" href="styles/index.css?v=6">
   <link rel="stylesheet" href="/easter_egg/easter_egg.css?v=1">
 
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Arkiv">
+  <link rel="apple-touch-icon" href="/Arkiv-Logo.png">
+
   <!-- Favicon -->
   <link rel="icon"
     href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15.5 13a3.5 3.5 0 0 0 -3.5 3.5v1a3.5 3.5 0 0 0 7 0v-1.8'/%3E%3Cpath d='M8.5 13a3.5 3.5 0 0 1 3.5 3.5v1a3.5 3.5 0 0 1 -7 0v-1.8'/%3E%3Cpath d='M17.5 16a3.5 3.5 0 0 0 0 -7h-.5'/%3E%3Cpath d='M19 9.3v-2.8a3.5 3.5 0 0 0 -7 0'/%3E%3Cpath d='M6.5 16a3.5 3.5 0 0 1 0 -7h.5'/%3E%3Cpath d='M5 9.3v-2.8a3.5 3.5 0 0 1 7 0v10'/%3E%3C/svg%3E">
@@ -77,6 +85,17 @@
   <!-- Main App -->
   <script type="text/babel" src="core/app.js?v=3"></script>
   <script type="text/babel" src="core/main.js"></script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('Service Worker registered:', reg.scope))
+          .catch(err => console.log('Service Worker registration failed:', err));
+      });
+    }
+  </script>
 </body>
 
 </html>

@@ -11,13 +11,11 @@ function AuthProvider({ children }) {
             return;
         }
 
-        // initial session check
         sb.auth.getSession().then(({ data: { session } }) => {
             setUser(session?.user ?? null);
             setLoading(false);
         });
 
-        // listen for changes
         const { data: { subscription } } = sb.auth.onAuthStateChange((_event, session) => {
             setUser(session?.user ?? null);
         });
@@ -94,13 +92,12 @@ function useAuth() {
 
 
 // Auth Component (Login/Signup/OTP UI)
-
 function Auth() {
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
     const [otp, setOtp] = useState('');
     const [otpSent, setOtpSent] = useState(false);
-    const [mode, setMode] = useState('login'); // login, signup
+    const [mode, setMode] = useState('login');
     
     const [loading, setLoading] = useState(false);
     const [resending, setResending] = useState(false);
@@ -117,13 +114,10 @@ function Auth() {
         
         try {
             if (otpSent) {
-                // Verify OTP
                 if (otp.length !== 6) throw new Error('Enter 6-digit code');
                 const { error } = await verifyOtp(email, otp, 'email');
                 if (error) throw error;
-                // Success - session established automatically
             } else {
-                // Send OTP
                 const { error } = await sendMagicLink({ 
                     email, 
                     name: mode === 'signup' ? name : undefined 

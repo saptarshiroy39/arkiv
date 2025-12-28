@@ -1,5 +1,8 @@
 function App() {
-    const { user, signOut, updateProfile, updateEmail, deleteAccount } = useAuth();
+    const { user, signOut, updateProfile, deleteAccount } = useAuth();
+    
+    if (!user) return <Auth />;
+    
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
@@ -66,8 +69,6 @@ function App() {
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
     const [snow, setSnow] = useState(false);
-    const [resetting, setResetting] = useState(false);
-    
     const scrollRef = useRef(null);
     const inputRef = useRef(null);
     const fileRef = useRef(null);
@@ -89,7 +90,7 @@ function App() {
     }, [history, user]);
 
     const saveChat = (msgs, files = [], explicitId = null) => {
-        if (!msgs.length && !files.length) return; // Don't save empty
+        if (!msgs.length && !files.length) return;
         
         setHistory(prevHistory => {
             const first = msgs.find(m => m.role === 'user');
@@ -200,7 +201,6 @@ function App() {
         };
         if (key) headers['X-Custom-Api-Key'] = key;
 
-        // Ensure we have an ID for this chat
         let activeChatId = chatId;
         if (!activeChatId) {
             activeChatId = Date.now();
@@ -253,15 +253,12 @@ function App() {
             const headers = { 'Authorization': `Bearer ${session.access_token}` };
             if (key) headers['X-Custom-Api-Key'] = key;
             
-            // If NOT global, we clear only the current chat
             if (!isGlobal && chatId) {
                 headers['X-Chat-Id'] = String(chatId);
                 const res = await fetch(`${API_URL}/clear-data`, { method: 'DELETE', headers });
                 if (!res.ok) throw new Error('Reset failed');
             } else if (isGlobal) {
-                // GLOBAL CLEAR: Iterate all known chats + legacy
                 const allIds = history.map(c => c.id).filter(Boolean);
-                // distinct IDs
                 const uniqueIds = [...new Set(allIds)];
                 
                 const promises = uniqueIds.map(id => {
@@ -269,22 +266,19 @@ function App() {
                     return fetch(`${API_URL}/clear-data`, { method: 'DELETE', headers: h });
                 });
                 
-                // Also clear legacy (no chat ID)
                 promises.push(fetch(`${API_URL}/clear-data`, { method: 'DELETE', headers }));
                 
                 await Promise.all(promises);
             }
             
-            // If global, we clear everything local
             if (isGlobal) {
                 setProcessed([]);
                 setMessages([]);
-                setHistory([]); // useEffect will wipe localStorage
+                setHistory([]);
                 setIndexReady(false);
                 localStorage.removeItem(`ready_${user.id}`);
                 setChatId(null);
             } else {
-                // Local clear
                 setProcessed([]);
                 setIndexReady(false);
             }
@@ -298,24 +292,39 @@ function App() {
         }
     };
     
-    // Function for Sidebar "Trash" button - Clears CURRENT chat data from backend & frontend
     const onClearCurrentChat = async () => {
         if (!chatId) {
-             // If no chat ID, just clear UI
              setMessages([]);
              return;
         }
         
-        await clearDocs(false); // Clear specific
+        await clearDocs(false);
         setMessages([]);
-        // Don't nullify chatId, keep context but empty
+        setProcessed([]);
+        setHistory(prev => prev.filter(c => c.id !== chatId));
+        setChatId(null);
     };
 
-    const onChatDelete = (e, id) => {
+    const onChatDelete = async (e, id) => {
         e.stopPropagation();
+        
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            const key = localStorage.getItem('custom_api_key_google');
+            const headers = { 
+                'Authorization': `Bearer ${session.access_token}`,
+                'X-Chat-Id': String(id)
+            };
+            if (key) headers['X-Custom-Api-Key'] = key;
+            await fetch(`${API_URL}/clear-data`, { method: 'DELETE', headers });
+        } catch (err) {
+            console.error('Failed to clear chat data:', err);
+        }
+        
         setHistory(prev => prev.filter(c => c.id !== id));
         if (chatId === id) {
             setMessages([]);
+            setProcessed([]);
             setChatId(null);
         }
     };

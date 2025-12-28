@@ -1,0 +1,20 @@
+{
+  "name": "Arkiv",
+  "short_name": "Arkiv",
+  "description": "AI-powered document chat. Upload files and ask questions about their content.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/Arkiv-Logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities"],
+  "lang": "en"
+}

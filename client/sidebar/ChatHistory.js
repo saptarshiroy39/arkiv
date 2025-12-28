@@ -1,11 +1,8 @@
 function ChatHistory({
     chatHistory: history,
-    setChatHistory: setHistory,
     currentChatId: chatId,
     loadChat,
     deleteChat,
-
-    userId,
     onClearAll
 }) {
     return (
