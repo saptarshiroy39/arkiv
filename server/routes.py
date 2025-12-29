@@ -38,10 +38,9 @@ async def verify(req: KeyRequest):
 @router.delete("/clear-data")
 async def clear(
     user=Depends(get_user),
-    key: str = Header(None, alias="x-custom-api-key"),
     chat_id: str = Header(None, alias="x-chat-id")
 ):
-    return await services.clear_user_data(user, chat_id=chat_id, api_key=key)
+    return await services.clear_user_data(user, chat_id=chat_id)
 
 @router.delete("/account")
 async def delete_acc(user=Depends(get_user)):

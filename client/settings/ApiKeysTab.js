@@ -64,7 +64,7 @@ function ApiKeysTab({ showToast }) {
         <div className="settings-tab">
             <div className="settings-section">
                 <h2 className="settings-section-title">Bring Your Own Key (BYOK)</h2>
-                <p className="settings-section-desc">Manage up to 3 Google Gemini API keys. Use the toggle in the header to switch between them.</p>
+                <p className="settings-section-desc">Use toggle in the header to switch between keys.</p>
 
                 {!adding ? (
                     <button 
@@ -99,7 +99,7 @@ function ApiKeysTab({ showToast }) {
                 )}
 
                 {keys.length > 0 && (
-                    <div>
+                    <div style={{marginTop: 20}}>
                         <h3 style={{fontSize: 14, color: '#a3a3a3', marginBottom: 10, textTransform: 'uppercase'}}>Saved Keys ({keys.length}/3)</h3>
                         <div style={{display: 'flex', flexDirection: 'column', gap: 10}}>
                             {keys.map((k, i) => {
@@ -109,22 +109,22 @@ function ApiKeysTab({ showToast }) {
                                     <div key={k.id} style={{
                                         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                                         background: '#262626', padding: '12px 16px', borderRadius: '8px',
-                                        border: '1px solid #404040'
+                                        border: '1px solid #404040', flexWrap: 'wrap', gap: 8
                                     }}>
                                         <div style={{display: 'flex', alignItems: 'center', gap: 12, flex: 1}}>
                                             <div style={{width: 32, height: 32, borderRadius: 6, background: '#333', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                                                 <i className="ti ti-brand-google-filled" style={{fontSize: 18}}></i>
                                             </div>
                                             <div style={{flex: 1}}>
-                                                <div style={{fontWeight: 500}}>Gemini Key {i + 1}</div>
+                                                <div style={{fontWeight: 500}}>Key {i + 1}</div>
                                                 <div style={{fontSize: 13, color: '#737373', fontFamily: 'monospace'}}>
-                                                    {vis ? k.key : '••••••••••••••••••••••••'}
+                                                    {vis ? k.key : '••••••••••••'}
                                                 </div>
                                             </div>
                                         </div>
-                                        <div style={{display: 'flex', gap: 6, alignItems: 'center'}}>
+                                        <div style={{display: 'flex', gap: 4, alignItems: 'center', flexShrink: 0, marginLeft: 'auto'}}>
                                             <button className="icon-btn" onClick={() => setVisible(v => ({ ...v, [k.id]: !vis }))} title="View"><i className={`ti ti-eye${vis ? '-off' : ''}`} style={{fontSize: 20}}></i></button>
-                                            <button className="icon-btn" onClick={() => { navigator.clipboard.writeText(k.key); showMsg('Copied'); }} title="Copy"><i className="ti ti-copy" style={{fontSize: 20}}></i></button>
+                                            <button className="icon-btn" onClick={() => { navigator.clipboard.writeText(k.key); showToast('Copied'); }} title="Copy"><i className="ti ti-copy" style={{fontSize: 20}}></i></button>
                                             <button className="icon-btn" onClick={() => onTest(k.id, k.key)} disabled={testing} title="Test">
                                                 <i className={`ti ti-${testing ? 'loader-2 spin' : 'plug-connected'}`} style={{fontSize: 20, color: testing ? '#3b82f6' : 'inherit'}}></i>
                                             </button>

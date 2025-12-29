@@ -90,8 +90,6 @@ function SettingsPage({ user, onClose, updateProfile, signOut, deleteAccount }) 
                             setDisplayName={setName}
                             handleUpdateName={onUpdateName}
                             isLoading={loading}
-
-                            showToast={showToast}
                             signOut={signOut}
                             setShowDeleteModal={setShowDelete}
                         />

@@ -129,11 +129,9 @@ function Sidebar({
             {showHistory ? (
                 <ChatHistory
                     chatHistory={history}
-                    setChatHistory={setHistory}
                     currentChatId={chatId}
                     loadChat={loadChat}
                     deleteChat={deleteChat}
-                    userId={user.id}
                     onClearAll={onClearAll}
                 />
             ) : (
@@ -151,8 +149,6 @@ function Sidebar({
                     processedFiles={processed}
                     getFileIcon={getIcon}
                     messages={messages}
-                    setMessages={setMessages}
-                    setCurrentChatId={setChatId}
                     onClearChat={onClearChat}
                 />
             )}

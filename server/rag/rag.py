@@ -7,7 +7,7 @@ def ingest_chunks(chunks, user_id, chat_id=None, api_key=None):
 
 def ask_question(question, user_id, chat_id=None, api_key=None):
     r = Retriever(user_id=user_id, chat_id=chat_id, api_key=api_key)
-    results = r.retrieve(question, k=8)
+    results = r.retrieve(question, k=12)
     
     if not results:
         return {
@@ -27,6 +27,6 @@ def ask_question(question, user_id, chat_id=None, api_key=None):
         "context": context
     }
 
-def clear_user_data(user_id, chat_id=None, api_key=None):
-    r = Retriever(user_id=user_id, chat_id=chat_id, api_key=api_key)
+def clear_user_data(user_id, chat_id=None):
+    r = Retriever(user_id=user_id, chat_id=chat_id)
     r.clear_data()

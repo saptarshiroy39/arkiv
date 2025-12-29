@@ -52,10 +52,8 @@ function AuthProvider({ children }) {
             return sb.auth.verifyOtp({ email, token, type });
         },
         
-        updateProfile: (data) => sb.auth.updateUser({ data }),
-        
-        updateEmail: async (email) => {
-            const res = await sb.auth.updateUser({ email });
+        updateProfile: async (data) => {
+            const res = await sb.auth.updateUser({ data });
             if (res.data?.user) setUser(res.data.user);
             return res;
         },

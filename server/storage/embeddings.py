@@ -8,8 +8,14 @@ class EmbeddingsService:
             
         self.client = GoogleGenerativeAIEmbeddings(**kwargs)
 
-    def embed_documents(self, texts):
-        return self.client.embed_documents(texts)
+    def embed_documents(self, texts, batch_size=100):
+        all_embeddings = []
+        for i in range(0, len(texts), batch_size):
+            batch = texts[i:i + batch_size]
+            embeddings = self.client.embed_documents(batch)
+            all_embeddings.extend(embeddings)
+        return all_embeddings
 
     def embed_query(self, text):
         return self.client.embed_query(text)
+

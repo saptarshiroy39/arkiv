@@ -45,7 +45,6 @@ def read_excel(blob, fname, **kwargs):
         for sheet in wb:
             parts.append(f"--- {sheet.title} ---")
             for row in sheet.iter_rows(values_only=True):
-                # filter out None and join
                 vals = [str(v) if v is not None else "" for v in row]
                 line = "\t".join(vals)
                 if line.strip(): parts.append(line)

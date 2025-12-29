@@ -14,6 +14,9 @@ class Retriever:
         
     def ingest_chunks(self, chunks):
         if not chunks: return
+        
+        from server.config import logger
+        logger.info(f"Ingesting {len(chunks)} chunks to namespace: {self.namespace}")
             
         texts = [c.text for c in chunks]
         vectors = self.embed_service.embed_documents(texts)
@@ -37,4 +40,6 @@ class Retriever:
         return results
 
     def clear_data(self):
+        from server.config import logger
+        logger.info(f"Clearing Pinecone namespace: {self.namespace}")
         self.db.delete_namespace(self.namespace)

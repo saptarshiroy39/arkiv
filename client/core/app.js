@@ -9,6 +9,7 @@ function App() {
     const [files, setFiles] = useState([]);
     const [uploading, setUploading] = useState(false);
     const [status, setStatus] = useState(null);
+    const [resetting, setResetting] = useState(false);
     const [toasts, setToasts] = useState([]);
     const [indexReady, setIndexReady] = useState(false);
     const [showSidebar, setShowSidebar] = useState(window.innerWidth >= 1000);
