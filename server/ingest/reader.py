@@ -2,7 +2,7 @@ import io
 import csv
 from docx import Document
 from openpyxl import load_workbook
-from PIL import Image
+from openpyxl import load_workbook
 import google.generativeai as genai
 from server.config import genai as def_genai, logger
 
@@ -98,10 +98,10 @@ def read_image(blob, fname, api_key=None, **kwargs):
         else:
             model = def_genai.GenerativeModel("gemini-2.0-flash")
 
-        img = Image.open(io.BytesIO(blob))
+        img_part = {"mime_type": "image/png", "data": blob}
         prompt = "Describe this image in detail. Extract any text, charts, or key data point you see."
         
-        res = model.generate_content([prompt, img])
+        res = model.generate_content([prompt, img_part])
         return [{"text": f"[Analysis for {fname}]\n{res.text}", "page": 1}]
     except Exception as e:
         logger.error(f"Image error {fname}: {e}")
