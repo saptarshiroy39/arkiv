@@ -34,6 +34,5 @@ supabase = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CLIENT_DIR = os.path.join(BASE_DIR, "client")
-EASTER_EGG_DIR = os.path.join(BASE_DIR, "easter_egg")
 
 logger.info(f"Arkiv starting... dir: {BASE_DIR}")

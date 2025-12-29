@@ -25,17 +25,6 @@ function AboutTab() {
 
     return (
         <div className="settings-tab">
-            <div className="settings-section">
-                <div className="about-app-header">
-                    <div className="about-app-icon lava-lamp-bg"><i className="ti ti-brain" style={{fontSize: 32}}></i></div>
-                    <div className="about-app-info">
-                        <h2 className="about-app-name">Arkiv</h2>
-                        <p className="about-app-tagline">AI-powered RAG for documents</p>
-                        <span className="about-app-version">Version {version}</span>
-                    </div>
-                </div>
-            </div>
-
             {sections.map((s, i) => (
                 <div className="settings-section" key={i}>
                     <h2 className="settings-section-title">{s.title}</h2>

@@ -1,4 +1,4 @@
-function Header({ snowEnabled, onToggleSnow }) {
+function Header() {
     const [keys, setKeys] = React.useState([]);
     const [sel, setSel] = React.useState('');
 
@@ -19,15 +19,9 @@ function Header({ snowEnabled, onToggleSnow }) {
         setSel(key);
     };
 
-    const Snow = () => (
-        <button className={`snow-toggle-btn ${snowEnabled ? 'active' : ''}`} onClick={onToggleSnow}>
-            <i className="ti ti-snowflake"></i>
-        </button>
-    );
-
     return (
         <header className="header">
-            <div className="header-left"><Snow /></div>
+            <div className="header-left"></div>
             <div className="header-center"></div>
             <div className="header-right">
                 {keys.length > 0 && (

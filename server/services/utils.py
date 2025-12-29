@@ -24,7 +24,7 @@ async def verify_key_status(req: KeyRequest):
     try:
         import google.generativeai as genai
         genai.configure(api_key=req.key)
-        model = genai.GenerativeModel("gemini-flash-latest")
+        model = genai.GenerativeModel("gemini-2.0-flash")
         response = model.generate_content("Hi")
         if response.text:
             return {"status": "valid"}

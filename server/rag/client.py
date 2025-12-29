@@ -7,7 +7,7 @@ class LLMClient:
     def __init__(self, api_key=None, temp=0.3):
         key = api_key or GOOGLE_API_KEY
         self.llm = ChatGoogleGenerativeAI(
-            model="gemini-flash-latest",
+            model="gemini-2.0-flash",
             google_api_key=key,
             temperature=temp
         )

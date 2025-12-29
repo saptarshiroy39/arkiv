@@ -69,7 +69,6 @@ function App() {
     const [showHistory, setShowHistory] = useState(false);
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
-    const [snow, setSnow] = useState(false);
     const scrollRef = useRef(null);
     const inputRef = useRef(null);
     const fileRef = useRef(null);
@@ -380,10 +379,7 @@ function App() {
                     />
                 ) : (
                     <>
-                        <Header
-                            snowEnabled={snow}
-                            onToggleSnow={() => setSnow(prev => !prev)}
-                        />
+                        <Header />
 
                         <ChatMessages
                             messages={messages}
@@ -404,7 +400,6 @@ function App() {
                     </>
                 )}
             </main>
-            <SnowEffect enabled={snow} />
             <ToastContainer toasts={toasts} removeToast={removeToast} />
         </div>
     );

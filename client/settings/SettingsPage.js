@@ -61,15 +61,15 @@ function SettingsPage({ user, onClose, updateProfile, signOut, deleteAccount }) 
     return (
         <div className="settings-page">
             <div className="settings-modal">
-                <div className="settings-header">
-                    <h1 className="settings-title">Settings</h1>
-                    <button className="settings-close-btn" onClick={onClose}>
-                        <i className="ti ti-x" style={{fontSize: 20}}></i>
-                    </button>
-                </div>
 
                 <div className="settings-layout">
                 <nav className="settings-nav">
+                    <div className="settings-header">
+                        <h1 className="settings-title">Settings</h1>
+                        <button className="settings-close-btn" onClick={onClose}>
+                            <i className="ti ti-x" style={{fontSize: 20}}></i>
+                        </button>
+                    </div>
                     {tabs.map(t => (
                         <button
                             key={t.id}
@@ -77,7 +77,7 @@ function SettingsPage({ user, onClose, updateProfile, signOut, deleteAccount }) 
                             onClick={() => setTab(t.id)}
                         >
                             <i className={`ti ti-${t.icon}`} style={{fontSize: 20}}></i>
-                            {t.label}
+                            <span>{t.label}</span>
                         </button>
                     ))}
                 </nav>

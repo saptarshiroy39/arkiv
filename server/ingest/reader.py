@@ -1,22 +1,23 @@
 import io
 import csv
-import pdfplumber
 from docx import Document
 from openpyxl import load_workbook
-from pptx import Presentation
 from PIL import Image
 import google.generativeai as genai
 from server.config import genai as def_genai, logger
 
-def read_pdf(blob, fname, **kwargs):
-    segments = []
+def read_pdf(blob, fname, api_key=None, **kwargs):
     try:
-        with pdfplumber.open(io.BytesIO(blob)) as pdf:
-            for i, page in enumerate(pdf.pages):
-                txt = page.extract_text()
-                if txt:
-                    segments.append({"text": txt, "page": i + 1})
-        return segments if segments else [{"text": f"[No text in {fname}]", "page": 1}]
+        if api_key:
+            genai.configure(api_key=api_key)
+            model = genai.GenerativeModel("gemini-2.0-flash")
+        else:
+            model = def_genai.GenerativeModel("gemini-2.0-flash")
+        
+        pdf_part = {"mime_type": "application/pdf", "data": blob}
+        prompt = "Extract all text content from this PDF document. Preserve the structure and formatting as much as possible. Include all text, tables, and data."
+        res = model.generate_content([prompt, pdf_part])
+        return [{"text": f"[Content from {fname}]\n{res.text}", "page": 1}]
     except Exception as e:
         logger.error(f"PDF error {fname}: {e}")
         return []
@@ -64,20 +65,18 @@ def read_csv(blob, fname, **kwargs):
         return []
 
 
-def read_pptx(blob, fname, **kwargs):
-    segments = []
+def read_pptx(blob, fname, api_key=None, **kwargs):
     try:
-        prs = Presentation(io.BytesIO(blob))
-        for i, slide in enumerate(prs.slides, 1):
-            slide_parts = []
-            slide_parts.append(f"--- Slide {i} ---")
-            for shape in slide.shapes:
-                if hasattr(shape, "text") and shape.text.strip():
-                    slide_parts.append(shape.text)
-            
-            if slide_parts:
-                segments.append({"text": "\n".join(slide_parts), "page": i})
-        return segments
+        if api_key:
+            genai.configure(api_key=api_key)
+            model = genai.GenerativeModel("gemini-2.0-flash")
+        else:
+            model = def_genai.GenerativeModel("gemini-2.0-flash")
+        
+        pptx_part = {"mime_type": "application/vnd.openxmlformats-officedocument.presentationml.presentation", "data": blob}
+        prompt = "Extract all text content from this PowerPoint presentation. For each slide, describe any charts, images, or diagrams. Preserve the structure and list slide numbers."
+        res = model.generate_content([prompt, pptx_part])
+        return [{"text": f"[Content from {fname}]\n{res.text}", "page": 1}]
     except Exception as e:
         logger.error(f"PPTX error {fname}: {e}")
         return []
@@ -95,9 +94,9 @@ def read_image(blob, fname, api_key=None, **kwargs):
     try:
         if api_key:
             genai.configure(api_key=api_key)
-            model = genai.GenerativeModel("gemini-flash-latest")
+            model = genai.GenerativeModel("gemini-2.0-flash")
         else:
-            model = def_genai.GenerativeModel("gemini-flash-latest")
+            model = def_genai.GenerativeModel("gemini-2.0-flash")
 
         img = Image.open(io.BytesIO(blob))
         prompt = "Describe this image in detail. Extract any text, charts, or key data point you see."
@@ -110,10 +109,10 @@ def read_image(blob, fname, api_key=None, **kwargs):
 
 
 def read_file(blob, fname, ftype, api_key=None):
-    if ftype == "pdf": return read_pdf(blob, fname)
+    if ftype == "pdf": return read_pdf(blob, fname, api_key=api_key)
     if ftype == "docs": return read_docx(blob, fname)
     if ftype == "sheets": return read_excel(blob, fname)
     if ftype == "csv": return read_csv(blob, fname)
-    if ftype == "slides": return read_pptx(blob, fname)
+    if ftype == "slides": return read_pptx(blob, fname, api_key=api_key)
     if ftype == "image": return read_image(blob, fname, api_key=api_key)
     return read_text(blob, fname)
