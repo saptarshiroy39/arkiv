@@ -18,7 +18,7 @@ function ChatHistory({
                                 <i className="ti ti-message history-item-icon" style={{fontSize: 14}}></i>
                                 <span className="history-item-text">{c.title}</span>
                                 <button className="file-item-remove" onClick={(e) => deleteChat(e, c.id)}>
-                                    <i className="ti ti-x" style={{fontSize: 12}}></i>
+                                    <i className="ti ti-trash" style={{fontSize: 14}}></i>
                                 </button>
                             </div>
                         ))}

@@ -1,4 +1,4 @@
-function GeneralTab({
+function AccountTab({
     user,
     displayName: name,
     setDisplayName: setName,

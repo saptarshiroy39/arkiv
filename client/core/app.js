@@ -376,6 +376,9 @@ function App() {
                         updateProfile={updateProfile}
                         signOut={signOut}
                         deleteAccount={deleteAccount}
+                        chatHistory={history}
+                        onClearAll={() => clearDocs(true)}
+                        onDeleteChat={onChatDelete}
                     />
                 ) : (
                     <>

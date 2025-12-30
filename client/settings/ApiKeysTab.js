@@ -108,8 +108,8 @@ function ApiKeysTab({ showToast }) {
                                 return (
                                     <div key={k.id} style={{
                                         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                        background: '#262626', padding: '12px 16px', borderRadius: '8px',
-                                        border: '1px solid #404040', flexWrap: 'wrap', gap: 8
+                                        background: '#1a1a1a', padding: '14px 16px', borderRadius: '10px',
+                                        border: '1px solid #333', flexWrap: 'wrap', gap: 8
                                     }}>
                                         <div style={{display: 'flex', alignItems: 'center', gap: 12, flex: 1}}>
                                             <div style={{width: 32, height: 32, borderRadius: 6, background: '#333', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>

@@ -1,5 +1,5 @@
-function SettingsPage({ user, onClose, updateProfile, signOut, deleteAccount }) {
-    const [tab, setTab] = useState('general');
+function SettingsPage({ user, onClose, updateProfile, signOut, deleteAccount, chatHistory, onClearAll, onDeleteChat }) {
+    const [tab, setTab] = useState('account');
     const [name, setName] = useState(user?.user_metadata?.display_name || user?.user_metadata?.full_name || '');
     const [toasts, setToasts] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -52,9 +52,10 @@ function SettingsPage({ user, onClose, updateProfile, signOut, deleteAccount }) 
     };
 
     const tabs = [
-        { id: 'general', label: 'General', icon: 'user-circle' },
+        { id: 'account', label: 'Account', icon: 'user-circle' },
 
         { id: 'apikeys', label: 'API Keys', icon: 'key' },
+        { id: 'data', label: 'Data Control', icon: 'database' },
         { id: 'about', label: 'About', icon: 'info-octagon' }
     ];
 
@@ -83,8 +84,8 @@ function SettingsPage({ user, onClose, updateProfile, signOut, deleteAccount }) 
                 </nav>
 
                 <div className="settings-content">
-                    {tab === 'general' && (
-                        <GeneralTab
+                    {tab === 'account' && (
+                        <AccountTab
                             user={user}
                             displayName={name}
                             setDisplayName={setName}
@@ -96,6 +97,7 @@ function SettingsPage({ user, onClose, updateProfile, signOut, deleteAccount }) 
                     )}
 
                     {tab === 'apikeys' && <ApiKeysTab showToast={showToast} />}
+                    {tab === 'data' && <DataTab chatHistory={chatHistory} onClearAll={onClearAll} onDeleteChat={onDeleteChat} />}
                     {tab === 'about' && <AboutTab />}
                 </div>
             </div>
