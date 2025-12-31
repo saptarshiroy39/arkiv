@@ -1,5 +1,5 @@
 from .retriever import Retriever
-from .client import LLMClient
+from server.llm import LLMClient
 
 def ingest_chunks(chunks, user_id, chat_id=None, api_key=None):
     r = Retriever(user_id=user_id, chat_id=chat_id, api_key=api_key)

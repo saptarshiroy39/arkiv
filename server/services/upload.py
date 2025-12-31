@@ -1,11 +1,10 @@
+import re
 from typing import List
 from fastapi import HTTPException, UploadFile
 from server.config import logger
 from server.models import Chunk
-from server.ingest.filetype import get_file_type
-from server.ingest.reader import read_file
-from server.ingest.cleaner import normalize_text, sanitize_filename
-from server.ingest.chunker import chunk_text
+from server.read import get_file_type, read_file
+from server.process import normalize_text, sanitize_filename, chunk_text
 from server.rag.rag import ingest_chunks
 from .utils import simplify_error
 
@@ -38,29 +37,44 @@ async def process_uploaded_files(files: List[UploadFile], user, chat_id: str = N
                 for seg in segments:
                     txt = normalize_text(seg["text"])
                     if not txt: continue
-                    full_text_parts.append(f"[Page {seg['page']}]\n{txt}")
+                    full_text_parts.append(txt)
                 
                 if not full_text_parts:
                     continue
                     
                 full_text = "\n\n".join(full_text_parts)
                 file_chunk_idx = 0
+                parts = re.split(r'\[Page (\d+)\]', full_text)
+                current_page = 1
                 
-                for piece in chunk_text(full_text):
-                    page_num = 1
-                    if "[Page " in piece:
-                        try:
-                            page_num = int(piece.split("[Page ")[1].split("]")[0])
-                        except:
-                            page_num = 1
+                if parts[0].strip():
+                    for piece in chunk_text(parts[0]):
+                        chunks.append(Chunk(
+                            text=piece,
+                            source=fname,
+                            idx=file_chunk_idx,
+                            meta={"type": ftype, "page": 1}
+                        ))
+                        file_chunk_idx += 1
+
+
+                for i in range(1, len(parts), 2):
+                    try:
+                        current_page = int(parts[i])
+                    except:
+                        pass
                     
-                    chunks.append(Chunk(
-                        text=piece,
-                        source=fname,
-                        idx=file_chunk_idx,
-                        meta={"type": ftype, "page": page_num}
-                    ))
-                    file_chunk_idx += 1
+                    content = parts[i+1]
+                    if not content.strip(): continue
+                    
+                    for piece in chunk_text(content):
+                        chunks.append(Chunk(
+                            text=piece,
+                            source=fname,
+                            idx=file_chunk_idx,
+                            meta={"type": ftype, "page": current_page}
+                        ))
+                        file_chunk_idx += 1
 
             except Exception as e:
                 logger.error(f"Failed handling {fname}: {e}")

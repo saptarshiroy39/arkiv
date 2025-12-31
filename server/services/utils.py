@@ -1,4 +1,5 @@
 from fastapi import HTTPException
+import google.generativeai as genai
 from server.config import SUPABASE_KEY, SUPABASE_URL
 from server.models import KeyRequest
 
@@ -22,7 +23,6 @@ def get_health_status():
 
 async def verify_key_status(req: KeyRequest):
     try:
-        import google.generativeai as genai
         genai.configure(api_key=req.key)
         model = genai.GenerativeModel("gemini-2.0-flash")
         response = model.generate_content("Hi")

@@ -1,21 +1,29 @@
 function DataTab({ chatHistory, onClearAll, onDeleteChat }) {
     return (
-        <div className="settings-tab">
-            <div className="settings-section inline-section danger-section">
+        <div className="settings-tab" style={{height: '100%', display: 'flex', flexDirection: 'column'}}>
+            <div className="settings-section inline-section danger-section" style={{flexShrink: 0}}>
                 <h2 className="settings-section-title danger">Knowledge Base</h2>
                 <button className="settings-btn-danger" onClick={onClearAll}>
                     <i className="ti ti-trash" style={{fontSize: 16}}></i> Erase All
                 </button>
             </div>
 
-            <div className="settings-section">
-                <h2 className="settings-section-title">Chat History</h2>
+            <div className="settings-section" style={{flexShrink: 0, paddingBottom: 0}}>
+                <h2 className="settings-section-title" style={{marginBottom: 4}}>Chat History</h2>
+            </div>
+
+            <div style={{
+                flex: 1,
+                overflowY: 'auto',
+                overflowX: 'hidden',
+                paddingRight: 4
+            }}>
                 {!chatHistory || chatHistory.length === 0 ? (
                     <p style={{fontSize: 13, color: '#737373', textAlign: 'center', marginTop: 20}}>
                         No chat history
                     </p>
                 ) : (
-                    <div style={{display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '12px'}}>
+                    <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
                         {chatHistory.map(chat => (
                             <div 
                                 key={chat.id} 

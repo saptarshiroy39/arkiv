@@ -1,5 +1,6 @@
 from server.storage.embeddings import EmbeddingsService
 from server.storage.pinecone import PineconeClient
+from server.config import logger
 
 class Retriever:
     def __init__(self, user_id, chat_id=None, api_key=None):
@@ -15,7 +16,6 @@ class Retriever:
     def ingest_chunks(self, chunks):
         if not chunks: return
         
-        from server.config import logger
         logger.info(f"Ingesting {len(chunks)} chunks to namespace: {self.namespace}")
             
         texts = [c.text for c in chunks]
@@ -40,6 +40,5 @@ class Retriever:
         return results
 
     def clear_data(self):
-        from server.config import logger
         logger.info(f"Clearing Pinecone namespace: {self.namespace}")
         self.db.delete_namespace(self.namespace)

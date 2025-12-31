@@ -1,6 +1,7 @@
 from fastapi import HTTPException
 from server.config import logger, supabase
 from server.rag.rag import clear_user_data as rag_clear_user_data
+from server.rag.retriever import Retriever
 
 async def clear_user_data(user, chat_id: str = None):
     try:
@@ -15,8 +16,8 @@ async def delete_user_account(user):
         uid = user.id
         supabase.table("conversations").delete().eq("user_id", uid).execute()
         
+        
         try:
-            from server.rag.retriever import Retriever
             Retriever(uid).clear_data()
         except Exception:
             pass
