@@ -43,7 +43,7 @@ function ChatInput({ input, setInput, handleSubmit, indexReady: ready, isLoading
                     )}
                 </button>
             </form>
-            <div className="input-hint">Arkive never makes mistakes.</div>
+            <div className="input-hint">UPLOAD • PROCESS • CHAT</div>
         </div>
     );
 }

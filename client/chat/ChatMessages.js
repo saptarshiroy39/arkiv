@@ -38,11 +38,25 @@ function ChatMessages({ messages, isLoading: loading, messagesEndRef, user }) {
                                 const name = user?.user_metadata?.first_name || user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || '';
                                 const greetings = [
                                     `Hey, ${name}...`,
-                                    `Welcome back, ${name}...`,
+                                    `Welcome, ${name}...`,
                                     `Hello, ${name}...`,
                                     `Hi, ${name}...`,
                                     `Hey there, ${name}...`,
-                                    `Hi there, ${name}...`
+                                    `Hi there, ${name}...`,
+                                    `Greetings, ${name}...`,
+                                    `How's it going, ${name}?`,
+                                    `Good to see you, ${name}...`,
+                                    `What's up, ${name}?`,
+                                    `Nice to see you, ${name}...`,
+                                    `Ready to chat, ${name}?`,
+                                    `How can I help you today, ${name}?`,
+                                    `Starting something new, ${name}?`,
+                                    `Glad you're back, ${name}!`,
+                                    `What's on your mind, ${name}?`,
+                                    `Need a hand with something, ${name}?`,
+                                    `Let's get to work, ${name}!`,
+                                    `Great to see you again, ${name}!`,
+                                    `Ready to explore, ${name}?`
                                 ];
 
                                 const randomGreeting = React.useMemo(() => {
