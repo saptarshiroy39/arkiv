@@ -1,96 +1,57 @@
-import re
-from typing import List
-from fastapi import HTTPException, UploadFile
-from server.config import logger
-from server.models import Chunk
-from server.read import get_file_type, read_file
-from server.process import normalize_text, sanitize_filename, chunk_text
-from server.rag.rag import ingest_chunks
-from .utils import simplify_error
+import asyncio
 
-async def process_uploaded_files(files: List[UploadFile], user, chat_id: str = None, api_key: str = None):
-    logger.info(f"Uploading {len(files)} files for {user.email}")
-    try:
-        if not files:
-            raise HTTPException(status_code=400, detail="No files provided")
+from langchain_core.documents import Document
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-        chunks: List[Chunk] = []
-        done_files = []
-        
-        for f in files:
-            if not f.filename: continue
-            
-            fname = sanitize_filename(f.filename)
-            done_files.append(fname)
-            ftype = get_file_type(fname)
-            
-            try:
-                blob = await f.read()
-                segments = read_file(blob, fname, ftype, api_key=api_key)
-                
-                if not segments:
-                    logger.warning(f"Empty text in {fname}")
-                    continue
-                    
-                full_text_parts = []
-                
-                for seg in segments:
-                    txt = normalize_text(seg["text"])
-                    if not txt: continue
-                    full_text_parts.append(txt)
-                
-                if not full_text_parts:
-                    continue
-                    
-                full_text = "\n\n".join(full_text_parts)
-                file_chunk_idx = 0
-                parts = re.split(r'\[Page (\d+)\]', full_text)
-                current_page = 1
-                
-                if parts[0].strip():
-                    for piece in chunk_text(parts[0]):
-                        chunks.append(Chunk(
-                            text=piece,
-                            source=fname,
-                            idx=file_chunk_idx,
-                            meta={"type": ftype, "page": 1}
-                        ))
-                        file_chunk_idx += 1
+from server.config import CHUNK_OVERLAP, CHUNK_SIZE
+from server.services.utils import clean_text, get_file_type, process_latex
+from server.read.csv import read_csv
+from server.read.docx import read_docx
+from server.read.excel import read_excel
+from server.read.image import read_image
+from server.read.pdf import read_pdf
+from server.read.pptx import read_pptx
+from server.read.text import read_text
+from server.storage.pinecone import get_vectorstore
+
+READERS = {
+    "pdf": read_pdf,
+    "docs": read_docx,
+    "sheets": read_excel,
+    "csv": read_csv,
+    "slides": read_pptx,
+    "text": read_text,
+}
+
+splitter = RecursiveCharacterTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
 
 
-                for i in range(1, len(parts), 2):
-                    try:
-                        current_page = int(parts[i])
-                    except:
-                        pass
-                    
-                    content = parts[i+1]
-                    if not content.strip(): continue
-                    
-                    for piece in chunk_text(content):
-                        chunks.append(Chunk(
-                            text=piece,
-                            source=fname,
-                            idx=file_chunk_idx,
-                            meta={"type": ftype, "page": current_page}
-                        ))
-                        file_chunk_idx += 1
+async def process_file(path, filename, user_id, chat_id, api_key=None):
+    ftype = get_file_type(filename)
 
-            except Exception as e:
-                logger.error(f"Failed handling {fname}: {e}")
-                continue
+    # 1. Read
+    if ftype == "image":
+        pages = await asyncio.to_thread(read_image, path, api_key)
+    elif ftype in READERS:
+        pages = await asyncio.to_thread(READERS[ftype], path)
+    else:
+        raise ValueError(f"Unsupported: {filename}")
 
-        if not chunks:
-            raise HTTPException(status_code=400, detail="Couldn't extract any text")
-            
-        ingest_chunks(chunks, user.id, chat_id=chat_id, api_key=api_key)
-        logger.info(f"Saved {len(chunks)} chunks for {user.id}")
+    # 2. Clean + LaTeX → Documents
+    docs = []
+    for page in pages:
+        text = process_latex(clean_text(page["text"]))
+        if text:
+            docs.append(Document(page_content=text, metadata={"file": filename, "page": page["page"]}))
 
-        return {
-            "status": "success",
-            "processed": done_files,
-            "count": len(chunks)
-        }
-    except Exception as e:
-        logger.error(f"Upload error for {user.email}: {e}")
-        raise HTTPException(status_code=500, detail=simplify_error(e))
+    if not docs:
+        return {"file": filename, "chunks": 0}
+
+    # 3. Split
+    chunks = splitter.split_documents(docs)
+
+    # 4. Embed + Store
+    store = get_vectorstore(f"{user_id}_{chat_id}", api_key)
+    await asyncio.to_thread(store.add_documents, chunks)
+
+    return {"file": filename, "chunks": len(chunks)}

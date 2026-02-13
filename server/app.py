@@ -1,23 +1,16 @@
-import uvicorn
+import logging
+import os
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from .config import CLIENT_DIR
-from .routes import router
 
-app = FastAPI()
+from server.routes import router
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+app = FastAPI(title="Arkiv")
 
 app.include_router(router)
 
-app.mount("/", StaticFiles(directory=CLIENT_DIR, html=True))
-
-if __name__ == "__main__":
-    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
+client_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "client")
+app.mount("/", StaticFiles(directory=client_dir, html=True), name="client")

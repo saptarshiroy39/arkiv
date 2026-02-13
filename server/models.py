@@ -1,23 +1,15 @@
-from typing import Optional, List, Dict, Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
-class Chunk(BaseModel):
+
+class AskRequest(BaseModel):
     text: str
-    source: str
-    page: Optional[int] = None
-    idx: int
-    meta: Dict[str, Any] = Field(default_factory=dict)
+    chat_id: str
 
-class Question(BaseModel):
+
+class AskResponse(BaseModel):
     text: str
-    chat_id: str | None = None
+    sources: list[dict] | None = None
 
-class Answer(BaseModel):
-    text: str
 
-class KeyRequest(BaseModel):
+class VerifyKeyRequest(BaseModel):
     key: str
-
-class Config(BaseModel):
-    url: str
-    anon_key: str

@@ -1,16 +1,22 @@
-from fastapi import Header, HTTPException
-from .config import logger, supabase
+from fastapi import Request, HTTPException
+from server.config import SUPABASE_ADMIN
 
-async def get_user(authorization: str = Header(...)):
-    if not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Missing or invalid token")
-        
-    token = authorization.split(" ")[1]
+
+async def get_user(request: Request):
+    auth = request.headers.get("Authorization", "")
+    if not auth.startswith("Bearer "):
+        raise HTTPException(401, "Missing token")
+    token = auth.split(" ", 1)[1]
     try:
-        res = supabase.auth.get_user(token)
-        if not res or not res.user:
-            raise HTTPException(status_code=401, detail="Session expired")
-            
-        return res.user
+        resp = SUPABASE_ADMIN.auth.get_user(token)
+        return resp.user
     except Exception:
-        raise HTTPException(status_code=401, detail="Auth failed")
+        raise HTTPException(401, "Invalid token")
+
+
+def get_api_key(request: Request) -> str | None:
+    return request.headers.get("X-Custom-Api-Key")
+
+
+def get_chat_id(request: Request) -> str | None:
+    return request.headers.get("X-Chat-Id")

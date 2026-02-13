@@ -1,6 +1,4 @@
-def read_text(blob, fname, **kwargs):
-    try:
-        txt = blob.decode('utf-8', errors='ignore')
-        return [{"text": txt, "page": 1}] if txt else []
-    except Exception:
-        return []
+def read_text(path: str) -> list[dict]:
+    with open(path, "r", encoding="utf-8", errors="ignore") as f:
+        text = f.read()
+    return [{"text": text, "page": 1}] if text.strip() else []

@@ -1,34 +1,63 @@
-from fastapi import HTTPException
-import google.generativeai as genai
-from server.config import SUPABASE_KEY, SUPABASE_URL
-from server.models import KeyRequest
+import os
+import re
+import tempfile
 
-def simplify_error(e: Exception) -> str:
-    msg = str(e).lower()
-    if "api_key_invalid" in msg or "api key not valid" in msg:
-        return "Invalid API key"
-    if "quota" in msg or "rate limit" in msg:
-        return "API quota exceeded"
-    if "permission" in msg or "forbidden" in msg:
-        return "API access denied"
-    if "not found" in msg:
-        return "Resource not found"
-    return str(e)[:50] if len(str(e)) > 50 else str(e)
 
-def get_app_config():
-    return {"url": SUPABASE_URL, "anon_key": SUPABASE_KEY}
+def save_temp(content: bytes, filename: str) -> str:
+    suffix = os.path.splitext(filename)[1]
+    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
+    tmp.write(content)
+    tmp.close()
+    return tmp.name
 
-def get_health_status():
-    return {"status": "ok", "db": "connected"}
 
-async def verify_key_status(req: KeyRequest):
-    try:
-        genai.configure(api_key=req.key)
-        model = genai.GenerativeModel("gemini-2.0-flash")
-        response = model.generate_content("Hi")
-        if response.text:
-            return {"status": "valid"}
-        raise Exception("No response from API")
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Invalid Key: {str(e)}")
+def cleanup(path: str) -> None:
+    if os.path.exists(path):
+        os.unlink(path)
 
+
+def clean_text(text: str) -> str:
+    if not text:
+        return ""
+    text = text.replace("\x00", "")
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    text = re.sub(r" {2,}", " ", text)
+    text = re.sub(r"\t+", " ", text)
+    return text.strip()
+
+
+def process_latex(text: str) -> str:
+    if not text:
+        return text
+
+    text = re.sub(r'\\\[(.*?)\\\]', r'$$\1$$', text, flags=re.DOTALL)
+    text = re.sub(r'\\\((.*?)\\\)', r'$\1$', text, flags=re.DOTALL)
+
+    display_envs = r'equation|align|gather|displaymath|eqnarray|multline|flalign|split'
+    text = re.sub(
+        rf'\\begin\{{({display_envs})\*?\}}(.*?)\\end\{{\1\*?\}}',
+        r'$$\2$$', text, flags=re.DOTALL
+    )
+
+    matrix_envs = r'matrix|pmatrix|bmatrix|vmatrix|Bmatrix|cases|array'
+    text = re.sub(
+        rf'(?<!\$)\\begin\{{({matrix_envs})\*?\}}(.*?)\\end\{{\1\*?\}}',
+        r'$$\\begin{\1}\2\\end{\1}$$', text, flags=re.DOTALL
+    )
+
+    text = re.sub(r'\${3,}', '$$', text)
+    return text
+
+
+def get_file_type(fname: str) -> str:
+    ext = os.path.splitext(fname)[1].lower()
+    mapping = {
+        ".pdf": "pdf",
+        ".png": "image", ".jpg": "image", ".jpeg": "image", ".webp": "image",
+        ".docx": "docs",
+        ".xlsx": "sheets",
+        ".csv": "csv",
+        ".pptx": "slides",
+        ".txt": "text", ".md": "text", ".json": "text",
+    }
+    return mapping.get(ext, "unknown")

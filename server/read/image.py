@@ -1,23 +1,29 @@
-import google.generativeai as genai
-from server.config import genai as def_genai, logger
+import base64
+import mimetypes
 
-def read_image(blob, fname, api_key=None, **kwargs):
-    try:
-        if api_key:
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel("gemini-2.0-flash")
-        else:
-            model = def_genai.GenerativeModel("gemini-2.0-flash")
+from langchain_core.messages import HumanMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
 
-        img_part = {"mime_type": "image/png", "data": blob}
-        prompt = """Analyze this image with high fidelity.
-1. if it contains text, extract all of it **verbatim**.
-2. If it contains data/charts, describe every data point, axis, and relation in explicit detail.
-3. If it is a scene, describe it fully.
-4. Do not summarize. Be exhaustive."""
-        
-        res = model.generate_content([prompt, img_part])
-        return [{"text": f"[Analysis for {fname}]\n{res.text}", "page": 1}]
-    except Exception as e:
-        logger.error(f"Image error {fname}: {e}")
-        return []
+from server.config import CHAT_MODEL, GOOGLE_API_KEY
+
+IMAGE_PROMPT = (
+    "Describe this image in detail. Extract all visible text. "
+    "Write any math formulas in LaTeX using $ for inline and $$ for display."
+)
+
+
+def read_image(path, api_key=None):
+    with open(path, "rb") as f:
+        b64 = base64.b64encode(f.read()).decode()
+
+    mime = mimetypes.guess_type(path)[0] or "image/png"
+
+    llm = ChatGoogleGenerativeAI(model=CHAT_MODEL, google_api_key=api_key or GOOGLE_API_KEY, max_retries=3)
+    msg = HumanMessage(content=[
+        {"type": "text", "text": IMAGE_PROMPT},
+        {"type": "image_url", "image_url": {"url": f"data:{mime};base64,{b64}"}}
+    ])
+    result = llm.invoke([msg])
+    text = result.content or ""
+
+    return [{"text": text, "page": 1}] if text.strip() else []

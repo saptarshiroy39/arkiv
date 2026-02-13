@@ -1,53 +1,49 @@
-from pinecone import Pinecone
-from server.config import PINECONE_API_KEY, PINECONE_INDEX_NAME, logger
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_pinecone import PineconeVectorStore
+from pinecone import Pinecone, ServerlessSpec
 
-class PineconeClient:
-    def __init__(self):
-        if not PINECONE_API_KEY:
-            raise ValueError("PINECONE_API_KEY not set")
-            
-        self.pc = Pinecone(api_key=PINECONE_API_KEY)
-        self.index = self.pc.Index(PINECONE_INDEX_NAME)
+from server.config import EMBED_DIM, EMBED_MODEL, GOOGLE_API_KEY, PINECONE_API_KEY
 
-    def upsert_chunks(self, chunks, vectors, namespace):
-        if not chunks:
-            return
+INDEX = "arkiv"
+_client = None
+_index = None
 
-        batch_size = 50
-        vec_list = []
-        
-        for i, (chunk, vector) in enumerate(zip(chunks, vectors)):
-            vid = f"{chunk.source}_{chunk.idx}"
-            meta = {
-                "text": chunk.text,
-                "source": chunk.source,
-                "index": chunk.idx,
-                **chunk.meta
-            }
-            vec_list.append((vid, vector, meta))
 
-        for i in range(0, len(vec_list), batch_size):
-            batch = vec_list[i : i + batch_size]
-            try:
-                self.index.upsert(vectors=batch, namespace=namespace)
-            except Exception as e:
-                logger.error(f"upsert failed: {e}")
+def _pc():
+    global _client
+    if not _client:
+        _client = Pinecone(api_key=PINECONE_API_KEY)
+    return _client
 
-    def query(self, vector, namespace, k=4):
-        try:
-            res = self.index.query(
-                vector=vector,
-                top_k=k,
-                namespace=namespace,
-                include_metadata=True
+
+def get_index():
+    global _index
+    if not _index:
+        pc = _pc()
+        existing = [i.name for i in pc.list_indexes()]
+        if INDEX not in existing:
+            pc.create_index(
+                name=INDEX, dimension=EMBED_DIM, metric="cosine",
+                spec=ServerlessSpec(cloud="aws", region="us-east-1")
             )
-            return res.matches
-        except Exception as e:
-            logger.error(f"query failed: {e}")
-            return []
+        _index = pc.Index(INDEX)
+    return _index
 
-    def delete_namespace(self, namespace):
-        try:
-            self.index.delete(delete_all=True, namespace=namespace)
-        except Exception as e:
-            logger.error(f"delete failed: {e}")
+
+def get_vectorstore(namespace, api_key=None):
+    embeddings = GoogleGenerativeAIEmbeddings(
+        model=EMBED_MODEL, google_api_key=api_key or GOOGLE_API_KEY
+    )
+    return PineconeVectorStore(index=get_index(), embedding=embeddings, namespace=namespace)
+
+
+def delete_namespace(namespace):
+    get_index().delete(delete_all=True, namespace=namespace)
+
+
+def delete_user_data(user_id):
+    index = get_index()
+    stats = index.describe_index_stats()
+    for ns in stats.namespaces:
+        if ns.startswith(f"{user_id}_"):
+            index.delete(delete_all=True, namespace=ns)
