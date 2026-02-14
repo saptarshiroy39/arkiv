@@ -23,8 +23,10 @@ def get_index():
         existing = [i.name for i in pc.list_indexes()]
         if INDEX not in existing:
             pc.create_index(
-                name=INDEX, dimension=EMBED_DIM, metric="cosine",
-                spec=ServerlessSpec(cloud="aws", region="us-east-1")
+                name=INDEX,
+                dimension=EMBED_DIM,
+                metric="cosine",
+                spec=ServerlessSpec(cloud="aws", region="us-east-1"),
             )
         _index = pc.Index(INDEX)
     return _index
@@ -34,11 +36,16 @@ def get_vectorstore(namespace, api_key=None):
     embeddings = GoogleGenerativeAIEmbeddings(
         model=EMBED_MODEL, google_api_key=api_key or GOOGLE_API_KEY
     )
-    return PineconeVectorStore(index=get_index(), embedding=embeddings, namespace=namespace)
+    return PineconeVectorStore(
+        index=get_index(), embedding=embeddings, namespace=namespace
+    )
 
 
 def delete_namespace(namespace):
-    get_index().delete(delete_all=True, namespace=namespace)
+    try:
+        get_index().delete(delete_all=True, namespace=namespace)
+    except Exception:
+        pass  # Namespace may not exist
 
 
 def delete_user_data(user_id):
@@ -46,4 +53,7 @@ def delete_user_data(user_id):
     stats = index.describe_index_stats()
     for ns in stats.namespaces:
         if ns.startswith(f"{user_id}_"):
-            index.delete(delete_all=True, namespace=ns)
+            try:
+                index.delete(delete_all=True, namespace=ns)
+            except Exception:
+                pass

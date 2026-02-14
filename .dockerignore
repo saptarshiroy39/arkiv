@@ -1,12 +1,22 @@
 # Git
 .git
 .gitignore
+.gitattributes
 
 # Virtual Environment
-venv
+venv/
+env/
+ENV/
+.venv/
 
 # Python cache
-__pycache__
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
 
 # Logs
 *.log
@@ -14,6 +24,28 @@ arkiv.log
 
 # Environment
 .env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
 
 # Documentation
 README.md
+*.md
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Build artifacts
+build/
+dist/
+*.egg-info/

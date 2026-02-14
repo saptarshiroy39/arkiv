@@ -8,9 +8,8 @@ from server.storage.pinecone import get_vectorstore
 PROMPT = """You are Arkiv, a helpful document assistant.
 Answer the question based ONLY on the provided context.
 If the context contains math or LaTeX, preserve them using $ for inline and $$ for display math.
-If you cannot answer from the context, say so honestly and do NOT include any sources.
-Only if you used information from the documents, list the files you referenced under "Sources:" as a numbered list (e.g. 1. `filename.pdf`).
-Do NOT include files you did not reference.
+If you cannot answer from the context, say so honestly.
+Do NOT list sources yourself — they will be added automatically.
 
 Context:
 {context}
@@ -33,7 +32,8 @@ async def chat_with_docs(question, user_id, chat_id, api_key=None):
 
     # Build context
     context = "\n\n".join(
-        f"[{d.metadata.get('file', '')}]\n{d.page_content}" for d in docs
+        f"[{d.metadata.get('file', '')} | Page {d.metadata.get('page', 1)}]\n{d.page_content}"
+        for d in docs
     )
 
     # Ask LLM
@@ -42,4 +42,9 @@ async def chat_with_docs(question, user_id, chat_id, api_key=None):
         llm.invoke, PROMPT.format(context=context, question=question)
     )
 
-    return {"text": answer.content}
+    # Build sources from retrieved chunks
+    filenames = sorted(set(d.metadata.get("file", "") for d in docs))
+    source_lines = [f"{i}. `{fname}`" for i, fname in enumerate(filenames, 1)]
+
+    full = f"{answer.content}\n\n**Sources:**\n" + "\n".join(source_lines)
+    return {"text": full}

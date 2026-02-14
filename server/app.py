@@ -1,7 +1,8 @@
 import logging
 import os
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+if not logging.root.handlers:
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
