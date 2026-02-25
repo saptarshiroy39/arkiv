@@ -86,5 +86,5 @@ Arkiv/
 ---
 
 <p align="center">
-  Made with 💙 by <a href="https://arkiv.hirishi.in/">Saptarshi Roy</a>
+  Made with 💙 by <a href="https://hirishi.in/">Saptarshi Roy</a>
 </p>
