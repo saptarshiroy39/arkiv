@@ -13,6 +13,7 @@ function App() {
     const [toasts, setToasts] = useState([]);
     const [indexReady, setIndexReady] = useState(false);
     const [showSidebar, setShowSidebar] = useState(window.innerWidth >= 1000);
+    const [storageMode, setStorageMode] = useState(localStorage.getItem('storage_mode') || 'cloud');
     const [sidebarPref, setSidebarPref] = useState(true);
     const prevWidth = useRef(window.innerWidth);
 
@@ -37,6 +38,11 @@ function App() {
 
     const removeToast = (id) => {
         setToasts(prev => prev.filter(t => t.id !== id));
+    };
+
+    const onStorageModeChange = (mode) => {
+        setStorageMode(mode);
+        localStorage.setItem('storage_mode', mode);
     };
 
     const toggleSidebar = (val) => {
@@ -153,6 +159,7 @@ function App() {
         const key = localStorage.getItem('custom_api_key_google');
         const headers = { 'Authorization': `Bearer ${session.access_token}` };
         if (key) headers['X-Custom-Api-Key'] = key;
+        headers['X-Storage-Mode'] = storageMode;
         
         let activeChatId = chatId;
         if (!activeChatId) {
@@ -200,6 +207,7 @@ function App() {
             'Authorization': `Bearer ${session.access_token}`
         };
         if (key) headers['X-Custom-Api-Key'] = key;
+        headers['X-Storage-Mode'] = storageMode;
 
         let activeChatId = chatId;
         if (!activeChatId) {
@@ -252,6 +260,7 @@ function App() {
             const key = localStorage.getItem('custom_api_key_google');
             const headers = { 'Authorization': `Bearer ${session.access_token}` };
             if (key) headers['X-Custom-Api-Key'] = key;
+            headers['X-Storage-Mode'] = storageMode;
             
             if (!isGlobal && chatId) {
                 headers['X-Chat-Id'] = String(chatId);
@@ -313,7 +322,8 @@ function App() {
             const key = localStorage.getItem('custom_api_key_google');
             const headers = { 
                 'Authorization': `Bearer ${session.access_token}`,
-                'X-Chat-Id': String(id)
+                'X-Chat-Id': String(id),
+                'X-Storage-Mode': storageMode
             };
             if (key) headers['X-Custom-Api-Key'] = key;
             await fetch(`${API_URL}/clear-data`, { method: 'DELETE', headers });
@@ -399,6 +409,8 @@ function App() {
                             isLoading={loading}
                             inputRef={inputRef}
                             hasUnprocessedFiles={files.length > 0}
+                            storageMode={storageMode}
+                            setStorageMode={onStorageModeChange}
                         />
                     </>
                 )}

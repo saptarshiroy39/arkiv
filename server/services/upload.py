@@ -13,6 +13,7 @@ from server.read.pdf import read_pdf
 from server.read.pptx import read_pptx
 from server.read.text import read_text
 from server.storage.pinecone import get_vectorstore
+from server.storage.faiss_store import add_documents_faiss
 
 READERS = {
     "pdf": read_pdf,
@@ -26,7 +27,7 @@ READERS = {
 splitter = RecursiveCharacterTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
 
 
-async def process_file(path, filename, user_id, chat_id, api_key=None):
+async def process_file(path, filename, user_id, chat_id, api_key=None, storage_mode="cloud"):
     ftype = get_file_type(filename)
 
     # 1. Read
@@ -51,7 +52,11 @@ async def process_file(path, filename, user_id, chat_id, api_key=None):
     chunks = splitter.split_documents(docs)
 
     # 4. Embed + Store
-    store = get_vectorstore(f"{user_id}_{chat_id}", api_key)
-    await asyncio.to_thread(store.add_documents, chunks)
+    namespace = f"{user_id}_{chat_id}"
+    if storage_mode == "local":
+        await asyncio.to_thread(add_documents_faiss, namespace, chunks, api_key)
+    else:
+        store = get_vectorstore(namespace, api_key)
+        await asyncio.to_thread(store.add_documents, chunks)
 
     return {"file": filename, "chunks": len(chunks)}

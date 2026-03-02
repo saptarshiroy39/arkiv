@@ -3,6 +3,7 @@ import asyncio
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 from server.config import CHAT_MODEL, GOOGLE_API_KEY, TOP_K
+from server.storage.faiss_store import get_faiss_store
 from server.storage.pinecone import get_vectorstore
 
 PROMPT = """You are Arkiv, a helpful document assistant.
@@ -17,12 +18,24 @@ Context:
 Question: {question}"""
 
 
-async def chat_with_docs(question, user_id, chat_id, api_key=None):
+async def chat_with_docs(
+    question, user_id, chat_id, api_key=None, storage_mode="cloud"
+):
     key = api_key or GOOGLE_API_KEY
-    store = get_vectorstore(f"{user_id}_{chat_id}", key)
+    namespace = f"{user_id}_{chat_id}"
 
     # Retrieve
-    docs = await asyncio.to_thread(store.similarity_search, question, k=TOP_K)
+    if storage_mode == "local":
+        store = get_faiss_store(namespace, key)
+        if not store:
+            return {
+                "text": "No relevant documents found. Upload some files first.",
+                "sources": [],
+            }
+        docs = await asyncio.to_thread(store.similarity_search, question, k=TOP_K)
+    else:
+        store = get_vectorstore(namespace, key)
+        docs = await asyncio.to_thread(store.similarity_search, question, k=TOP_K)
 
     if not docs:
         return {

@@ -49,3 +49,6 @@ Dockerfile
 build/
 dist/
 *.egg-info/
+
+# FAISS local data
+faiss_data/

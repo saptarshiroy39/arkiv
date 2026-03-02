@@ -20,3 +20,8 @@ def get_api_key(request: Request) -> str | None:
 
 def get_chat_id(request: Request) -> str | None:
     return request.headers.get("X-Chat-Id")
+
+
+def get_storage_mode(request: Request) -> str:
+    mode = (request.headers.get("X-Storage-Mode") or "cloud").lower()
+    return mode if mode in ("local", "cloud") else "cloud"

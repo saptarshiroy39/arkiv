@@ -10,11 +10,12 @@ from server.config import (
     SUPABASE_ANON_KEY,
     SUPABASE_URL,
 )
-from server.dependencies import get_api_key, get_chat_id, get_user
+from server.dependencies import get_api_key, get_chat_id, get_storage_mode, get_user
 from server.models import AskRequest, AskResponse, VerifyKeyRequest
 from server.services.chat import chat_with_docs
 from server.services.upload import process_file
 from server.services.utils import cleanup, get_file_type, save_temp
+from server.storage.faiss_store import delete_faiss_namespace, delete_faiss_user_data
 from server.storage.pinecone import delete_namespace, delete_user_data
 
 logger = logging.getLogger("arkiv")
@@ -33,9 +34,12 @@ async def config():
 
 
 @router.post("/upload")
-async def upload(request: Request, files: list[UploadFile] = File(...), user=Depends(get_user)):
+async def upload(
+    request: Request, files: list[UploadFile] = File(...), user=Depends(get_user)
+):
     api_key = get_api_key(request)
     chat_id = get_chat_id(request)
+    storage_mode = get_storage_mode(request)
     if not chat_id:
         raise HTTPException(400, "Missing X-Chat-Id header")
 
@@ -51,7 +55,9 @@ async def upload(request: Request, files: list[UploadFile] = File(...), user=Dep
 
         path = save_temp(content, file.filename or "")
         try:
-            result = await process_file(path, file.filename, user.id, chat_id, api_key)
+            result = await process_file(
+                path, file.filename, user.id, chat_id, api_key, storage_mode
+            )
             processed.append(result)
         except ValueError as e:
             raise HTTPException(400, str(e))
@@ -67,12 +73,17 @@ async def upload(request: Request, files: list[UploadFile] = File(...), user=Dep
 @router.post("/ask", response_model=AskResponse)
 async def ask(body: AskRequest, request: Request, user=Depends(get_user)):
     api_key = get_api_key(request)
+    storage_mode = get_storage_mode(request)
     try:
-        result = await chat_with_docs(body.text, user.id, body.chat_id, api_key)
+        result = await chat_with_docs(
+            body.text, user.id, body.chat_id, api_key, storage_mode
+        )
         return AskResponse(text=result["text"], sources=result.get("sources"))
     except Exception as e:
         if "429" in str(e):
-            raise HTTPException(429, "Rate limit reached. Please wait a moment and try again.")
+            raise HTTPException(
+                429, "Rate limit reached. Please wait a moment and try again."
+            )
         logger.exception("Ask failed")
         raise HTTPException(500, f"Failed to generate answer: {str(e)[:200]}")
 
@@ -80,9 +91,13 @@ async def ask(body: AskRequest, request: Request, user=Depends(get_user)):
 @router.delete("/clear-data")
 async def clear_data(request: Request, user=Depends(get_user)):
     chat_id = get_chat_id(request)
+    storage_mode = get_storage_mode(request)
     namespace = f"{user.id}_{chat_id}" if chat_id else user.id
     try:
-        delete_namespace(namespace)
+        if storage_mode == "local":
+            delete_faiss_namespace(namespace)
+        else:
+            delete_namespace(namespace)
     except Exception as e:
         logger.exception("Clear data failed")
         raise HTTPException(500, f"Failed to clear data: {str(e)[:200]}")
@@ -96,6 +111,10 @@ async def delete_account(user=Depends(get_user)):
     except Exception:
         logger.exception("Failed to clear Pinecone data on account delete")
     try:
+        delete_faiss_user_data(user.id)
+    except Exception:
+        logger.exception("Failed to clear FAISS data on account delete")
+    try:
         SUPABASE_ADMIN.auth.admin.delete_user(user.id)
     except Exception as e:
         raise HTTPException(500, str(e))
@@ -105,7 +124,9 @@ async def delete_account(user=Depends(get_user)):
 @router.post("/verify-key")
 async def verify_key(body: VerifyKeyRequest):
     try:
-        embeddings = GoogleGenerativeAIEmbeddings(model=EMBED_MODEL, google_api_key=body.key)
+        embeddings = GoogleGenerativeAIEmbeddings(
+            model=EMBED_MODEL, google_api_key=body.key
+        )
         embeddings.embed_query("test")
         return {"valid": True}
     except Exception:
