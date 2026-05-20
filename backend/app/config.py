@@ -55,9 +55,4 @@ Context:
 
 Question:
 {question}
-"""
-
-CREATORS = [
-    {"Krishnendu Das" : "https://itskdhere.com"},
-    {"Saptarshi Roy" : "https://hirishi.in"}
-]
+"""

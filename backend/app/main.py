@@ -4,7 +4,7 @@ from app.routes.delete import router as delete_router
 from app.routes.clear import router as clear_router
 from app.routes.chats import router as chats_router
 from app.routes.upload import router as upload_router
-from app.config import APP_NAME, APP_VERSION, CORS_ORIGINS, ENV, CREATORS
+from app.config import APP_NAME, APP_VERSION, CORS_ORIGINS, ENV
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -39,8 +39,7 @@ async def root():
     return {
         "name": APP_NAME,
         "version": APP_VERSION,
-        "status": "OK",
-        "creators": CREATORS
+        "status": "OK"
     }
 
 
