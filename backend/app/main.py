@@ -35,13 +35,13 @@ app.include_router(clear_router)
 app.include_router(chats_router)
 
 @app.get("/")
+@app.head("/") # UptimeRobot
 async def root():
     return {
         "name": APP_NAME,
         "version": APP_VERSION,
         "status": "OK"
     }
-
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
