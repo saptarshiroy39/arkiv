@@ -11,6 +11,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
+import Figlet from "@/components/figlet";
 import "./globals.css";
 
 const lexend = Lexend({
@@ -84,6 +85,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <Figlet />
           <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
           <Toaster position="top-center" richColors />
         </ThemeProvider>
