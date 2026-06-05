@@ -228,9 +228,9 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
                 height={32}
                 width={32}
                 priority
-                className="size-7 object-contain"
+                className="object-contain"
               />
-              <h1 className="font-lexend text-lg font-bold">Arkiv</h1>
+              <span className="font-lexend text-xl font-bold leading-none">ARKIV</span>
             </div>
           </div>
           {view === "chat" && !isRightPanelOpen && (
