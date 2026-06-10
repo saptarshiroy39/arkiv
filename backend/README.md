@@ -6,10 +6,11 @@ colorTo: green
 sdk: docker
 pinned: false
 app_port: 7860
+short_description: RAG Application
 ---
 
 <h1 align="center">
-  <b>🖥️</b>
+  <img src="./app/static/logo.png" alt="⚡" width="64">
   <br>
   <b>Arkiv (Backend)</b>
 </h1>

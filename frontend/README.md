@@ -1,5 +1,5 @@
 <h1 align="center">
-  <b>🌐</b>
+  <img src="./public/logo.png" alt="⚡" width="64">
   <br>
   <b>Arkiv (Frontend)</b>
 </h1>
