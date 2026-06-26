@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import { IconMessage } from "@tabler/icons-react";
+import { MorphingText } from "@/components/ui/morphing-text";
 
 export const metadata: Metadata = {
   title: "404 - Not Found | Arkiv",
@@ -12,13 +13,11 @@ export const metadata: Metadata = {
 export default function NotFound() {
   return (
     <div className="bg-background flex min-h-dvh flex-col items-center justify-center px-4 text-center">
-      <div className="space-y-2">
-        <h1 className="animate-flicker text-primary text-7xl font-bold tracking-tighter sm:text-9xl md:text-[12rem] lg:text-[16rem]">
-          404
-        </h1>
-        <p className="text-muted-foreground font-mono text-xs tracking-[0.3em] uppercase sm:text-lg md:text-xl lg:text-3xl">
-          Not Found
-        </p>
+      <div className="w-full max-w-4xl">
+        <MorphingText
+          texts={["404", "Not Found"]}
+          className="font-mono text-primary font-bold text-5xl sm:text-7xl md:text-8xl lg:text-9xl h-20 sm:h-28 md:h-36 lg:h-40"
+        />
       </div>
 
       <div className="mt-16">
