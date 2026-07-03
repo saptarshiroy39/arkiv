@@ -121,12 +121,6 @@ export function FilesView({
             </>
           )}
         </Button>
-
-        {isUploading && (
-          <p className="text-muted-foreground animate-pulse text-xs">
-            Please wait while we process your documents...
-          </p>
-        )}
       </div>
     </div>
   );

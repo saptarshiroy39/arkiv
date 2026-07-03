@@ -120,7 +120,7 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
         {
           id: "1",
           role: "assistant",
-          content: "I've processed your files. How can I help you today?",
+          content: "Your files have been processed. How can I help you today?",
         },
       ];
 
@@ -205,7 +205,7 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: "Sorry, I encountered an error while processing your request.",
+        content: "An error was encountered while processing your request.",
       };
       setMessages([...newMessages, errorMessage]);
     } finally {
