@@ -1,14 +1,15 @@
-from langchain_pymupdf4llm import PyMuPDF4LLMLoader
 from langchain_community.document_loaders import (
-    UnstructuredCSVLoader,
-    TextLoader,
-    UnstructuredMarkdownLoader,
     JSONLoader,
-    UnstructuredWordDocumentLoader,
+    TextLoader,
+    UnstructuredCSVLoader,
     UnstructuredExcelLoader,
+    UnstructuredMarkdownLoader,
     UnstructuredPowerPointLoader,
+    UnstructuredWordDocumentLoader,
 )
 from langchain_core.documents import Document
+from langchain_pymupdf4llm import PyMuPDF4LLMLoader
+
 
 # PDF
 # https://docs.langchain.com/oss/python/integrations/document_loaders/pymupdf4llm

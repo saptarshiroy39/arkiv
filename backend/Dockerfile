@@ -15,8 +15,8 @@ ENV ENV=production \
 RUN useradd -m -u 1000 user
 WORKDIR /home/user/app
 
-COPY requirements.txt .
-RUN uv pip install --no-cache --system -r requirements.txt
+COPY pyproject.toml .
+RUN uv pip install --no-cache --system -r pyproject.toml
 
 RUN chown -R user:user /home/user/app
 

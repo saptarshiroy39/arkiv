@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=77.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "arkiv-backend"
+version = "0.1.0"
+description = "Intelligent document conversational assistant backend."
+authors = [
+    {name = "Saptarshi Roy"},
+    {name = "Krishnendu Das"}
+]
+license = "MIT"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "python-multipart",
+    "python-dotenv",
+    "langchain-community",
+    "langchain-core",
+    "langchain-text-splitters",
+    "langchain-google-genai",
+    "pinecone",
+    "langchain-pinecone",
+    "google-generativeai",
+    "langchain-pymupdf4llm",
+    "unstructured[csv,docx,pptx,xlsx]",
+    "markdown",
+    "jq",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "RUF"]
+ignore = ["E501"]

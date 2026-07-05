@@ -1,10 +1,11 @@
-from app.config import CHAT_MODEL, GOOGLE_API_KEY, PROMPT, TOP_K
-from app.rag.vectorstore import get_vectorstore
-from fastapi import APIRouter, HTTPException, Depends
-from app.deps import get_user_id
+from fastapi import APIRouter, Depends, HTTPException
 from langchain_core.messages import HumanMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 from pydantic import BaseModel
+
+from app.config import CHAT_MODEL, GOOGLE_API_KEY, PROMPT, TOP_K
+from app.deps import get_user_id
+from app.rag.vectorstore import get_vectorstore
 
 router = APIRouter()
 
