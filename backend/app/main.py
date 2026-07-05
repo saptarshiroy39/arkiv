@@ -1,15 +1,17 @@
-from app.routes.auth import router as auth_router
-from app.routes.ask import router as ask_router
-from app.routes.delete import router as delete_router
-from app.routes.clear import router as clear_router
-from app.routes.chats import router as chats_router
-from app.routes.upload import router as upload_router
-from app.config import APP_NAME, APP_VERSION, CORS_ORIGINS, ENV
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-import os
+from fastapi.staticfiles import StaticFiles
+
+from app.config import APP_NAME, APP_VERSION, CORS_ORIGINS, ENV
+from app.routes.ask import router as ask_router
+from app.routes.auth import router as auth_router
+from app.routes.chats import router as chats_router
+from app.routes.clear import router as clear_router
+from app.routes.delete import router as delete_router
+from app.routes.upload import router as upload_router
 
 app = FastAPI(
     title=APP_NAME,

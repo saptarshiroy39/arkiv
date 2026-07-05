@@ -1,6 +1,7 @@
-from app.rag.vectorstore import delete_user_vectorstores
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException
+
 from app.deps import get_user_id
+from app.rag.vectorstore import delete_user_vectorstores
 
 router = APIRouter()
 

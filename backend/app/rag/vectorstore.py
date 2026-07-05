@@ -1,11 +1,12 @@
 import threading
 import time
 
-from app.config import PINECONE_API_KEY, PINECONE_INDEX_NAME, UPLOAD_BATCH_SIZE
-from app.rag.embedder import embeddings
 from langchain_core.documents import Document
 from langchain_pinecone import PineconeVectorStore
 from pinecone import Pinecone
+
+from app.config import PINECONE_API_KEY, PINECONE_INDEX_NAME, UPLOAD_BATCH_SIZE
+from app.rag.embedder import embeddings
 
 _pinecone_index = None
 _pinecone_lock = threading.Lock()

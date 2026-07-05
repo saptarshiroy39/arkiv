@@ -1,18 +1,19 @@
+from langchain_core.documents import Document
+
 from app.rag.chunker import chunk_docs
 from app.rag.cleaner import clean_text, process_latex
 from app.rag.loader import (
-    read_pdf,
     read_csv,
-    read_txt,
-    read_md,
-    read_json,
-    read_tex,
     read_docx,
-    read_xlsx,
+    read_json,
+    read_md,
+    read_pdf,
     read_pptx,
+    read_tex,
+    read_txt,
+    read_xlsx,
 )
 from app.rag.vectorstore import add_documents
-from langchain_core.documents import Document
 
 LOADERS = {
     "pdf": read_pdf,

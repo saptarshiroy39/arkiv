@@ -1,8 +1,10 @@
 import os
+
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+
 from app.config import ALLOWED_TYPES, MAX_FILE_COUNT, MAX_FILE_SIZE, UPLOAD_DIR
-from app.rag.pipeline import process_file
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile, Depends
 from app.deps import get_user_id
+from app.rag.pipeline import process_file
 
 router = APIRouter()
 
@@ -19,7 +21,7 @@ async def upload_files(files: list[UploadFile] = File(...), session_id: str = Fo
     os.makedirs(UPLOAD_DIR, exist_ok=True)
 
     for file in files:
-        original_name = file.filename or f"upload.bin"
+        original_name = file.filename or "upload.bin"
         safe_name = os.path.basename(original_name)
         ext = safe_name.rsplit(".", 1)[-1].lower()
         if ext not in ALLOWED_TYPES:
