@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "arkiv-backend"
-version = "0.1.0"
-description = "Intelligent document conversational assistant backend."
+version = "2.0.0"
+description = "RAG Application"
 authors = [
     {name = "Saptarshi Roy"},
     {name = "Krishnendu Das"}
