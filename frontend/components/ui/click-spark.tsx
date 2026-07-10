@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useRef, useEffect, useCallback } from 'react';
-import { cn } from '@/lib/utils';
+import React, { useRef, useEffect, useCallback } from "react";
+import { cn } from "@/lib/utils";
 
 interface ClickSparkProps {
   sparkColor?: string;
@@ -9,7 +9,7 @@ interface ClickSparkProps {
   sparkRadius?: number;
   sparkCount?: number;
   duration?: number;
-  easing?: 'linear' | 'ease-in' | 'ease-out' | 'ease-in-out';
+  easing?: "linear" | "ease-in" | "ease-out" | "ease-in-out";
   extraScale?: number;
   children?: React.ReactNode;
   className?: string;
@@ -24,15 +24,15 @@ interface Spark {
 }
 
 const ClickSpark: React.FC<ClickSparkProps> = ({
-  sparkColor = 'var(--spark-color)',
+  sparkColor = "var(--spark-color)",
   sparkSize = 10,
   sparkRadius = 15,
   sparkCount = 8,
   duration = 500,
-  easing = 'ease-out',
+  easing = "ease-out",
   extraScale = 1.2,
   children,
-  className
+  className,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sparksRef = useRef<Spark[]>([]);
@@ -74,11 +74,11 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
   const easeFunc = useCallback(
     (t: number) => {
       switch (easing) {
-        case 'linear':
+        case "linear":
           return t;
-        case 'ease-in':
+        case "ease-in":
           return t * t;
-        case 'ease-in-out':
+        case "ease-in-out":
           return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
         default:
           return t * (2 - t);
@@ -90,7 +90,7 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     let animationId: number;
@@ -147,9 +147,10 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
 
     // Resolve CSS variable dynamically on click
     let resolvedColor = sparkColor;
-    if (sparkColor.startsWith('var(')) {
+    if (sparkColor.startsWith("var(")) {
       const varName = sparkColor.slice(4, -1).trim();
-      resolvedColor = getComputedStyle(canvas).getPropertyValue(varName).trim() || '#fff';
+      resolvedColor =
+        getComputedStyle(canvas).getPropertyValue(varName).trim() || "#fff";
     }
 
     const now = performance.now();
@@ -158,15 +159,21 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
       y,
       angle: (2 * Math.PI * i) / sparkCount,
       startTime: now,
-      color: resolvedColor
+      color: resolvedColor,
     }));
 
     sparksRef.current.push(...newSparks);
   };
 
   return (
-    <div className={cn("relative w-full h-full", className)} onClick={handleClick}>
-      <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none z-[9999]" />
+    <div
+      className={cn("relative h-full w-full", className)}
+      onClick={handleClick}
+    >
+      <canvas
+        ref={canvasRef}
+        className="pointer-events-none absolute inset-0 z-[9999]"
+      />
       {children}
     </div>
   );

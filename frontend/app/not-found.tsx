@@ -9,7 +9,7 @@ export default function NotFound() {
   return (
     <main
       id="main"
-      className="flex flex-col items-center justify-center gap-12 min-h-screen p-4 text-center font-mono"
+      className="flex min-h-screen flex-col items-center justify-center gap-12 p-4 text-center font-mono"
     >
       <div className="w-full max-w-xl py-6">
         <MorphingText
@@ -20,7 +20,7 @@ export default function NotFound() {
       <Button
         size="lg"
         variant="outline"
-        className="mt-6 text-lg font-mono"
+        className="mt-6 font-mono text-lg"
         asChild
       >
         <Link href="/">
