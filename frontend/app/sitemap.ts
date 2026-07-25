@@ -1,17 +1,19 @@
 import type { MetadataRoute } from "next";
 
+const lastModified = new Date();
+
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
       url: "https://arkiv.hirishi.in",
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 1,
+      lastModified,
+      changeFrequency: "weekly",
+      priority: 1.0,
     },
     {
       url: "https://arkiv.hirishi.in/chat",
-      lastModified: new Date(),
-      changeFrequency: "always",
+      lastModified,
+      changeFrequency: "weekly",
       priority: 0.8,
     },
   ];
