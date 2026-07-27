@@ -210,6 +210,7 @@ export function AppSidebar({
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
+            {/* Force hot-reload of dialog border styling */}
             <AlertDialogHeader>
               <AlertDialogTitle>Are you sure?</AlertDialogTitle>
               <AlertDialogDescription>
