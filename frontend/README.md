@@ -21,7 +21,7 @@ frontend/
 │   ├── ui/             # shadcn/ui components
 │   └── ...
 ├── lib/                # Utilities
-│   └── cn.ts           # Tailwind class merge helper
+│   └── utils.ts        # Tailwind class merge helper
 ├── hooks/              # Custom hooks
 └── public/             # Static assets
 ```

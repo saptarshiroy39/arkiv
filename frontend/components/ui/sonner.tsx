@@ -5,6 +5,7 @@ import { Toaster as Sonner, type ToasterProps } from "sonner";
 import {
   IconCircleCheck,
   IconInfoCircle,
+  IconAlertTriangle,
   IconAlertSquare,
   IconLoader,
 } from "@tabler/icons-react";
@@ -17,23 +18,28 @@ const Toaster = ({ ...props }: ToasterProps) => {
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
       icons={{
-        success: <IconCircleCheck size={16} />,
-        info: <IconInfoCircle size={16} />,
-        warning: <IconAlertSquare size={16} />,
-        error: <IconAlertSquare size={16} />,
-        loading: <IconLoader size={16} className="animate-spin" />,
+        success: <IconCircleCheck className="size-4" />,
+        info: <IconInfoCircle className="size-4" />,
+        warning: <IconAlertTriangle className="size-4" />,
+        error: <IconAlertSquare className="size-4" />,
+        loading: <IconLoader className="size-4 animate-spin" />,
       }}
       style={
         {
-          "--normal-bg": "var(--popover)",
-          "--normal-text": "var(--popover-foreground)",
-          "--normal-border": "var(--border)",
-          "--border-radius": "var(--radius)",
+          "--border-radius": "0px",
         } as React.CSSProperties
       }
       toastOptions={{
         classNames: {
-          toast: "cn-toast !shadow-none !font-mono",
+          toast:
+            "group toast group-data-[theme=light]:bg-background group-data-[theme=light]:text-foreground group-data-[theme=light]:border-border group-data-[theme=dark]:bg-background group-data-[theme=dark]:text-foreground group-data-[theme=dark]:border-border font-mono rounded-none shadow-lg border p-4 flex gap-3 items-center",
+          error:
+            "group-[.toast]:bg-red-500/10 group-[.toast]:text-red-500 group-[.toast]:border-red-500/20 dark:group-[.toast]:bg-red-500/15 dark:group-[.toast]:text-red-400 dark:group-[.toast]:border-red-500/20",
+          success:
+            "group-[.toast]:bg-emerald-500/10 group-[.toast]:text-emerald-500 group-[.toast]:border-emerald-500/20 dark:group-[.toast]:bg-emerald-500/15 dark:group-[.toast]:text-emerald-400 dark:group-[.toast]:border-emerald-500/20",
+          warning:
+            "group-[.toast]:bg-amber-500/10 group-[.toast]:text-amber-500 group-[.toast]:border-amber-500/20 dark:group-[.toast]:bg-amber-500/15 dark:group-[.toast]:text-amber-400 dark:group-[.toast]:border-amber-500/20",
+          info: "group-[.toast]:bg-blue-500/10 group-[.toast]:text-blue-500 group-[.toast]:border-blue-500/20 dark:group-[.toast]:bg-blue-500/15 dark:group-[.toast]:text-blue-400 dark:group-[.toast]:border-blue-500/20",
         },
       }}
       {...props}

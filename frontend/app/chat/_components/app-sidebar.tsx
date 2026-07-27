@@ -115,10 +115,10 @@ export function AppSidebar({
             "hover:bg-sidebar-accent h-10 w-full justify-start gap-3 px-2 text-sm font-bold transition-all",
             isCollapsed && "size-10 justify-center p-0"
           )}
-          title={isCollapsed ? "New Chat" : undefined}
+          title={isCollapsed ? "NEW CHAT" : undefined}
         >
           <IconPlus size={20} stroke={2.5} />
-          {!isCollapsed && <span>New Chat</span>}
+          {!isCollapsed && <span>NEW CHAT</span>}
         </Button>
 
         {!isCollapsed && (
@@ -166,11 +166,11 @@ export function AppSidebar({
                       >
                         {deletingChatId === chat.id ? (
                           <IconRotateRectangle
-                            size={14}
+                            size={16}
                             className="animate-spin"
                           />
                         ) : (
-                          <IconTrash size={14} />
+                          <IconTrash size={16} />
                         )}
                         <span className="sr-only">Delete Chat</span>
                       </SidebarMenuAction>
@@ -197,7 +197,7 @@ export function AppSidebar({
                 isCollapsed && "size-10 justify-center p-0"
               )}
               disabled={chats.length === 0 || isDeletingAll}
-              title={isCollapsed ? "Delete All" : undefined}
+              title={isCollapsed ? "DELETE ALL" : undefined}
             >
               {isDeletingAll ? (
                 <IconRotateRectangle size={20} className="animate-spin" />
@@ -205,26 +205,26 @@ export function AppSidebar({
                 <IconTrash size={20} stroke={2.5} />
               )}
               {!isCollapsed && (
-                <span>{isDeletingAll ? "Deleting..." : "Delete All"}</span>
+                <span>{isDeletingAll ? "DELETING..." : "DELETE ALL"}</span>
               )}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
               <AlertDialogDescription>
                 This will permanently delete all your chat history and uploaded
                 files context.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel>CANCEL</AlertDialogCancel>
               <AlertDialogAction
                 onClick={onDeleteAll}
                 variant="destructive"
                 className=""
               >
-                Delete All
+                DELETE ALL
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

@@ -9,7 +9,7 @@ export default function NotFound() {
   return (
     <main
       id="main"
-      className="flex min-h-screen flex-col items-center justify-center gap-12 p-4 text-center font-mono"
+      className="bg-sidebar flex min-h-screen flex-col items-center justify-center gap-12 p-4 text-center font-mono"
     >
       <div className="w-full max-w-xl py-6">
         <MorphingText
@@ -19,13 +19,13 @@ export default function NotFound() {
       </div>
       <Button
         size="lg"
-        variant="outline"
+        variant="default"
         className="mt-6 font-mono text-lg"
         asChild
       >
         <Link href="/">
           <IconMessage className="mr-2 h-5 w-5" />
-          New Chat
+          NEW CHAT
         </Link>
       </Button>
     </main>

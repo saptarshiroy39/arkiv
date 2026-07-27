@@ -204,7 +204,7 @@ export function ChatView({
           ))}
           {isAsking && (
             <div className="animate-in fade-in slide-in-from-bottom-2 flex w-full flex-col items-start duration-300">
-              <div className="flex items-center gap-2 rounded-xl bg-transparent px-4 py-2.5 text-sm leading-relaxed">
+              <div className="flex items-center gap-2 rounded-none bg-transparent px-4 py-2.5 text-sm leading-relaxed">
                 <IconRotateRectangle className="text-primary size-4 animate-spin" />
                 <span className="text-muted-foreground animate-pulse font-medium">
                   Arkiv is thinking...
@@ -223,7 +223,7 @@ export function ChatView({
               <Button
                 size="icon"
                 variant="ghost"
-                className="text-primary hover:text-primary! bg-primary/5 dark:bg-primary/10 hover:bg-primary/10! border-primary/20 size-8 rounded-xl border shadow-none dark:text-emerald-400"
+                className="text-primary hover:text-primary! bg-primary/5 dark:bg-primary/10 hover:bg-primary/10! border-primary/20 size-8 rounded-none border shadow-none dark:text-emerald-400"
                 onClick={() => {
                   onInputChange("Summarize the uploaded documents.");
                   setTimeout(onSendMessage, 0);
@@ -244,14 +244,14 @@ export function ChatView({
                 }
               }}
               placeholder="Ask Arkiv..."
-              className="border-primary/20 bg-background/98 focus-visible:border-primary/50 max-h-40 min-h-12 resize-none overflow-y-auto rounded-xl border py-3 pr-22 pl-13 text-sm leading-relaxed whitespace-pre-wrap antialiased backdrop-blur-sm transition-all [-ms-overflow-style:none] [scrollbar-width:none] focus-visible:ring-0 sm:min-h-14 sm:py-4.5 [&::-webkit-scrollbar]:hidden"
+              className="border-primary/20 bg-sidebar-accent/50 focus-visible:border-primary/50 max-h-40 min-h-12 resize-none overflow-y-auto rounded-none border py-3 pr-22 pl-13 text-sm leading-relaxed whitespace-pre-wrap antialiased backdrop-blur-sm transition-all [-ms-overflow-style:none] [scrollbar-width:none] focus-visible:ring-0 sm:min-h-14 sm:py-4.5 [&::-webkit-scrollbar]:hidden"
             />
             <div className="absolute right-3 bottom-2 z-10 flex items-center gap-1.5 sm:bottom-3">
               <Button
                 size="icon"
                 variant="ghost"
                 className={cn(
-                  "border-primary/20 size-8 rounded-xl border shadow-none transition-none",
+                  "border-primary/20 size-8 rounded-none border shadow-none transition-none",
                   isListening
                     ? "bg-red-500/10 text-red-500 hover:bg-red-500/10! hover:text-red-500!"
                     : "text-primary hover:text-primary! bg-primary/5 dark:bg-primary/10 hover:bg-primary/10! dark:text-emerald-400"
@@ -267,7 +267,7 @@ export function ChatView({
               </Button>
               <Button
                 size="icon"
-                className="size-8 rounded-xl"
+                className="size-8 rounded-none"
                 disabled={!inputValue.trim() || isAsking}
                 onClick={handleSend}
                 title="Send message"
@@ -281,7 +281,7 @@ export function ChatView({
             </div>
           </div>
           <p className="text-muted-foreground mt-3 text-center text-[10px]">
-            <span className="font-bungee">Arkiv</span> is AI and can make
+            <span className="font-mono">Arkiv</span> is AI and can make
             mistakes.
           </p>
         </div>

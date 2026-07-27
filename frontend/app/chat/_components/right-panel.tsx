@@ -42,7 +42,7 @@ export function RightPanel({ files, onClose, isOpen }: RightPanelProps) {
 
       <aside
         className={cn(
-          "bg-sidebar md:bg-muted md:dark:bg-muted/30 fixed inset-y-0 right-0 z-50 flex h-svh w-[85vw] flex-col border-l transition-[left,right,width] duration-200 ease-in-out sm:w-(--sidebar-width) md:z-10",
+          "bg-sidebar md:bg-sidebar/80 fixed inset-y-0 right-0 z-50 flex h-svh w-[85vw] flex-col border-l transition-[left,right,width] duration-200 ease-in-out sm:w-(--sidebar-width) md:z-10",
           !isOpen && "-right-full sm:-right-(--sidebar-width)"
         )}
       >
