@@ -149,7 +149,7 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
   };
 
   const handleSendMessage = async () => {
-    if (!inputValue.trim() || isAsking || !userId) return;
+    if (!inputValue.trim() || isAsking || !userId || !initialChatId) return;
 
     abortControllerRef.current?.abort();
     const controller = new AbortController();
@@ -170,6 +170,12 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
     setInputValue("");
     setIsAsking(true);
 
+    let isTimeout = false;
+    const timeoutId = setTimeout(() => {
+      isTimeout = true;
+      controller.abort();
+    }, 10000);
+
     try {
       const response = await fetch(`${API_URL}/ask`, {
         method: "POST",
@@ -179,7 +185,7 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
         },
         body: JSON.stringify({
           question: inputValue,
-          session_id: initialChatId || "default_index",
+          session_id: initialChatId,
         }),
         signal: controller.signal,
       });
@@ -199,16 +205,26 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
         JSON.stringify(updatedMessages)
       );
     } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") return;
+      if (error instanceof Error && error.name === "AbortError") {
+        if (!isTimeout) return;
+      }
       console.error("Ask error:", error);
-      toast.error("Connection error. Please check your internet.");
+      const warningMessage = isTimeout
+        ? "Connection timeout. Please check your network."
+        : "Connection error. Please check your internet.";
+
+      toast.error(warningMessage);
+
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: "An error was encountered while processing your request.",
+        content: isTimeout
+          ? "The request timed out. The server took too long to respond."
+          : "An error was encountered while processing your request.",
       };
       setMessages([...newMessages, errorMessage]);
     } finally {
+      clearTimeout(timeoutId);
       if (abortControllerRef.current === controller) {
         setIsAsking(false);
       }
@@ -230,7 +246,7 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
                 priority
                 className="object-contain"
               />
-              <span className="font-lexend text-xl leading-none font-bold">
+              <span className="font-mono text-xl leading-none font-bold">
                 ARKIV
               </span>
             </div>
@@ -295,7 +311,7 @@ export default function ChatPage() {
 
   if (!userId) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-4">
+      <div className="bg-sidebar flex flex-1 flex-col items-center justify-center gap-4">
         <IconRotateRectangle className="text-primary size-8 animate-spin" />
         <p className="text-muted-foreground animate-pulse text-sm font-medium">
           Initializing session...

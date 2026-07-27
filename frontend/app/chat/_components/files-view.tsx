@@ -94,7 +94,7 @@ export function FilesView({
             className="hover:bg-accent/50 flex h-36 flex-col items-center justify-center gap-2 border-2 border-dashed transition-all"
           >
             <IconPlus size={24} />
-            <span className="text-xs font-medium">Add more</span>
+            <span className="text-xs font-medium">ADD MORE</span>
           </Button>
         )}
       </div>
@@ -109,11 +109,11 @@ export function FilesView({
           {isUploading ? (
             <>
               <IconRotateRectangle className="size-5 animate-spin" />
-              <span>Processing...</span>
+              <span>PROCESSING...</span>
             </>
           ) : (
             <>
-              <span>Analyze Documents</span>
+              <span>ANALYZE DOCUMENTS</span>
               <IconArrowRight
                 size={20}
                 className="transition-transform group-hover:translate-x-1"

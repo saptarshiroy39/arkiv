@@ -17,7 +17,7 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="bg-background flex min-h-screen flex-col items-center justify-center p-4 text-center">
+    <div className="bg-sidebar flex min-h-screen flex-col items-center justify-center p-4 text-center">
       <div className="animate-in fade-in zoom-in-95 flex flex-col items-center gap-6 duration-500">
         <div className="bg-destructive/10 flex h-20 w-20 items-center justify-center">
           <IconAlertSquare className="text-destructive h-10 w-10" />
@@ -44,7 +44,7 @@ export default function Error({
             size="default"
           >
             <IconRefresh size={20} />
-            Try again
+            TRY AGAIN
           </Button>
           <Button
             variant="outline"
@@ -54,13 +54,13 @@ export default function Error({
           >
             <Link href="/">
               <IconHome size={20} />
-              Back to home
+              BACK TO HOME
             </Link>
           </Button>
         </div>
 
         {process.env.NODE_ENV === "development" && (
-          <div className="bg-muted mt-8 max-w-2xl overflow-auto rounded-lg p-4 text-left font-mono text-xs text-red-500">
+          <div className="bg-muted mt-8 max-w-2xl overflow-auto rounded-none p-4 text-left font-mono text-xs text-red-500">
             <p className="mb-2 font-bold">
               {error.name}: {error.message}
             </p>

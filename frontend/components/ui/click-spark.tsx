@@ -145,12 +145,12 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    // Resolve CSS variable dynamically on click
     let resolvedColor = sparkColor;
     if (sparkColor.startsWith("var(")) {
       const varName = sparkColor.slice(4, -1).trim();
-      resolvedColor =
-        getComputedStyle(canvas).getPropertyValue(varName).trim() || "#fff";
+      resolvedColor = getComputedStyle(document.documentElement)
+        .getPropertyValue(varName)
+        .trim();
     }
 
     const now = performance.now();
