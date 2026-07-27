@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { IconCircleHalf2 } from "@tabler/icons-react";
 import { flushSync } from "react-dom";
+import { useTheme } from "next-themes";
 
 import { cn } from "@/lib/utils";
 
@@ -136,6 +137,7 @@ export const AnimatedThemeToggler = ({
   const shape = variant ?? "circle";
   const [isDark, setIsDark] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const { setTheme } = useTheme();
 
   useEffect(() => {
     const updateTheme = () => {
@@ -179,8 +181,8 @@ export const AnimatedThemeToggler = ({
     const applyTheme = () => {
       const newTheme = !isDark;
       setIsDark(newTheme);
-      document.documentElement.classList.toggle("dark");
-      localStorage.setItem("theme", newTheme ? "dark" : "light");
+      document.documentElement.classList.toggle("dark", newTheme);
+      setTheme(newTheme ? "dark" : "light");
     };
 
     if (typeof document.startViewTransition !== "function") {
@@ -233,7 +235,7 @@ export const AnimatedThemeToggler = ({
         );
       });
     }
-  }, [shape, fromCenter, duration, isDark]);
+  }, [shape, fromCenter, duration, isDark, setTheme]);
 
   return (
     <button
