@@ -1,25 +1,23 @@
 from fastapi import APIRouter, Depends, HTTPException
-from langchain_core.messages import HumanMessage
-from langchain_google_genai import ChatGoogleGenerativeAI
+from openai import OpenAI
 from pydantic import BaseModel
-
-from app.config import CHAT_MODEL, GOOGLE_API_KEY, PROMPT, TOP_K
+from app.config import CHAT_MODEL, GOOGLE_API_KEY, GEMINI_BASE_URL, SYSTEM_PROMPT, USER_PROMPT, TOP_K
 from app.deps import get_user_id
 from app.rag.vectorstore import get_vectorstore
 
 router = APIRouter()
 
-llm = ChatGoogleGenerativeAI(model=CHAT_MODEL, google_api_key=GOOGLE_API_KEY)
+client = OpenAI(
+    api_key=GOOGLE_API_KEY,
+    base_url=GEMINI_BASE_URL,
+)
 
 class AskRequest(BaseModel):
     question: str
     session_id: str = "default_index"
 
-class AskResponse(BaseModel):
-    answer: str
-
 @router.post("/ask")
-async def ask(body: AskRequest, user_id: str = Depends(get_user_id)) -> AskResponse:
+async def ask(body: AskRequest, user_id: str = Depends(get_user_id)) -> dict:
     prefixed_session_id = f"{user_id}_{body.session_id}"
     store = get_vectorstore(prefixed_session_id)
 
@@ -31,6 +29,23 @@ async def ask(body: AskRequest, user_id: str = Depends(get_user_id)) -> AskRespo
         raise HTTPException(400, "No documents found for this session.")
 
     context = "\n\n".join(d.page_content for d in docs)
-    response = llm.invoke([HumanMessage(content=PROMPT.format(context=context, question=body.question))])
+    response = client.chat.completions.create(
+        model=CHAT_MODEL,
+        messages=[
+            {
+                "role": "system",
+                "content": SYSTEM_PROMPT,
+            },
+            {
+                "role": "user",
+                "content": USER_PROMPT.format(context=context, question=body.question),
+            },
+        ],
+    )
 
-    return AskResponse(answer=str(response.content))
+    answer = response.choices[0].message.content
+    if not answer:
+        raise HTTPException(500, "Failed to generate a response from the AI model.")
+
+    return {"answer": answer}
+
