@@ -14,21 +14,23 @@ license = "MIT"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "fastapi",
-    "uvicorn[standard]",
-    "python-multipart",
-    "python-dotenv",
-    "langchain-community",
-    "langchain-core",
-    "langchain-text-splitters",
-    "langchain-google-genai",
-    "pinecone",
-    "langchain-pinecone",
-    "google-generativeai",
-    "langchain-pymupdf4llm",
-    "unstructured[csv,docx,pptx,xlsx]",
-    "markdown",
-    "jq",
+    "dotenv>=0.9.9",
+    "fastapi>=0.139.0",
+    "google-generativeai>=0.8.6",
+    "jq>=1.11.0",
+    "langchain-community>=0.4.2",
+    "langchain-core>=1.4.8",
+    "langchain-google-genai>=4.2.6",
+    "langchain-pinecone>=0.2.13",
+    "langchain-pymupdf4llm>=1.28.0",
+    "langchain-text-splitters>=1.1.2",
+    "markdown>=3.10.2",
+    "openai>=2.44.0",
+    "pinecone>=7.3.0",
+    "python-dotenv>=1.2.2",
+    "python-multipart>=0.0.32",
+    "unstructured[csv,docx,pptx,xlsx]>=0.23.1",
+    "uvicorn[standard]>=0.49.0",
 ]
 
 [tool.ruff]
@@ -38,3 +40,6 @@ line-length = 88
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "UP", "RUF"]
 ignore = ["E501"]
+
+[tool.setuptools]
+packages = ["app"]
