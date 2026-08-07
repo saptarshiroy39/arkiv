@@ -41,7 +41,7 @@ export function Markdown({ content, className }: MarkdownProps) {
           pre: ({ node, ...props }) => (
             <pre
               {...props}
-              className="bg-muted/30 border-border scrollbar-thin scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent my-4 overflow-x-auto border p-4"
+              className="text-foreground bg-muted/30 border-border scrollbar-thin scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent my-4 overflow-x-auto border p-4"
             />
           ),
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -53,7 +53,7 @@ export function Markdown({ content, className }: MarkdownProps) {
               <code
                 {...props}
                 className={cn(
-                  "bg-muted/50 px-1.5 py-0.5 font-mono text-[0.85em]",
+                  "text-foreground bg-muted/50 px-1.5 py-0.5 font-mono text-sm",
                   className
                 )}
               >
@@ -62,7 +62,7 @@ export function Markdown({ content, className }: MarkdownProps) {
             ) : (
               <code
                 {...props}
-                className={cn("font-mono text-[0.9em]", className)}
+                className={cn("text-foreground font-mono text-sm", className)}
               >
                 {children}
               </code>
