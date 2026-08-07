@@ -8,30 +8,6 @@
   tab-size: 2;
 }
 
-.hljs {
-  @apply text-foreground bg-transparent;
-}
-.hljs-keyword,
-.hljs-selector-tag {
-  @apply text-primary font-bold;
-}
-.hljs-string,
-.hljs-title,
-.hljs-section {
-  @apply text-emerald-500;
-}
-.hljs-comment {
-  @apply text-muted-foreground italic;
-}
-.hljs-number,
-.hljs-literal {
-  @apply text-orange-500;
-}
-.hljs-function,
-.hljs-attr {
-  @apply text-sky-500;
-}
-
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -77,6 +53,8 @@
 }
 
 :root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);

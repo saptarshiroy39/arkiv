@@ -6,8 +6,22 @@ def clean_text(text: str) -> str:
         return ""
     text = text.replace("\x00", "")
     text = re.sub(r"\n{3,}", "\n\n", text)
-    text = re.sub(r"[ \t]+", " ", text)
-    return text.strip()
+    
+    lines = []
+    for line in text.splitlines():
+        match = re.match(r"^([ \t]*)", line)
+        indent = match.group(1) if match else ""
+        content = line[len(indent):]
+        cleaned_content = re.sub(r"[ \t]+", " ", content)
+        lines.append(indent + cleaned_content)
+        
+    while lines and not lines[0].strip():
+        lines.pop(0)
+    while lines and not lines[-1].strip():
+        lines.pop()
+        
+    lines = [line.rstrip() for line in lines]
+    return "\n".join(lines)
 
 def process_latex(text: str) -> str:
     if not text:
