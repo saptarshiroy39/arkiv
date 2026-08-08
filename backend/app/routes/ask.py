@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from openai import OpenAI
 from pydantic import BaseModel
-from app.config import CHAT_MODEL, GOOGLE_API_KEY, GEMINI_BASE_URL, SYSTEM_PROMPT, USER_PROMPT, TOP_K
+from app.config import CHAT_MODEL, GOOGLE_API_KEY, GEMINI_BASE_URL, TOP_K
+from app.prompt import SYSTEM_PROMPT, USER_PROMPT
 from app.deps import get_user_id
 from app.rag.vectorstore import get_vectorstore
 
@@ -48,4 +49,3 @@ async def ask(body: AskRequest, user_id: str = Depends(get_user_id)) -> dict:
         raise HTTPException(500, "Failed to generate a response from the AI model.")
 
     return {"answer": answer}
-
