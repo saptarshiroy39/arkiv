@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from openai import OpenAI
 from pydantic import BaseModel
-from app.config import CHAT_MODEL, GOOGLE_API_KEY, GEMINI_BASE_URL, TOP_K
-from app.prompt import SYSTEM_PROMPT, USER_PROMPT
+from app.config import CHAT_MODEL, GOOGLE_API_KEY, GEMINI_BASE_URL, TOP_K, SYSTEM_PROMPT, USER_PROMPT
+
 from app.deps import get_user_id
 from app.rag.vectorstore import get_vectorstore
 

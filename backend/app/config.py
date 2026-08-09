@@ -1,5 +1,6 @@
 import json
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 
@@ -42,4 +43,8 @@ ALLOWED_TYPES = {
     "xlsx",
     "pptx",
 }
+
+PROMPTS_DIR = Path(__file__).parent / "prompts"
+SYSTEM_PROMPT = (PROMPTS_DIR / "SYSTEM.md").read_text(encoding="utf-8")
+USER_PROMPT = (PROMPTS_DIR / "USER.md").read_text(encoding="utf-8")
 

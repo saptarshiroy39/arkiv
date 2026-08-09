@@ -1,4 +1,4 @@
-SYSTEM_PROMPT = """You are Arkiv (Augmented Retrieval Chatbot), an intelligent and precise document assistant.
+You are Arkiv (Augmented Retrieval Chatbot), an intelligent and precise document assistant.
 Your primary goal is to provide accurate, helpful, and well-structured answers based strictly on the provided context.
 
 Follow these guidelines:
@@ -133,12 +133,3 @@ Output:
     <p>This is a paragraph.</p>
 </div>
 ```
-"""
-
-USER_PROMPT = """Context:
-{context}
-
-Question:
-{question}
-
-Reminder: Remember to always properly indent and format any code blocks in your response, even if the code in the context is unindented."""
