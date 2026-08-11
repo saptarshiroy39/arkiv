@@ -13,7 +13,14 @@ import { Markdown } from "@/components/markdown";
 import { CopyButton } from "@/components/copy-button";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  MessageScrollerProvider,
+  MessageScroller,
+  MessageScrollerViewport,
+  MessageScrollerContent,
+  MessageScrollerItem,
+  MessageScrollerButton,
+} from "@/components/ui/message-scroller";
 import { cn } from "@/lib/utils";
 import { Message } from "@/app/chat/types";
 
@@ -74,7 +81,6 @@ export function ChatView({
   onInputChange,
   onSendMessage,
 }: ChatViewProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
@@ -155,20 +161,6 @@ export function ChatView({
   }, [isListening, onSendMessage]);
 
   useEffect(() => {
-    const scrollToBottom = () => {
-      if (scrollRef.current) {
-        scrollRef.current.scrollTo({
-          top: scrollRef.current.scrollHeight,
-          behavior: "smooth",
-        });
-      }
-    };
-
-    const timeoutId = setTimeout(scrollToBottom, 100);
-    return () => clearTimeout(timeoutId);
-  }, [messages, isAsking]);
-
-  useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
@@ -177,43 +169,59 @@ export function ChatView({
 
   return (
     <div className="bg-sidebar relative flex min-h-0 flex-1 flex-col overflow-hidden">
-      <ScrollArea className="min-h-0 flex-1 px-4 md:px-6" ref={scrollRef}>
-        <div className="mx-auto max-w-4xl space-y-6 py-4 pb-40">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={cn(
-                "animate-in fade-in slide-in-from-bottom-2 group flex w-full flex-col duration-300",
-                message.role === "user" ? "items-end" : "items-start"
+      <MessageScrollerProvider>
+        <MessageScroller className="min-h-0 flex-1">
+          <MessageScrollerViewport className="px-4 md:px-6">
+            <MessageScrollerContent className="mx-auto max-w-4xl py-4 pb-40 gap-6">
+              {messages.map((message) => (
+                <MessageScrollerItem
+                  key={message.id}
+                  messageId={message.id}
+                  scrollAnchor={false}
+                  className={cn(
+                    "animate-in fade-in slide-in-from-bottom-2 group flex w-full flex-col duration-300",
+                    message.role === "user" ? "items-end" : "items-start"
+                  )}
+                >
+                  <div
+                    className={cn(
+                      "max-w-[90%] text-sm leading-relaxed",
+                      message.role === "user"
+                        ? "bg-primary/10 text-foreground border-primary/20 border px-4 py-2.5"
+                        : "bg-transparent"
+                    )}
+                  >
+                    <Markdown content={message.content} />
+                  </div>
+                  <div className="mt-1">
+                    <CopyButton content={message.content} />
+                  </div>
+                </MessageScrollerItem>
+              ))}
+              {isAsking && (
+                <MessageScrollerItem
+                  messageId="thinking"
+                  scrollAnchor={false}
+                  className="animate-in fade-in slide-in-from-bottom-2 flex w-full flex-col items-start duration-300"
+                >
+                  <div className="flex items-center gap-2 rounded-none bg-transparent px-4 py-2.5 text-sm leading-relaxed">
+                    <IconRotateRectangle className="text-primary size-4 animate-spin" />
+                    <span className="text-muted-foreground animate-pulse font-medium">
+                      Arkiv is thinking...
+                    </span>
+                  </div>
+                </MessageScrollerItem>
               )}
-            >
-              <div
-                className={cn(
-                  "max-w-[90%] text-sm leading-relaxed",
-                  message.role === "user"
-                    ? "bg-primary/10 text-foreground border-primary/20 border px-4 py-2.5"
-                    : "bg-transparent"
-                )}
-              >
-                <Markdown content={message.content} />
-              </div>
-              <div className="mt-1">
-                <CopyButton content={message.content} />
-              </div>
-            </div>
-          ))}
-          {isAsking && (
-            <div className="animate-in fade-in slide-in-from-bottom-2 flex w-full flex-col items-start duration-300">
-              <div className="flex items-center gap-2 rounded-none bg-transparent px-4 py-2.5 text-sm leading-relaxed">
-                <IconRotateRectangle className="text-primary size-4 animate-spin" />
-                <span className="text-muted-foreground animate-pulse font-medium">
-                  Arkiv is thinking...
-                </span>
-              </div>
-            </div>
-          )}
-        </div>
-      </ScrollArea>
+            </MessageScrollerContent>
+          </MessageScrollerViewport>
+          <MessageScrollerButton
+            direction="end"
+            variant="default"
+            size="icon"
+            className="bg-primary hover:bg-primary/80 text-primary-foreground hover:text-primary-foreground! border-0 size-8 rounded-none shadow-none bottom-32!"
+          />
+        </MessageScroller>
+      </MessageScrollerProvider>
 
       <div className="pointer-events-none absolute right-0 bottom-0 left-0 flex flex-col">
         <div className="from-sidebar h-10 bg-linear-to-t to-transparent" />
