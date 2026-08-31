@@ -1,12 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 
-from app.deps import get_user_id
-from app.rag.vectorstore import delete_user_vectorstores
+from app.rag.vectorstore import clear_all_vs
 
-router = APIRouter()
+router = APIRouter(tags=["RAG"])
+
 
 @router.delete("/clear")
-async def clear_index(user_id: str = Depends(get_user_id)) -> dict:
-    if not delete_user_vectorstores(user_id):
-        raise HTTPException(500, "Failed to clear the user's vector stores.")
-    return {"message": "User's vector stores cleared."}
+async def clear_index() -> dict:
+    if not clear_all_vs():
+        raise HTTPException(500, "Failed to clear vector stores.")
+    return {"message": "All vector stores cleared."}

@@ -28,7 +28,7 @@
 
 ## 🎯 _System Overview_
 
-Arkiv uses a decoupled architecture with a **Next.js** frontend and a **FastAPI** backend, connected over REST with real-time **SSE streaming** for LLM responses. The RAG pipeline processes diverse document types, chunks the text, embeds it using an **Embedder**, and stores it in a **Pinecone** vector database, ensuring highly accurate, context-aware responses and reducing hallucinations typical of standard LLMs.
+Arkiv uses a decoupled architecture with a **Next.js** frontend and a **FastAPI** backend, connected over REST. The RAG pipeline processes diverse document types, chunks the text, embeds it using Gemini Embeddings, and stores it in a **Qdrant Cloud** vector database, ensuring highly accurate, context-aware responses and reducing hallucinations typical of standard LLMs.
 
 ![Arkiv](./frontend/public/Arkiv.png)
 
@@ -40,8 +40,8 @@ Arkiv uses a decoupled architecture with a **Next.js** frontend and a **FastAPI*
 | --- | ---------------- | ----------------------------------------------- | -------------------------------------------------------------------- |
 | 1️⃣  | **Frontend**     | Chat interface for querying documents           | **_TypeScript_**, **_Next.js_**, **_Tailwind CSS_**, **_shadcn/ui_** |
 | 2️⃣  | **Backend**      | REST API handling file processing and LLM chat  | **_Python_**, **_FastAPI_**, **_Uvicorn_**                           |
-| 3️⃣  | **RAG Pipeline** | Ingestion, chunking, and embedding logic        | **_Python_**, **_LangChain_**, **_Pinecone_**                        |
-| 4️⃣  | **Chat Engine**  | Context-aware chat with real-time SSE streaming | **_FastAPI SSE_**, **_LangChain_**                                   |
+| 3️⃣  | **RAG Pipeline** | Ingestion, chunking, and embedding logic        | **_Python_**, **_LangChain_**, **_Qdrant Cloud_**                    |
+| 4️⃣  | **Chat Engine**  | Context-aware session-isolated response engine  | **_FastAPI_**, **_LangChain_**, **_Gemini 3.1 Flash_**              |
 
 ---
 
@@ -50,9 +50,9 @@ Arkiv uses a decoupled architecture with a **Next.js** frontend and a **FastAPI*
 ```
 Arkiv/
 ├── frontend/               # Next.js frontend
-│   ├── app/                # Pages
-│   │   ├── page.tsx        # Home
-│   │   ├── chat/           # Chat interface
+│   ├── app/                # Pages & App Router
+│   │   ├── page.tsx        # Home redirect
+│   │   ├── chat/           # Chat interface & session views
 │   │   └── layout.tsx      # Root layout
 │   ├── components/         # UI components (shadcn) + custom components
 │   ├── lib/                # Utilities
@@ -63,12 +63,17 @@ Arkiv/
 │       ├── main.py         # FastAPI app entry point
 │       ├── config.py       # App configuration
 │       ├── routes/         # API route definitions
+│       │   ├── ask.py      # /ask RAG handler
+│       │   ├── upload.py   # /upload tempfile handler
+│       │   ├── delete.py   # /delete/{session_id} handler
+│       │   ├── clear.py    # /clear handler
+│       │   └── chats.py    # /chats session handler
 │       ├── rag/            # RAG pipeline implementations
 │       │   ├── loader.py   # Document loaders
 │       │   ├── chunker.py  # Text splitting
-│       │   ├── embedder.py # Vector embeddings
-│       │   ├── vectorstore.py # Pinecone integration
-│       │   ├── cleaner.py  # Text sanitization
+│       │   ├── embedder.py # Gemini embeddings
+│       │   ├── vectorstore.py # Qdrant Cloud integration
+│       │   ├── cleaner.py  # Text & LaTeX sanitization
 │       │   └── pipeline.py # E2E processing
 │       └── static/         # Static files
 ├── docs/                   # Documentation and reports

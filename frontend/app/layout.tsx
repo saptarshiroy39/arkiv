@@ -7,7 +7,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 import Figlet from "@/components/figlet";
-import ClickSpark from "@/components/ui/click-spark";
 import "./globals.css";
 
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" });
@@ -51,6 +50,7 @@ export const metadata: Metadata = {
     "Chat with Excel",
     "Vector Search",
     "Pinecone",
+    "Qdrant",
     "Gemini",
     "FastAPI",
     "Next.js",
@@ -112,11 +112,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ClickSpark className="flex min-h-screen w-full flex-col">
+          <div className="flex min-h-screen w-full flex-col">
             <Figlet />
             <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
             <Toaster position="top-center" richColors />
-          </ClickSpark>
+          </div>
         </ThemeProvider>
         <Analytics />
         <SpeedInsights />

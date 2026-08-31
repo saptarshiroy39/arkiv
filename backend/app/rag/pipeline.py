@@ -1,5 +1,6 @@
 from langchain_core.documents import Document
 
+from app.config import DEFAULT_SESSION_ID
 from app.rag.chunker import chunk_docs
 from app.rag.cleaner import clean_text, process_latex
 from app.rag.loader import (
@@ -13,7 +14,7 @@ from app.rag.loader import (
     read_txt,
     read_xlsx,
 )
-from app.rag.vectorstore import add_documents
+from app.rag.vectorstore import add_docs
 
 LOADERS = {
     "pdf": read_pdf,
@@ -33,7 +34,7 @@ def _clean_docs(docs: list[Document]) -> list[Document]:
         doc.page_content = process_latex(doc.page_content)
     return docs
 
-def process_file(path: str, ext: str, session_id: str = "default_index") -> int:
+def process_file(path: str, ext: str, session_id: str = DEFAULT_SESSION_ID) -> int:
     loader = LOADERS.get(ext.lower())
     if loader is None:
         raise ValueError(f"Unsupported file type: .{ext}")
@@ -41,5 +42,5 @@ def process_file(path: str, ext: str, session_id: str = "default_index") -> int:
     docs = loader(path)
     docs = _clean_docs(docs)
     chunks = chunk_docs(docs)
-    add_documents(chunks, session_id=session_id)
+    add_docs(chunks, session_id=session_id)
     return len(chunks)

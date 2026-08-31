@@ -1,5 +1,5 @@
 ---
-title: Arkiv
+title: arkiv
 emoji: ⚡
 colorFrom: gray
 colorTo: green
@@ -21,33 +21,39 @@ short_description: RAG Application
 
 ## ⚙️ _API Endpoints_
 
-| METHOD                                           | ENDPOINT       | DESCRIPTION                                   |
-| ------------------------------------------------ | -------------- | --------------------------------------------- |
-| ![GET](https://img.shields.io/badge/GET-blue)    | `/`            | API name, version & status                    |
-| ![POST](https://img.shields.io/badge/POST-green) | `/chat/upload` | Upload and process documents into Pinecone    |
-| ![POST](https://img.shields.io/badge/POST-green) | `/chat/query`  | Query the document context (returns response) |
-| ![POST](https://img.shields.io/badge/POST-green) | `/chat/stream` | SSE feed for real-time LLM response streaming |
+| METHOD | ENDPOINT | TAG | DESCRIPTION |
+| :--- | :--- | :--- | :--- |
+| ![GET](https://img.shields.io/badge/GET-blue) | `/` | default | API name, version & status |
+| ![POST](https://img.shields.io/badge/POST-green) | `/upload` | RAG | Upload & process documents into Qdrant Cloud |
+| ![POST](https://img.shields.io/badge/POST-green) | `/ask` | RAG | Session-based RAG Question Answering |
+| ![GET](https://img.shields.io/badge/GET-blue) | `/chats` | RAG | Active chat sessions list |
+| ![DELETE](https://img.shields.io/badge/DELETE-red) | `/delete/{session_id}` | RAG | Delete session vectorstore points |
+| ![DELETE](https://img.shields.io/badge/DELETE-red) | `/clear` | RAG | Clear all vectorstore points |
 
 ## 📁 _Structure_
 
 ```
 backend/
 ├── app/
-│   ├── main.py         # FastAPI app entry point
-│   ├── config.py       # App configuration (env vars)
-│   ├── routes/         # API route definitions
-│   │   └── chat.py     # Chat and upload routes
-│   ├── rag/            # RAG implementations
-│   │   ├── loader.py   # Document loaders
-│   │   ├── chunker.py  # Text splitting
-│   │   ├── embedder.py # Vector embeddings
-│   │   ├── vectorstore.py # Pinecone integration
-│   │   ├── cleaner.py  # Text cleaning
-│   │   └── pipeline.py # E2E processing logic
-│   └── static/         # Static files
-├── pyproject.toml      # Python project configuration
-├── uv.lock             # Dependency lockfile
-└── .env.example        # Environment variables template
+│   ├── main.py            # FastAPI app entry point & CORS
+│   ├── config.py          # App configuration
+│   ├── routes/            # API route definitions
+│   │   ├── ask.py         # /ask endpoint (RAG query handler)
+│   │   ├── upload.py      # /upload endpoint (tempfile streaming)
+│   │   ├── delete.py      # /delete/{session_id} endpoint
+│   │   ├── clear.py       # /clear endpoint
+│   │   └── chats.py       # /chats session list endpoint
+│   ├── rag/               # RAG implementations
+│   │   ├── loader.py      # Multi-format document loaders (PDF, DOCX, XLSX, etc.)
+│   │   ├── chunker.py     # Recursive character text splitter
+│   │   ├── embedder.py    # Gemini vector embeddings (768-dim)
+│   │   ├── vectorstore.py # Qdrant Cloud integration with session filtering
+│   │   ├── cleaner.py     # Text cleaning & LaTeX formula processor
+│   │   └── pipeline.py    # E2E document processing pipeline
+│   └── static/            # Static files & favicon
+├── pyproject.toml         # Python project configuration
+├── uv.lock                # Dependency lockfile
+└── .env.example           # Environment variables template
 ```
 
 ## 🚀 _Getting Started_

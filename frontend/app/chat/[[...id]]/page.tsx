@@ -19,7 +19,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 function ChatInterface({ initialChatId }: { initialChatId?: string }) {
   const router = useRouter();
-  const { userId, chats, setChats } = useChat();
+  const { chats, setChats } = useChat();
 
   const [view, setView] = React.useState<ViewState>(
     initialChatId ? "chat" : "upload"
@@ -28,14 +28,14 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
   const [uploadedFiles, setUploadedFiles] = React.useState<UploadedFile[]>(
     () => {
       if (typeof window === "undefined" || !initialChatId) return [];
-      const saved = localStorage.getItem(`arc_files_${initialChatId}`);
+      const saved = localStorage.getItem(`arkiv_files_${initialChatId}`);
       return saved ? JSON.parse(saved) : [];
     }
   );
 
   const [messages, setMessages] = React.useState<Message[]>(() => {
     if (typeof window === "undefined" || !initialChatId) return [];
-    const saved = localStorage.getItem(`arc_messages_${initialChatId}`);
+    const saved = localStorage.getItem(`arkiv_messages_${initialChatId}`);
     return saved ? JSON.parse(saved) : [];
   });
 
@@ -89,7 +89,7 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
   };
 
   const startChat = async () => {
-    if (uploadedFiles.length === 0 || isUploading || !userId) return;
+    if (uploadedFiles.length === 0 || isUploading) return;
 
     setIsUploading(true);
     const newChatId = Date.now().toString();
@@ -102,7 +102,6 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
     try {
       const response = await fetch(`${API_URL}/upload`, {
         method: "POST",
-        headers: { "X-User-ID": userId },
         body: formData,
       });
 
@@ -126,7 +125,7 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
 
       setMessages(initMessages);
       localStorage.setItem(
-        `arc_messages_${newChatId}`,
+        `arkiv_messages_${newChatId}`,
         JSON.stringify(initMessages)
       );
 
@@ -135,7 +134,7 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
         size: f.size,
       }));
       localStorage.setItem(
-        `arc_files_${newChatId}`,
+        `arkiv_files_${newChatId}`,
         JSON.stringify(fileMetadata)
       );
 
@@ -149,7 +148,7 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
   };
 
   const handleSendMessage = async () => {
-    if (!inputValue.trim() || isAsking || !userId || !initialChatId) return;
+    if (!inputValue.trim() || isAsking || !initialChatId) return;
 
     abortControllerRef.current?.abort();
     const controller = new AbortController();
@@ -164,7 +163,7 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
     localStorage.setItem(
-      `arc_messages_${initialChatId}`,
+      `arkiv_messages_${initialChatId}`,
       JSON.stringify(newMessages)
     );
     setInputValue("");
@@ -174,14 +173,13 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
     const timeoutId = setTimeout(() => {
       isTimeout = true;
       controller.abort();
-    }, 10000);
+    }, 30000);
 
     try {
       const response = await fetch(`${API_URL}/ask`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-User-ID": userId,
         },
         body: JSON.stringify({
           question: inputValue,
@@ -201,7 +199,7 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
       const updatedMessages = [...newMessages, aiMessage];
       setMessages(updatedMessages);
       localStorage.setItem(
-        `arc_messages_${initialChatId}`,
+        `arkiv_messages_${initialChatId}`,
         JSON.stringify(updatedMessages)
       );
     } catch (error) {
@@ -307,9 +305,9 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
 export default function ChatPage() {
   const params = useParams();
   const initialChatId = (params.id as string[] | undefined)?.[0];
-  const { userId } = useChat();
+  const { isLoadingChats } = useChat();
 
-  if (!userId) {
+  if (isLoadingChats) {
     return (
       <div className="bg-sidebar flex flex-1 flex-col items-center justify-center gap-4">
         <IconRotateRectangle className="text-primary size-8 animate-spin" />

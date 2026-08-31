@@ -7,8 +7,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-ENV ENV=production \
-  PORT=7860 \
+ENV PORT=7860 \
   PYTHONUNBUFFERED=1 \
   PYTHONDONTWRITEBYTECODE=1
 
