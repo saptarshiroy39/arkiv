@@ -8,7 +8,18 @@
   <b>Next.js</b> frontend for the <b>Arkiv</b> project.
 </p>
 
-## 📁 _Structure_
+<p align="center">
+  <a href="https://github.com/saptarshiroy39/arkiv">
+    <img alt="Version" src="https://img.shields.io/badge/version-v2.5.0-emerald">
+  </a>
+  <a href="https://github.com/saptarshiroy39/arkiv/blob/main/LICENSE">
+    <img alt="GitHub License" src="https://img.shields.io/github/license/saptarshiroy39/arkiv?color=crimson">
+  </a>
+</p>
+
+---
+
+## ✳️ _Structure_
 
 ```
 frontend/
@@ -26,7 +37,9 @@ frontend/
 └── public/             # Static assets
 ```
 
-## 🚀 _Getting Started_
+---
+
+## ✳️ _Getting Started_
 
 ```bash
 cd frontend
@@ -40,4 +53,8 @@ pnpm install
 pnpm dev
 ```
 
-- 🌐 [**_`Frontend App`_**](http://localhost:3000) - Open frontend app at [`localhost:3000`](http://localhost:3000)
+---
+
+## ✳️ _Access the App_
+
+▶️ [**_`Frontend App`_**](http://localhost:3000) - Open frontend app at [`localhost:3000`](http://localhost:3000)

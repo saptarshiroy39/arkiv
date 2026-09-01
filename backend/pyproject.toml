@@ -4,12 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "arkiv-backend"
-version = "2.0.0"
+version = "2.5.0"
 description = "RAG Application"
-authors = [
-    {name = "Saptarshi Roy"},
-    {name = "Krishnendu Das"}
-]
+authors = [{name = "Saptarshi Roy"}]
 license = "MIT"
 readme = "README.md"
 requires-python = ">=3.13"

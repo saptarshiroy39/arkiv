@@ -8,25 +8,34 @@
   <a href="https://arkiv.hirishi.in"><b>Arkiv</b></a> is an intelligent, document-grounded conversational assistant. Built with a <a href="https://nextjs.org"><b>Next.js</b></a> frontend and a <a href="https://fastapi.tiangolo.com"><b>FastAPI</b></a> backend, it leverages <b>Retrieval-Augmented Generation (RAG)</b> to let you upload various document formats and query their contents using natural language.
 </p>
 
----
-
-## ⚡ _Supported Formats_
-
-| FORMAT                   | LOADER                  | SUPPORT      |
-| ------------------------ | ----------------------- | ------------ |
-| **PDF _(.pdf)_**         | PyMuPDF4LLMLoader       | ✅ Supported |
-| **CSV _(.csv)_**         | UnstructuredCSVLoader   | ✅ Supported |
-| **Text _(.txt)_**        | TextLoader              | ✅ Supported |
-| **Markdown _(.md)_**     | UnstructuredMarkdown    | ✅ Supported |
-| **JSON _(.json)_**       | JSONLoader              | ✅ Supported |
-| **LaTeX _(.tex)_**       | TextLoader              | ✅ Supported |
-| **Word _(.docx)_**       | UnstructuredWordLoader  | ✅ Supported |
-| **Excel _(.xlsx)_**      | UnstructuredExcelLoader | ✅ Supported |
-| **PowerPoint _(.pptx)_** | UnstructuredPPTLoader   | ✅ Supported |
+<p align="center">
+  <a href="https://github.com/saptarshiroy39/arkiv">
+    <img alt="Version" src="https://img.shields.io/badge/version-v2.5.0-emerald">
+  </a>
+  <a href="https://github.com/saptarshiroy39/arkiv/blob/main/LICENSE">
+    <img alt="GitHub License" src="https://img.shields.io/github/license/saptarshiroy39/arkiv?color=crimson">
+  </a>
+</p>
 
 ---
 
-## 🎯 _System Overview_
+## ✳️ _Supported Formats_
+
+| FORMAT | EXTENSION | LOADER | SUPPORT |
+| :---: | :---: | :---: | :---: |
+| **PDF** | _.pdf_ | PyMuPDF4LLMLoader | ✅ Supported |
+| **CSV** | _.csv_ | UnstructuredCSVLoader | ✅ Supported |
+| **Text** | _.txt_ | TextLoader | ✅ Supported |
+| **Markdown** | _.md_ | UnstructuredMarkdown | ✅ Supported |
+| **JSON** | _.json_ | JSONLoader | ✅ Supported |
+| **LaTeX** | _.tex_ | TextLoader | ✅ Supported |
+| **Word** | _.docx_ | UnstructuredWordLoader | ✅ Supported |
+| **Excel** | _.xlsx_ | UnstructuredExcelLoader | ✅ Supported |
+| **PowerPoint** | _.pptx_ | UnstructuredPPTLoader | ✅ Supported |
+
+---
+
+## ✳️ _System Overview_
 
 Arkiv uses a decoupled architecture with a **Next.js** frontend and a **FastAPI** backend, connected over REST. The RAG pipeline processes diverse document types, chunks the text, embeds it using Gemini Embeddings, and stores it in a **Qdrant Cloud** vector database, ensuring highly accurate, context-aware responses and reducing hallucinations typical of standard LLMs.
 
@@ -34,64 +43,27 @@ Arkiv uses a decoupled architecture with a **Next.js** frontend and a **FastAPI*
 
 ---
 
-## 🏗️ _Architecture_
+## ✳️ _Architecture_
 
-| #   | COMPONENT        | DESCRIPTION                                     | STACK                                                                |
-| --- | ---------------- | ----------------------------------------------- | -------------------------------------------------------------------- |
-| 1️⃣  | **Frontend**     | Chat interface for querying documents           | **_TypeScript_**, **_Next.js_**, **_Tailwind CSS_**, **_shadcn/ui_** |
-| 2️⃣  | **Backend**      | REST API handling file processing and LLM chat  | **_Python_**, **_FastAPI_**, **_Uvicorn_**                           |
-| 3️⃣  | **RAG Pipeline** | Ingestion, chunking, and embedding logic        | **_Python_**, **_LangChain_**, **_Qdrant Cloud_**                    |
-| 4️⃣  | **Chat Engine**  | Context-aware session-isolated response engine  | **_FastAPI_**, **_LangChain_**, **_Gemini 3.1 Flash_**              |
-
----
-
-## 📁 _Project Structure_
-
-```
-Arkiv/
-├── frontend/               # Next.js frontend
-│   ├── app/                # Pages & App Router
-│   │   ├── page.tsx        # Home redirect
-│   │   ├── chat/           # Chat interface & session views
-│   │   └── layout.tsx      # Root layout
-│   ├── components/         # UI components (shadcn) + custom components
-│   ├── lib/                # Utilities
-│   ├── hooks/              # Custom React hooks
-│   └── public/             # Static assets
-├── backend/                # FastAPI backend
-│   └── app/
-│       ├── main.py         # FastAPI app entry point
-│       ├── config.py       # App configuration
-│       ├── routes/         # API route definitions
-│       │   ├── ask.py      # /ask RAG handler
-│       │   ├── upload.py   # /upload tempfile handler
-│       │   ├── delete.py   # /delete/{session_id} handler
-│       │   ├── clear.py    # /clear handler
-│       │   └── chats.py    # /chats session handler
-│       ├── rag/            # RAG pipeline implementations
-│       │   ├── loader.py   # Document loaders
-│       │   ├── chunker.py  # Text splitting
-│       │   ├── embedder.py # Gemini embeddings
-│       │   ├── vectorstore.py # Qdrant Cloud integration
-│       │   ├── cleaner.py  # Text & LaTeX sanitization
-│       │   └── pipeline.py # E2E processing
-│       └── static/         # Static files
-├── docs/                   # Documentation and reports
-├── README.md
-└── .gitignore
-```
+| # | COMPONENT | DESCRIPTION | STACK |
+| :---: | :---: | :---: | :---: |
+| 1️⃣ | **Frontend** | Chat interface for querying documents | **_TypeScript_**, **_Next.js_**, **_Tailwind CSS_**, **_shadcn/ui_** |
+| 2️⃣ | **Backend** | REST API handling file processing and LLM chat | **_Python_**, **_FastAPI_**, **_Uvicorn_** |
+| 3️⃣ | **RAG Pipeline** | Ingestion, chunking, and embedding logic | **_Python_**, **_LangChain_**, **_Qdrant Cloud_** |
+| 4️⃣ | **Chat Engine** | Context-aware session-isolated response engine | **_FastAPI_**, **_LangChain_**, **_Gemini 3.1 Flash_** |
 
 ---
 
-## 📖 _Instructions_
+## ✳️ _Instructions_
 
 For detailed setup and usage instructions, refer to the respective README files:
 
-- 🖥️ [**_`Backend Instructions`_**](./backend/README.md) - Setting up & running the FastAPI backend
-- 🌐 [**_`Frontend Instructions`_**](./frontend/README.md) - Setting up & running the Next.js frontend
+▶️ [**_`Backend Instructions`_**](./backend/README.md) - Setting up & running the FastAPI backend
+
+▶️ [**_`Frontend Instructions`_**](./frontend/README.md) - Setting up & running the Next.js frontend
 
 ---
 
 <p align="center">
-  Made with ⚡ by <a href="https://hirishi.in">Saptarshi Roy</a> & <a href="https://itskdhere.com">Krishnendu Das</a>
+  Made with ⚡ by <a href="https://hirishi.in">Saptarshi Roy</a>
 </p>

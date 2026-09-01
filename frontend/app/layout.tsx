@@ -28,10 +28,7 @@ export const metadata: Metadata = {
   robots: "index, follow",
 
   creator: "Saptarshi Roy",
-  authors: [
-    { name: "Saptarshi Roy", url: "https://hirishi.in" },
-    { name: "Krishnendu Das", url: "https://itskdhere.com" },
-  ],
+  authors: [{ name: "Saptarshi Roy", url: "https://hirishi.in" }],
 
   keywords: [
     "Arkiv",
