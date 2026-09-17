@@ -1,4 +1,5 @@
 import re
+from langchain_core.documents import Document
 
 
 def clean_text(text: str) -> str:
@@ -34,3 +35,22 @@ def process_latex(text: str) -> str:
     )
 
     return re.sub(r"\${3,}", "$$", text)
+
+
+def format_context(docs: list[Document]) -> str:
+    formatted_chunks = []
+    for doc in docs:
+        file_name = doc.metadata.get("file_name", "Document")
+
+        page = doc.metadata.get("page_label")
+        if page is None and "page" in doc.metadata:
+            raw_page = doc.metadata["page"]
+            if isinstance(raw_page, int):
+                page = str(raw_page + 1)
+            elif raw_page is not None:
+                page = str(raw_page)
+
+        meta_header = f"[Source: {file_name}" + (f" | Page: {page}]" if page else "]")
+        formatted_chunks.append(f"{meta_header}\n{doc.page_content}")
+
+    return "\n\n---\n\n".join(formatted_chunks)

@@ -17,8 +17,8 @@ async def upload_files(files: list[UploadFile] = File(...), session_id: str = Fo
 
     results, errors, total_chunks = [], [], 0
 
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        for file in files:
+    with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp_dir:
+        for idx, file in enumerate(files):
             original_name = file.filename or "upload.bin"
             ext = original_name.rsplit(".", 1)[-1].lower() if "." in original_name else ""
             
@@ -30,15 +30,17 @@ async def upload_files(files: list[UploadFile] = File(...), session_id: str = Fo
                 errors.append({"source": original_name, "error": "File too large"})
                 continue
 
-            temp_path = os.path.join(tmp_dir, f"temp.{ext}")
+            safe_name = f"{idx}_{original_name}"
+            temp_path = os.path.join(tmp_dir, safe_name)
 
             try:
                 with open(temp_path, "wb") as out_file:
                     shutil.copyfileobj(file.file, out_file)
 
-                chunks = process_file(temp_path, ext, session_id=session_id)
+                chunks = process_file(temp_path, ext, session_id=session_id, original_name=original_name)
                 total_chunks += chunks
                 results.append({"source": original_name, "chunks": chunks})
+                
             except Exception as e:
                 errors.append({"source": original_name, "error": str(e)})
 

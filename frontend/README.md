@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/saptarshiroy39/arkiv">
-    <img alt="Version" src="https://img.shields.io/badge/version-v2.5.0-emerald">
+    <img alt="Version" src="https://img.shields.io/badge/version-v2.6.0-emerald">
   </a>
   <a href="https://github.com/saptarshiroy39/arkiv/blob/main/LICENSE">
     <img alt="GitHub License" src="https://img.shields.io/github/license/saptarshiroy39/arkiv?color=crimson">

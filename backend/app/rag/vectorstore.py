@@ -2,12 +2,27 @@ from langchain_core.documents import Document
 from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient, models
 
-from app.config import QDRANT_API_KEY, QDRANT_COLLECTION_NAME, QDRANT_URL, TOP_K
+from app.config import EMBED_DIMENSION, QDRANT_API_KEY, QDRANT_COLLECTION_NAME, QDRANT_URL, TOP_K
 from app.rag.embedder import embeddings
 
 
 # https://python.langchain.com/docs/integrations/vectorstores/qdrant/
 client = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
+
+if not client.collection_exists(QDRANT_COLLECTION_NAME):
+    client.create_collection(
+        collection_name=QDRANT_COLLECTION_NAME,
+        vectors_config=models.VectorParams(
+            size=EMBED_DIMENSION,
+            distance=models.Distance.COSINE,
+        ),
+    )
+    client.create_payload_index(
+        collection_name=QDRANT_COLLECTION_NAME,
+        field_name="metadata.session_id",
+        field_schema=models.PayloadSchemaType.KEYWORD,
+    )
+
 
 vectorstore = QdrantVectorStore(
     client=client,

@@ -3,6 +3,7 @@ from openai import OpenAI
 from pydantic import BaseModel
 
 from app.config import CHAT_MODEL, DEFAULT_SESSION_ID, GEMINI_BASE_URL, GOOGLE_API_KEY, SYSTEM_PROMPT, TOP_K, USER_PROMPT
+from app.rag.processor import format_context
 from app.rag.vectorstore import search_docs
 
 router = APIRouter(tags=["RAG"])
@@ -31,16 +32,17 @@ async def ask(body: AskRequest) -> dict:
     if not docs:
         raise HTTPException(400, "No documents found for this session.")
 
-    context = "\n\n".join(d.page_content for d in docs)
+    context = format_context(docs)
     response = client.chat.completions.create(
         model=CHAT_MODEL,
         messages=[
             {
                 "role": "system", 
-                "content": SYSTEM_PROMPT},
+                "content": SYSTEM_PROMPT
+            },
             {
                 "role": "user",
-                "content": USER_PROMPT.format(context=context, question=body.question)
+                "content": USER_PROMPT.format(context=context, question=body.question),
             },
         ],
     )

@@ -1,6 +1,6 @@
 {
   "name": "arkiv-backend",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "private": true,
   "scripts": {
     "dev": "uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload",

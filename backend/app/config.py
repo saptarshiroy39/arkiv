@@ -11,7 +11,7 @@ CORS_ORIGINS_STR = os.getenv("CORS_ORIGINS", '["*"]')
 CORS_ORIGINS = json.loads(CORS_ORIGINS_STR)
 
 APP_NAME = "Arkiv API"
-APP_VERSION = "2.5.0"
+APP_VERSION = "2.6.0"
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
