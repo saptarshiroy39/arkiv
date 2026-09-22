@@ -11,7 +11,7 @@ CORS_ORIGINS_STR = os.getenv("CORS_ORIGINS", '["*"]')
 CORS_ORIGINS = json.loads(CORS_ORIGINS_STR)
 
 APP_NAME = "Arkiv API"
-APP_VERSION = "2.6.0"
+APP_VERSION = "2.7.0"
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
@@ -23,7 +23,6 @@ QDRANT_COLLECTION_NAME = os.getenv("QDRANT_COLLECTION_NAME", "arkiv")
 EMBED_MODEL = "models/gemini-embedding-001"
 EMBED_DIMENSION = 768
 CHAT_MODEL = "gemini-3.1-flash-lite"
-DEFAULT_SESSION_ID = "default_session"
 
 TOP_K = 10
 CHUNK_SIZE = 800

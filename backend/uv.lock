@@ -149,10 +149,9 @@ wheels = [
 
 [[package]]
 name = "arkiv-backend"
-version = "2.6.0"
+version = "2.7.0"
 source = { editable = "." }
 dependencies = [
-    { name = "dotenv" },
     { name = "fastapi" },
     { name = "google-generativeai" },
     { name = "jq" },
@@ -162,7 +161,6 @@ dependencies = [
     { name = "langchain-pymupdf4llm" },
     { name = "langchain-qdrant" },
     { name = "langchain-text-splitters" },
-    { name = "markdown" },
     { name = "openai" },
     { name = "python-dotenv" },
     { name = "python-multipart" },
@@ -174,7 +172,6 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "dotenv", specifier = ">=0.9.9" },
     { name = "fastapi", specifier = ">=0.139.0" },
     { name = "google-generativeai", specifier = ">=0.8.6" },
     { name = "jq", specifier = ">=1.11.0" },
@@ -184,12 +181,11 @@ requires-dist = [
     { name = "langchain-pymupdf4llm", specifier = ">=1.28.0" },
     { name = "langchain-qdrant", specifier = ">=0.2.0" },
     { name = "langchain-text-splitters", specifier = ">=1.1.2" },
-    { name = "markdown", specifier = ">=3.10.2" },
     { name = "openai", specifier = ">=2.44.0" },
     { name = "python-dotenv", specifier = ">=1.2.2" },
     { name = "python-multipart", specifier = ">=0.0.32" },
     { name = "qdrant-client", specifier = ">=1.13.0" },
-    { name = "sizelib", specifier = ">=0.2.1" },
+    { name = "sizelib", specifier = ">=0.2.3" },
     { name = "unstructured", extras = ["csv", "docx", "pptx", "xlsx"], specifier = ">=0.23.1" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.49.0" },
 ]
@@ -497,17 +493,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/fc/f8/98eea607f65de6527f8a2e8885fc8015d3e6f5775df186e443e0964a11c3/distro-1.9.0.tar.gz", hash = "sha256:2fa77c6fd8940f116ee1d6b94a2f90b13b5ea8d019b98bc8bafdcabcdd9bdbed", size = 60722, upload-time = "2023-12-24T09:54:32.31Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/12/b3/231ffd4ab1fc9d679809f356cebee130ac7daa00d6d6f3206dd4fd137e9e/distro-1.9.0-py3-none-any.whl", hash = "sha256:7bffd925d65168f85027d8da9af6bddab658135b840670a223589bc0c8ef02b2", size = 20277, upload-time = "2023-12-24T09:54:30.421Z" },
-]
-
-[[package]]
-name = "dotenv"
-version = "0.9.9"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "python-dotenv" },
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/b2/b7/545d2c10c1fc15e48653c91efde329a790f2eecfbbf2bd16003b5db2bab0/dotenv-0.9.9-py2.py3-none-any.whl", hash = "sha256:29cf74a087b31dafdb5a446b6d7e11cbce8ed2741540e2339c69fbef92c94ce9", size = 1892, upload-time = "2025-02-19T22:15:01.647Z" },
 ]
 
 [[package]]
@@ -1375,15 +1360,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/ce/68/b30e913340c380ddac9580c6e6230991fc37240ec4f64704833e4f3e2769/lxml-6.1.1-cp314-cp314t-win32.whl", hash = "sha256:649dda677cf3bd6ac9ae14007ba0c824ded8ce5808b53fc7431d9140399118c1", size = 3897345, upload-time = "2026-05-18T19:17:33.562Z" },
     { url = "https://files.pythonhosted.org/packages/3c/4e/9eb2af5335545f9fbcd7af57bcf87c6025d31eaa31b14ec184a6c8675328/lxml-6.1.1-cp314-cp314t-win_amd64.whl", hash = "sha256:793033d6c5cdf33a573f910d9bea14ef8f5771820411d118da8e1182edb53d5e", size = 4393350, upload-time = "2026-05-18T19:18:10.076Z" },
     { url = "https://files.pythonhosted.org/packages/7f/2c/0f1e93c636720e8a3eb59af2bfda99d98b55891e1c53bc30c2e0e865f01b/lxml-6.1.1-cp314-cp314t-win_arm64.whl", hash = "sha256:58bb955caba94e467d2a96da17660d2d704e0675894cba21ab8a775b8621fd1c", size = 3817223, upload-time = "2026-05-19T19:22:56.823Z" },
-]
-
-[[package]]
-name = "markdown"
-version = "3.10.2"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/2b/f4/69fa6ed85ae003c2378ffa8f6d2e3234662abd02c10d216c0ba96081a238/markdown-3.10.2.tar.gz", hash = "sha256:994d51325d25ad8aa7ce4ebaec003febcce822c3f8c911e3b17c52f7f589f950", size = 368805, upload-time = "2026-02-09T14:57:26.942Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/de/1f/77fa3081e4f66ca3576c896ae5d31c3002ac6607f9747d2e3aa49227e464/markdown-3.10.2-py3-none-any.whl", hash = "sha256:e91464b71ae3ee7afd3017d9f358ef0baf158fd9a298db92f1d4761133824c36", size = 108180, upload-time = "2026-02-09T14:57:25.787Z" },
 ]
 
 [[package]]
@@ -2654,11 +2630,11 @@ wheels = [
 
 [[package]]
 name = "sizelib"
-version = "0.2.1"
+version = "0.2.3"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/6e/1e/84f351110585769b5e90e3db5197f55731b8843a148aa8962cf15fd89f90/sizelib-0.2.1.tar.gz", hash = "sha256:4abf5ef56302af9d5a96e27c2d2df16974994b05f6296a077d6abb36abbef8e2", size = 4599, upload-time = "2026-08-08T14:58:54.634Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/af/13/0de7a3bd33eb61d15e4885b2b5650d9b716ccd92728db03f998c52d50411/sizelib-0.2.3.tar.gz", hash = "sha256:a5a53b22f5517ba80f2d96a6bc2f5fd06f7cab0b8bba70086cdeaa82d6ce244f", size = 6781, upload-time = "2026-08-12T12:57:41.586Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/6c/fd/c15e999f22b89abbe967b72ae3d62cbeb19600a64df99e445a29f980fa39/sizelib-0.2.1-py3-none-any.whl", hash = "sha256:38cd72fa46b7ade796c33c7eabb6b401b1cc91490000d0e0499973007162d3f7", size = 5173, upload-time = "2026-08-08T14:58:53.312Z" },
+    { url = "https://files.pythonhosted.org/packages/05/55/00260662f5f4089b69c981f036c93ab00a8de1dd51f8626cbb5176553b78/sizelib-0.2.3-py3-none-any.whl", hash = "sha256:f502bf0d0b1f91780ea8e3c0378100e26a8495d211b6ff00c322a2bfb62929af", size = 5514, upload-time = "2026-08-12T12:57:40.455Z" },
 ]
 
 [[package]]

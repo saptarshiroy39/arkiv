@@ -1,6 +1,5 @@
 from langchain_core.documents import Document
 
-from app.config import DEFAULT_SESSION_ID
 from app.rag.chunker import chunk_docs
 from app.rag.processor import clean_text, process_latex
 from app.rag.loader import read_csv, read_docx, read_json, read_md, read_pdf, read_pptx, read_tex, read_txt, read_xlsx
@@ -25,7 +24,7 @@ def _clean_docs(docs: list[Document], original_name: str = "Document") -> list[D
         doc.metadata["file_name"] = original_name
     return docs
 
-def process_file(path: str, ext: str, session_id: str = DEFAULT_SESSION_ID, original_name: str = "Document") -> int:
+def process_file(path: str, ext: str, session_id: str, original_name: str = "Document") -> int:
     loader = LOADERS[ext.lower()]
     docs = loader(path)
     docs = _clean_docs(docs, original_name=original_name)

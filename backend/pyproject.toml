@@ -4,14 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "arkiv-backend"
-version = "2.6.0"
+version = "2.7.0"
 description = "RAG Application"
 authors = [{name = "Saptarshi Roy"}]
 license = "MIT"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "dotenv>=0.9.9",
     "fastapi>=0.139.0",
     "google-generativeai>=0.8.6",
     "jq>=1.11.0",
@@ -21,12 +20,11 @@ dependencies = [
     "langchain-pymupdf4llm>=1.28.0",
     "langchain-qdrant>=0.2.0",
     "langchain-text-splitters>=1.1.2",
-    "markdown>=3.10.2",
     "openai>=2.44.0",
     "python-dotenv>=1.2.2",
     "python-multipart>=0.0.32",
     "qdrant-client>=1.13.0",
-    "sizelib>=0.2.1",
+    "sizelib>=0.2.3",
     "unstructured[csv,docx,pptx,xlsx]>=0.23.1",
     "uvicorn[standard]>=0.49.0",
 ]

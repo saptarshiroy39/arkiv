@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from openai import OpenAI
 from pydantic import BaseModel
 
-from app.config import CHAT_MODEL, DEFAULT_SESSION_ID, GEMINI_BASE_URL, GOOGLE_API_KEY, SYSTEM_PROMPT, TOP_K, USER_PROMPT
+from app.config import CHAT_MODEL, GEMINI_BASE_URL, GOOGLE_API_KEY, SYSTEM_PROMPT, TOP_K, USER_PROMPT
 from app.rag.processor import format_context
 from app.rag.vectorstore import search_docs
 
@@ -16,7 +16,7 @@ client = OpenAI(
 
 class AskRequest(BaseModel):
     question: str
-    session_id: str = DEFAULT_SESSION_ID
+    session_id: str
 
 
 @router.post("/ask")
