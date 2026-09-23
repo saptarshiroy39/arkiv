@@ -26,13 +26,13 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       style={
         {
-          "--border-radius": "0px",
+          "--border-radius": "4px",
         } as React.CSSProperties
       }
       toastOptions={{
         classNames: {
           toast:
-            "group toast group-data-[theme=light]:bg-background group-data-[theme=light]:text-foreground group-data-[theme=light]:border-border group-data-[theme=dark]:bg-background group-data-[theme=dark]:text-foreground group-data-[theme=dark]:border-border font-mono rounded-none shadow-lg border p-4 flex gap-3 items-center",
+            "group toast group-data-[theme=light]:bg-background group-data-[theme=light]:text-foreground group-data-[theme=light]:border-border group-data-[theme=dark]:bg-background group-data-[theme=dark]:text-foreground group-data-[theme=dark]:border-border font-mono rounded-[4px] shadow-lg border p-4 flex gap-3 items-center",
           error:
             "group-[.toast]:bg-red-500/10 group-[.toast]:text-red-500 group-[.toast]:border-red-500/20 dark:group-[.toast]:bg-red-500/15 dark:group-[.toast]:text-red-400 dark:group-[.toast]:border-red-500/20",
           success:

@@ -41,7 +41,7 @@ export function Markdown({ content, className }: MarkdownProps) {
           pre: ({ node, ...props }) => (
             <pre
               {...props}
-              className="text-foreground bg-muted/30 border-border scrollbar-thin scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent my-4 overflow-x-auto border p-4"
+              className="text-foreground bg-muted/30 border-border scrollbar-thin scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent my-4 overflow-x-auto rounded-[4px] border p-4"
             />
           ),
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -53,7 +53,7 @@ export function Markdown({ content, className }: MarkdownProps) {
               <code
                 {...props}
                 className={cn(
-                  "text-foreground bg-muted/50 px-1.5 py-0.5 font-mono text-sm",
+                  "text-foreground bg-muted/50 px-1.5 py-0.5 font-mono text-sm rounded-[4px]",
                   className
                 )}
               >
@@ -70,7 +70,7 @@ export function Markdown({ content, className }: MarkdownProps) {
           },
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           table: ({ node, ...props }) => (
-            <div className="border-border my-4 overflow-x-auto border">
+            <div className="border-border my-4 overflow-x-auto rounded-[4px] border">
               <table {...props} className="w-full border-collapse text-left" />
             </div>
           ),
@@ -89,7 +89,7 @@ export function Markdown({ content, className }: MarkdownProps) {
           blockquote: ({ node, ...props }) => (
             <blockquote
               {...props}
-              className="border-primary/30 text-muted-foreground my-4 border-l-4 pl-4 italic"
+              className="border-primary/30 text-muted-foreground my-4 border-l-4 pl-4 italic rounded-r-[4px]"
             />
           ),
           // eslint-disable-next-line @typescript-eslint/no-unused-vars

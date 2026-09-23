@@ -3,7 +3,6 @@
 import * as React from "react";
 import { toast } from "sonner";
 import { ChatSession } from "../types";
-import { formatChatTitle } from "../utils";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -21,30 +20,46 @@ interface ChatContextType {
 const ChatContext = React.createContext<ChatContextType | undefined>(undefined);
 
 export function ChatProvider({ children }: { children: React.ReactNode }) {
-  const [chats, setChats] = React.useState<ChatSession[]>([]);
-  const [isLoadingChats, setIsLoadingChats] = React.useState(false);
+  const [chats, setChatsState] = React.useState<ChatSession[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const saved = localStorage.getItem("arkiv_chats");
+      return saved ? JSON.parse(saved) : [];
+    } catch (error) {
+      console.error("Failed to load chats:", error);
+      return [];
+    }
+  });
+  const [isLoadingChats] = React.useState(false);
   const [isDeletingAll, setIsDeletingAll] = React.useState(false);
   const [deletingChatId, setDeletingChatId] = React.useState<string | null>(
     null
   );
 
+  const setChats: React.Dispatch<React.SetStateAction<ChatSession[]>> =
+    React.useCallback((action) => {
+      setChatsState((prev) => {
+        const updated =
+          typeof action === "function"
+            ? (action as (prev: ChatSession[]) => ChatSession[])(prev)
+            : action;
+        try {
+          localStorage.setItem("arkiv_chats", JSON.stringify(updated));
+        } catch (error) {
+          console.error("Failed to save chats:", error);
+        }
+        return updated;
+      });
+    }, []);
+
   const fetchChats = React.useCallback(async () => {
-    setIsLoadingChats(true);
     try {
-      const response = await fetch(`${API_URL}/chats`);
-      if (response.ok) {
-        const data = await response.json();
-        const fetchedChats = (data.chats || []).map((chat: ChatSession) => ({
-          ...chat,
-          title: formatChatTitle(chat.id),
-        }));
-        setChats(fetchedChats);
+      const saved = localStorage.getItem("arkiv_chats");
+      if (saved) {
+        setChatsState(JSON.parse(saved));
       }
     } catch (error) {
-      console.error("Failed to fetch chats:", error);
-      toast.error("Could not sync chat history.");
-    } finally {
-      setIsLoadingChats(false);
+      console.error("Failed to sync chats:", error);
     }
   }, []);
 
@@ -82,7 +97,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       Object.keys(localStorage).forEach((key) => {
         if (
           key.startsWith("arkiv_messages_") ||
-          key.startsWith("arkiv_files_")
+          key.startsWith("arkiv_files_") ||
+          key === "arkiv_chats"
         ) {
           localStorage.removeItem(key);
         }

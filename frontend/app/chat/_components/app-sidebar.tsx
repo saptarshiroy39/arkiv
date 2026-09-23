@@ -97,11 +97,11 @@ export function AppSidebar({
         )}
       >
         <SidebarTrigger
-          className={cn("size-10 [&_svg]:size-5", !isCollapsed && "-ml-1")}
+          className={cn("size-10 [&_svg]:size-5 rounded-[4px]", !isCollapsed && "-ml-1")}
         />
         <AnimatedThemeToggler
           variant="rectangle"
-          className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex size-10 items-center justify-center transition-colors"
+          className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex size-10 items-center justify-center transition-colors rounded-[4px]"
           title={isCollapsed ? "Toggle theme" : undefined}
         />
       </SidebarHeader>
@@ -112,7 +112,7 @@ export function AppSidebar({
           onClick={onNewChat}
           variant="ghost"
           className={cn(
-            "hover:bg-sidebar-accent h-10 w-full justify-start gap-3 px-2 text-sm font-bold transition-all",
+            "hover:bg-sidebar-accent h-10 w-full justify-start gap-3 px-2 text-sm font-bold transition-all rounded-[4px]",
             isCollapsed && "size-10 justify-center p-0"
           )}
           title={isCollapsed ? "NEW CHAT" : undefined}
@@ -142,7 +142,7 @@ export function AppSidebar({
                         isActive={activeChatId === chat.id}
                         onClick={() => onChatSelect(chat.id)}
                         className={cn(
-                          "h-10 px-2 text-sm transition-colors",
+                          "h-10 px-2 text-sm transition-colors rounded-[4px]",
                           "font-normal data-active:bg-transparent data-active:font-normal",
                           activeChatId === chat.id
                             ? "text-primary"
@@ -153,7 +153,7 @@ export function AppSidebar({
                       </SidebarMenuButton>
                       <SidebarMenuAction
                         className={cn(
-                          "hover:text-destructive size-7 hover:bg-transparent data-active:bg-transparent",
+                          "hover:text-destructive size-7 hover:bg-transparent data-active:bg-transparent rounded-[4px]",
                           deletingChatId === chat.id
                             ? "text-destructive"
                             : "text-muted-foreground"
@@ -193,7 +193,7 @@ export function AppSidebar({
             <Button
               variant="ghost"
               className={cn(
-                "text-destructive hover:text-destructive hover:bg-destructive/10 h-10 w-full justify-start gap-3 px-2 text-sm font-bold transition-all",
+                "text-destructive hover:text-destructive hover:bg-destructive/10 h-10 w-full justify-start gap-3 px-2 text-sm font-bold transition-all rounded-[4px]",
                 isCollapsed && "size-10 justify-center p-0"
               )}
               disabled={chats.length === 0 || isDeletingAll}

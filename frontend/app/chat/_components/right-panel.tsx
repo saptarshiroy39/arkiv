@@ -52,7 +52,7 @@ export function RightPanel({ files, onClose, isOpen }: RightPanelProps) {
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground size-10"
+            className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground size-10 rounded-[4px]"
           >
             <IconFilesOff size={24} />
           </Button>
@@ -60,8 +60,8 @@ export function RightPanel({ files, onClose, isOpen }: RightPanelProps) {
         <ScrollArea className="flex-1 p-2">
           <div className="space-y-1">
             {files.map((file, i) => (
-              <div key={i} className="group flex h-12 items-center gap-3 p-2">
-                <div className="bg-primary/5 dark:bg-primary/10 text-primary border-primary/20 flex size-10 shrink-0 items-center justify-center border dark:text-emerald-400">
+              <div key={i} className="group flex h-12 items-center gap-3 p-2 rounded-[4px]">
+                <div className="bg-primary/5 dark:bg-primary/10 text-primary border-primary/20 flex size-10 shrink-0 items-center justify-center border rounded-[4px] dark:text-emerald-400">
                   {(() => {
                     const Icon = getFileIcon(file.name);
                     return <Icon size={20} />;

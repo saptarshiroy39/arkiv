@@ -187,7 +187,7 @@ export function ChatView({
                     className={cn(
                       "max-w-[90%] text-sm leading-relaxed",
                       message.role === "user"
-                        ? "bg-primary/10 text-foreground border-primary/20 border px-4 py-2.5"
+                        ? "bg-primary/10 text-foreground border-primary/20 border px-4 py-2.5 rounded-[4px]"
                         : "bg-transparent"
                     )}
                   >
@@ -204,7 +204,7 @@ export function ChatView({
                   scrollAnchor={false}
                   className="animate-in fade-in slide-in-from-bottom-2 flex w-full flex-col items-start duration-300"
                 >
-                  <div className="flex items-center gap-2 rounded-none bg-transparent px-4 py-2.5 text-sm leading-relaxed">
+                  <div className="flex items-center gap-2 rounded-[4px] bg-transparent px-4 py-2.5 text-sm leading-relaxed">
                     <IconRotateRectangle className="text-primary size-4 animate-spin" />
                     <span className="text-muted-foreground animate-pulse font-medium">
                       Arkiv is thinking...
@@ -218,7 +218,7 @@ export function ChatView({
             direction="end"
             variant="default"
             size="icon"
-            className="bg-primary hover:bg-primary/80 text-primary-foreground hover:text-primary-foreground! border-0 size-8 rounded-none shadow-none bottom-32!"
+            className="bg-primary hover:bg-primary/80 text-primary-foreground hover:text-primary-foreground! border-0 size-8 rounded-[4px] shadow-none bottom-32!"
           />
         </MessageScroller>
       </MessageScrollerProvider>
@@ -231,7 +231,7 @@ export function ChatView({
               <Button
                 size="icon"
                 variant="ghost"
-                className="text-primary hover:text-primary! bg-primary/5 dark:bg-primary/10 hover:bg-primary/10! border-primary/20 size-8 rounded-none border shadow-none dark:text-emerald-400"
+                className="text-primary hover:text-primary! bg-primary/5 dark:bg-primary/10 hover:bg-primary/10! border-primary/20 size-8 rounded-[4px] border shadow-none dark:text-emerald-400"
                 onClick={() => {
                   onInputChange("Summarize the uploaded documents.");
                   setTimeout(onSendMessage, 0);
@@ -252,14 +252,14 @@ export function ChatView({
                 }
               }}
               placeholder="Ask Arkiv..."
-              className="border-primary/20 bg-sidebar-accent/50 focus-visible:border-primary/50 max-h-40 min-h-12 resize-none overflow-y-auto rounded-none border py-3 pr-22 pl-13 text-sm leading-relaxed whitespace-pre-wrap antialiased backdrop-blur-sm transition-all [-ms-overflow-style:none] [scrollbar-width:none] focus-visible:ring-0 sm:min-h-14 sm:py-4.5 [&::-webkit-scrollbar]:hidden"
+              className="border-primary/20 bg-sidebar-accent/50 focus-visible:border-primary/50 max-h-40 min-h-12 resize-none overflow-y-auto rounded-[4px] border py-3 pr-22 pl-13 text-sm leading-relaxed whitespace-pre-wrap antialiased backdrop-blur-sm transition-all [-ms-overflow-style:none] [scrollbar-width:none] focus-visible:ring-0 sm:min-h-14 sm:py-4.5 [&::-webkit-scrollbar]:hidden"
             />
             <div className="absolute right-3 bottom-2 z-10 flex items-center gap-1.5 sm:bottom-3">
               <Button
                 size="icon"
                 variant="ghost"
                 className={cn(
-                  "border-primary/20 size-8 rounded-none border shadow-none transition-none",
+                  "border-primary/20 size-8 rounded-[4px] border shadow-none transition-none",
                   isListening
                     ? "bg-red-500/10 text-red-500 hover:bg-red-500/10! hover:text-red-500!"
                     : "text-primary hover:text-primary! bg-primary/5 dark:bg-primary/10 hover:bg-primary/10! dark:text-emerald-400"
@@ -275,7 +275,7 @@ export function ChatView({
               </Button>
               <Button
                 size="icon"
-                className="size-8 rounded-none"
+                className="size-8 rounded-[4px]"
                 disabled={!inputValue.trim() || isAsking}
                 onClick={handleSend}
                 title="Send message"

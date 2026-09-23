@@ -61,7 +61,7 @@ export function FilesView({
               isUploading && "opacity-50 grayscale-[0.5]"
             )}
           >
-            <div className="bg-primary/5 dark:bg-primary/10 text-primary border-primary/20 flex size-12 items-center justify-center border transition-transform group-hover:scale-110 dark:text-emerald-400">
+            <div className="bg-primary/5 dark:bg-primary/10 text-primary border-primary/20 flex size-12 items-center justify-center border rounded-[4px] transition-transform group-hover:scale-110 dark:text-emerald-400">
               {(() => {
                 const Icon = getFileIcon(file.name);
                 return <Icon size={24} />;
@@ -79,7 +79,7 @@ export function FilesView({
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 absolute top-0 right-0 size-10"
+                className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 absolute top-0 right-0 size-10 rounded-[4px]"
                 onClick={() => onRemoveFile(i)}
               >
                 <IconX size={20} />
@@ -91,7 +91,7 @@ export function FilesView({
           <Button
             variant="outline"
             onClick={() => fileInputRef.current?.click()}
-            className="hover:bg-accent/50 flex h-36 flex-col items-center justify-center gap-2 border-2 border-dashed transition-all"
+            className="hover:bg-accent/50 flex h-36 flex-col items-center justify-center gap-2 border-2 border-dashed rounded-[4px] transition-all"
           >
             <IconPlus size={24} />
             <span className="text-xs font-medium">ADD MORE</span>

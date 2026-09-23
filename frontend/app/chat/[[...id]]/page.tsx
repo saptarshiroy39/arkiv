@@ -19,7 +19,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 function ChatInterface({ initialChatId }: { initialChatId?: string }) {
   const router = useRouter();
-  const { chats, setChats } = useChat();
+  const { setChats } = useChat();
 
   const [view, setView] = React.useState<ViewState>(
     initialChatId ? "chat" : "upload"
@@ -113,7 +113,7 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
         date: "Just now",
       };
 
-      setChats([newChat, ...chats]);
+      setChats((prev) => [newChat, ...prev]);
 
       const initMessages: Message[] = [
         {
