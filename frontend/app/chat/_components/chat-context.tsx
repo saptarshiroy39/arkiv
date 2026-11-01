@@ -19,29 +19,46 @@ interface ChatContextType {
 
 const ChatContext = React.createContext<ChatContextType | undefined>(undefined);
 
+const emptySubscribe = () => () => {};
+
+function getSavedChats(): ChatSession[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const saved = localStorage.getItem("arkiv_chats");
+    return saved ? JSON.parse(saved) : [];
+  } catch (error) {
+    console.error("Failed to load chats:", error);
+    return [];
+  }
+}
+
 export function ChatProvider({ children }: { children: React.ReactNode }) {
-  const [chats, setChatsState] = React.useState<ChatSession[]>(() => {
-    if (typeof window === "undefined") return [];
-    try {
-      const saved = localStorage.getItem("arkiv_chats");
-      return saved ? JSON.parse(saved) : [];
-    } catch (error) {
-      console.error("Failed to load chats:", error);
-      return [];
-    }
-  });
-  const [isLoadingChats] = React.useState(false);
+  const isMounted = React.useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
+
+  const [localChats, setLocalChats] = React.useState<ChatSession[] | null>(null);
   const [isDeletingAll, setIsDeletingAll] = React.useState(false);
   const [deletingChatId, setDeletingChatId] = React.useState<string | null>(
     null
   );
 
+  const chats = React.useMemo(() => {
+    if (!isMounted) return [];
+    return localChats ?? getSavedChats();
+  }, [isMounted, localChats]);
+
+  const isLoadingChats = !isMounted;
+
   const setChats: React.Dispatch<React.SetStateAction<ChatSession[]>> =
     React.useCallback((action) => {
-      setChatsState((prev) => {
+      setLocalChats((prev) => {
+        const current = prev ?? getSavedChats();
         const updated =
           typeof action === "function"
-            ? (action as (prev: ChatSession[]) => ChatSession[])(prev)
+            ? (action as (prev: ChatSession[]) => ChatSession[])(current)
             : action;
         try {
           localStorage.setItem("arkiv_chats", JSON.stringify(updated));
@@ -56,7 +73,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     try {
       const saved = localStorage.getItem("arkiv_chats");
       if (saved) {
-        setChatsState(JSON.parse(saved));
+        setLocalChats(JSON.parse(saved));
       }
     } catch (error) {
       console.error("Failed to sync chats:", error);
