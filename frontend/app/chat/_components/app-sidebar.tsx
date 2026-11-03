@@ -2,7 +2,7 @@
 
 import { IconPlus, IconTrash, IconRotateRectangle } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
-import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import {
   Sidebar,
   SidebarContent,
@@ -99,8 +99,8 @@ export function AppSidebar({
         <SidebarTrigger
           className={cn("size-10 [&_svg]:size-5 rounded-[4px]", !isCollapsed && "-ml-1")}
         />
-        <AnimatedThemeToggler
-          variant="rectangle"
+        <ThemeToggle
+          variant="circle-blur"
           className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex size-10 items-center justify-center transition-colors rounded-[4px]"
           title={isCollapsed ? "Toggle theme" : undefined}
         />
