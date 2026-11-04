@@ -43,6 +43,10 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
   const [isRightPanelOpen, setIsRightPanelOpen] = React.useState(false);
   const [isUploading, setIsUploading] = React.useState(false);
   const [isAsking, setIsAsking] = React.useState(false);
+  const [askingStatus, setAskingStatus] = React.useState<{
+    status: "working" | "done" | "error";
+    elapsed?: number;
+  }>({ status: "working" });
 
   const abortControllerRef = React.useRef<AbortController | null>(null);
 
@@ -113,7 +117,10 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
         date: "Just now",
       };
 
-      setChats((prev) => [newChat, ...prev]);
+      setChats((prev) => {
+        if (prev.some((c) => c.id === newChat.id)) return prev;
+        return [newChat, ...prev];
+      });
 
       const initMessages: Message[] = [
         {
@@ -167,7 +174,9 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
       JSON.stringify(newMessages)
     );
     setInputValue("");
+    setAskingStatus({ status: "working" });
     setIsAsking(true);
+    const startTime = performance.now();
 
     let isTimeout = false;
     const timeoutId = setTimeout(() => {
@@ -191,10 +200,17 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
       if (!response.ok) throw new Error("Failed to get answer");
 
       const data = await response.json();
+      const elapsed =
+        Math.round(((performance.now() - startTime) / 1000) * 10) / 10;
+      setAskingStatus({ status: "done", elapsed });
+      await new Promise((resolve) => setTimeout(resolve, 350));
+
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
         content: data.answer,
+        status: "done",
+        elapsed,
       };
       const updatedMessages = [...newMessages, aiMessage];
       setMessages(updatedMessages);
@@ -213,12 +229,19 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
 
       toast.error(warningMessage);
 
+      const elapsed =
+        Math.round(((performance.now() - startTime) / 1000) * 10) / 10;
+      setAskingStatus({ status: "error", elapsed });
+      await new Promise((resolve) => setTimeout(resolve, 350));
+
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
         content: isTimeout
           ? "The request timed out. The server took too long to respond."
           : "An error was encountered while processing your request.",
+        status: "error",
+        elapsed,
       };
       setMessages([...newMessages, errorMessage]);
     } finally {
@@ -283,6 +306,7 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
                 messages={messages}
                 inputValue={inputValue}
                 isAsking={isAsking}
+                askingStatus={askingStatus}
                 onInputChange={setInputValue}
                 onSendMessage={handleSendMessage}
               />

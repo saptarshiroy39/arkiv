@@ -4,6 +4,8 @@ export interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
+  status?: "working" | "done" | "error";
+  elapsed?: number;
 }
 
 export interface ChatSession {

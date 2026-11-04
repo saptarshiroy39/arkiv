@@ -21,11 +21,27 @@ const ChatContext = React.createContext<ChatContextType | undefined>(undefined);
 
 const emptySubscribe = () => () => {};
 
+function deduplicateChats(chats: ChatSession[]): ChatSession[] {
+  const seen = new Set<string>();
+  return chats.filter((chat) => {
+    if (!chat || !chat.id || seen.has(chat.id)) return false;
+    seen.add(chat.id);
+    return true;
+  });
+}
+
 function getSavedChats(): ChatSession[] {
   if (typeof window === "undefined") return [];
   try {
     const saved = localStorage.getItem("arkiv_chats");
-    return saved ? JSON.parse(saved) : [];
+    if (!saved) return [];
+    const parsed = JSON.parse(saved);
+    if (!Array.isArray(parsed)) return [];
+    const deduplicated = deduplicateChats(parsed);
+    if (deduplicated.length !== parsed.length) {
+      localStorage.setItem("arkiv_chats", JSON.stringify(deduplicated));
+    }
+    return deduplicated;
   } catch (error) {
     console.error("Failed to load chats:", error);
     return [];
@@ -60,12 +76,13 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
           typeof action === "function"
             ? (action as (prev: ChatSession[]) => ChatSession[])(current)
             : action;
+        const deduplicated = deduplicateChats(updated);
         try {
-          localStorage.setItem("arkiv_chats", JSON.stringify(updated));
+          localStorage.setItem("arkiv_chats", JSON.stringify(deduplicated));
         } catch (error) {
           console.error("Failed to save chats:", error);
         }
-        return updated;
+        return deduplicated;
       });
     }, []);
 
@@ -73,7 +90,10 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     try {
       const saved = localStorage.getItem("arkiv_chats");
       if (saved) {
-        setLocalChats(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          setLocalChats(deduplicateChats(parsed));
+        }
       }
     } catch (error) {
       console.error("Failed to sync chats:", error);

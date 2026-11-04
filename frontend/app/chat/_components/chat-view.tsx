@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/message-scroller";
 import { cn } from "@/lib/utils";
 import { Message } from "@/app/chat/types";
-import { ReasoningText } from "@/components/ui/reasoning-text";
+import { LatticeLoader } from "@/components/ui/lattice-loader";
 
 interface SpeechRecognitionAlternative {
   transcript: string;
@@ -71,6 +71,10 @@ interface ChatViewProps {
   messages: Message[];
   inputValue: string;
   isAsking: boolean;
+  askingStatus?: {
+    status: "working" | "done" | "error";
+    elapsed?: number;
+  };
   onInputChange: (val: string) => void;
   onSendMessage: () => void;
 }
@@ -79,6 +83,7 @@ export function ChatView({
   messages,
   inputValue,
   isAsking,
+  askingStatus,
   onInputChange,
   onSendMessage,
 }: ChatViewProps) {
@@ -192,6 +197,18 @@ export function ChatView({
                         : "bg-transparent"
                     )}
                   >
+                    {message.role === "assistant" && message.status && (
+                      <div className="mb-2.5">
+                        <LatticeLoader
+                          status={message.status}
+                          elapsed={message.elapsed}
+                          pattern="spiral"
+                          shape="square"
+                          color="#f5f5f5"
+                          glowColor="#f5f5f5"
+                        />
+                      </div>
+                    )}
                     <Markdown content={message.content} />
                   </div>
                   <div className="mt-1">
@@ -205,8 +222,15 @@ export function ChatView({
                   scrollAnchor={false}
                   className="animate-in fade-in slide-in-from-bottom-2 flex w-full flex-col items-start duration-300"
                 >
-                  <div className="flex items-center gap-2 rounded-[4px] bg-transparent px-4 py-2.5 text-sm leading-relaxed">
-                    <ReasoningText variant="cascade" />
+                  <div className="flex items-center rounded-[4px] bg-transparent py-2.5 text-sm leading-relaxed">
+                    <LatticeLoader
+                      status={askingStatus?.status ?? "working"}
+                      elapsed={askingStatus?.elapsed}
+                      pattern="spiral"
+                      shape="square"
+                      color="#f5f5f5"
+                      glowColor="#f5f5f5"
+                    />
                   </div>
                 </MessageScrollerItem>
               )}
