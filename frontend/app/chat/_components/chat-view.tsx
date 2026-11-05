@@ -204,8 +204,8 @@ export function ChatView({
                           elapsed={message.elapsed}
                           pattern="spiral"
                           shape="square"
-                          color="#f5f5f5"
-                          glowColor="#f5f5f5"
+                          color="#8a8a8e"
+                          glowColor="#8a8a8e"
                         />
                       </div>
                     )}
@@ -228,8 +228,8 @@ export function ChatView({
                       elapsed={askingStatus?.elapsed}
                       pattern="spiral"
                       shape="square"
-                      color="#f5f5f5"
-                      glowColor="#f5f5f5"
+                      color="#8a8a8e"
+                      glowColor="#8a8a8e"
                     />
                   </div>
                 </MessageScrollerItem>
