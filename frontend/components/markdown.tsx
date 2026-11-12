@@ -7,6 +7,7 @@ import remarkBreaks from "remark-breaks";
 import rehypeKatex from "rehype-katex";
 import rehypeHighlight from "rehype-highlight";
 import { cn } from "@/lib/utils";
+import { Citation } from "@/components/citations";
 
 interface MarkdownProps {
   content: string;
@@ -25,18 +26,30 @@ export function Markdown({ content, className }: MarkdownProps) {
       )}
     >
       <ReactMarkdown
+        urlTransform={(url) => url}
         remarkPlugins={[remarkGfm, remarkMath, remarkBreaks]}
         rehypePlugins={[rehypeKatex, [rehypeHighlight, { detect: true }]]}
         components={{
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          a: ({ node, ...props }) => (
-            <a
-              {...props}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary underline-offset-4 hover:underline"
-            />
-          ),
+          a: ({ node, href, children, ...props }) => {
+            if (href?.startsWith("#citation-") || href?.startsWith("citation:")) {
+              const raw = href.replace(/^#citation-/, "").replace(/^citation:/, "");
+              const index = parseInt(raw || String(children), 10) || 1;
+              return <Citation index={index} />;
+            }
+
+            return (
+              <a
+                {...props}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline-offset-4 hover:underline"
+              >
+                {children}
+              </a>
+            );
+          },
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           pre: ({ node, ...props }) => (
             <pre

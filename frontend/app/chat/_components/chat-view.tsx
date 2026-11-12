@@ -24,6 +24,8 @@ import {
 import { cn } from "@/lib/utils";
 import { Message } from "@/app/chat/types";
 import { LatticeLoader } from "@/components/ui/lattice-loader";
+import { parseCitations } from "@/lib/citations";
+import { Citations } from "@/components/citations";
 
 interface SpeechRecognitionAlternative {
   transcript: string;
@@ -179,43 +181,59 @@ export function ChatView({
         <MessageScroller className="min-h-0 flex-1">
           <MessageScrollerViewport className="px-4 md:px-6">
             <MessageScrollerContent className="mx-auto max-w-4xl py-4 pb-40 gap-6">
-              {messages.map((message) => (
-                <MessageScrollerItem
-                  key={message.id}
-                  messageId={message.id}
-                  scrollAnchor={false}
-                  className={cn(
-                    "animate-in fade-in slide-in-from-bottom-2 group flex w-full flex-col duration-300",
-                    message.role === "user" ? "items-end" : "items-start"
-                  )}
-                >
-                  <div
+              {messages.map((message) => {
+                const isAssistant = message.role === "assistant";
+                const { processedContent, citations, copyText } = isAssistant
+                  ? parseCitations(message.content)
+                  : {
+                      processedContent: message.content,
+                      citations: [],
+                      copyText: message.content,
+                    };
+
+                return (
+                  <MessageScrollerItem
+                    key={message.id}
+                    messageId={message.id}
+                    scrollAnchor={false}
                     className={cn(
-                      "max-w-[90%] text-sm leading-relaxed",
-                      message.role === "user"
-                        ? "bg-primary/10 text-foreground border-primary/20 border px-4 py-2.5 rounded-[4px]"
-                        : "bg-transparent"
+                      "animate-in fade-in slide-in-from-bottom-2 group flex w-full flex-col duration-300",
+                      message.role === "user" ? "items-end" : "items-start"
                     )}
                   >
-                    {message.role === "assistant" && message.status && (
-                      <div className="mb-2.5">
-                        <LatticeLoader
-                          status={message.status}
-                          elapsed={message.elapsed}
-                          pattern="spiral"
-                          shape="square"
-                          color="#8a8a8e"
-                          glowColor="#8a8a8e"
-                        />
-                      </div>
-                    )}
-                    <Markdown content={message.content} />
-                  </div>
-                  <div className="mt-1">
-                    <CopyButton content={message.content} />
-                  </div>
-                </MessageScrollerItem>
-              ))}
+                    <div
+                      className={cn(
+                        "text-sm leading-relaxed",
+                        message.role === "user"
+                          ? "max-w-[90%] bg-primary/10 text-foreground border-primary/20 border px-4 py-2.5 rounded-[4px]"
+                          : "max-w-[95%] w-full bg-transparent"
+                      )}
+                    >
+                      {message.role === "assistant" && message.status && (
+                        <div className="mb-2.5">
+                          <LatticeLoader
+                            status={message.status}
+                            elapsed={message.elapsed}
+                            pattern="spiral"
+                            shape="square"
+                            color="#8a8a8e"
+                            glowColor="#8a8a8e"
+                          />
+                        </div>
+                      )}
+                      <Markdown content={processedContent} />
+                      {citations.length > 0 && (
+                        <div className="mt-3">
+                          <Citations citations={citations} />
+                        </div>
+                      )}
+                    </div>
+                    <div className="mt-1">
+                      <CopyButton content={copyText} />
+                    </div>
+                  </MessageScrollerItem>
+                );
+              })}
               {isAsking && (
                 <MessageScrollerItem
                   messageId="thinking"

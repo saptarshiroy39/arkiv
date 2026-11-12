@@ -70,7 +70,7 @@ const spoken = (ds: number) =>
     : `${Math.floor(ds / 600)} minutes ${((ds % 600) / 10).toFixed(1)} seconds`;
 
 export const LatticeLoader: React.FC<LatticeLoaderProps> = ({
-  label = "Thinking",
+  label = "Thinking...",
   doneLabel = "Done in",
   errorLabel = "Failed after",
   status = "working",
