@@ -1,23 +1,22 @@
 "use client";
 
 import { useRef, useState, DragEvent } from "react";
-import { IconUpload, IconRotateRectangle } from "@tabler/icons-react";
+import { IconUpload } from "@tabler/icons-react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 interface UploadViewProps {
   onUpload: (files: FileList | null) => void;
-  isUploading: boolean;
 }
 
-export function UploadView({ onUpload, isUploading }: UploadViewProps) {
+export function UploadView({ onUpload }: UploadViewProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragOver = (e: DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!isUploading) setIsDragging(true);
+    setIsDragging(true);
   };
 
   const handleDragLeave = (e: DragEvent) => {
@@ -31,11 +30,7 @@ export function UploadView({ onUpload, isUploading }: UploadViewProps) {
     e.stopPropagation();
     setIsDragging(false);
 
-    if (
-      !isUploading &&
-      e.dataTransfer.files &&
-      e.dataTransfer.files.length > 0
-    ) {
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       onUpload(e.dataTransfer.files);
     }
   };
@@ -61,26 +56,21 @@ export function UploadView({ onUpload, isUploading }: UploadViewProps) {
       />
 
       <Card
-        onClick={() => !isUploading && fileInputRef.current?.click()}
+        onClick={() => fileInputRef.current?.click()}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={cn(
           "hover:bg-accent/50 group flex aspect-video w-[90%] max-w-md cursor-pointer flex-col items-center justify-center gap-4 border-2 border-dashed rounded-[4px] ring-0 transition-all sm:aspect-2/1 sm:w-full sm:max-w-2xl",
-          isUploading && "cursor-not-allowed opacity-50",
           isDragging && "border-primary bg-primary/5"
         )}
       >
         <div className="bg-primary/5 dark:bg-primary/10 border-primary/20 flex size-16 items-center justify-center border rounded-[4px] transition-transform group-hover:scale-110">
-          {isUploading ? (
-            <IconRotateRectangle className="text-primary size-8 animate-spin dark:text-emerald-400" />
-          ) : (
-            <IconUpload className="text-primary size-8 dark:text-emerald-400" />
-          )}
+          <IconUpload className="text-primary size-8 dark:text-emerald-400" />
         </div>
         <div className="space-y-2">
           <p className="text-base font-semibold sm:text-lg">
-            {isUploading ? "Uploading..." : "Click or drag files here"}
+            Click or drag files here
           </p>
           <div className="text-muted-foreground space-y-1 text-xs sm:text-sm">
             <p>PDF, CSV, TXT, MD, JSON, TEX, DOCX, XLSX, PPTX</p>
