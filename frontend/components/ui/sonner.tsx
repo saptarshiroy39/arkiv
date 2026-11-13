@@ -7,8 +7,8 @@ import {
   IconInfoCircle,
   IconAlertTriangle,
   IconAlertSquare,
-  IconLoader,
 } from "@tabler/icons-react";
+import { Blocks } from "loading-dev";
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme();
@@ -22,7 +22,13 @@ const Toaster = ({ ...props }: ToasterProps) => {
         info: <IconInfoCircle className="size-4" />,
         warning: <IconAlertTriangle className="size-4" />,
         error: <IconAlertSquare className="size-4" />,
-        loading: <IconLoader className="size-4 animate-spin" />,
+        loading: (
+          <Blocks
+            size={16}
+            sweep="diagonal"
+            className="text-primary dark:text-emerald-400"
+          />
+        ),
       }}
       style={
         {

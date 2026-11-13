@@ -20,7 +20,7 @@ export function parseCitations(content: string): ParsedCitationsResult {
 
   const processedContent = content.replace(
     citationRegex,
-    (match, rawFileName: string, rawPage?: string) => {
+    (_, rawFileName: string, rawPage?: string) => {
       const fileName = rawFileName.trim();
       const page = rawPage ? rawPage.trim() : undefined;
       const key = `${fileName}::${page || ""}`;

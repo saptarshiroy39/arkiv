@@ -4,7 +4,6 @@ import { useRef } from "react";
 import {
   IconX,
   IconPlus,
-  IconRotateRectangle,
   IconArrowRight,
 } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
@@ -16,13 +15,18 @@ import {
   formatFileSize,
   getFileIcon,
 } from "@/app/chat/utils";
+import { LatticeLoader } from "@/components/ui/lattice-loader";
 
 interface FilesViewProps {
   files: UploadedFile[];
   onAddFile: (files: FileList | null) => void;
   onStartChat: () => void;
   onRemoveFile: (index: number) => void;
-  isUploading: boolean;
+  uploadStatus?: {
+    status: "idle" | "working" | "done" | "error";
+    elapsed?: number;
+  };
+  onResetUploadStatus?: () => void;
 }
 
 export function FilesView({
@@ -30,8 +34,11 @@ export function FilesView({
   onAddFile,
   onStartChat,
   onRemoveFile,
-  isUploading,
+  uploadStatus = { status: "idle" },
+  onResetUploadStatus,
 }: FilesViewProps) {
+  const isUploading =
+    uploadStatus.status === "working" || uploadStatus.status === "done";
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   return (
@@ -100,27 +107,45 @@ export function FilesView({
       </div>
 
       <div className="flex flex-col items-center gap-4">
-        <Button
-          size="lg"
-          className="group h-10 w-full gap-2 px-8 sm:w-auto"
-          onClick={onStartChat}
-          disabled={isUploading}
-        >
-          {isUploading ? (
-            <>
-              <IconRotateRectangle className="size-5 animate-spin" />
-              <span>PROCESSING...</span>
-            </>
-          ) : (
-            <>
-              <span>ANALYZE DOCUMENTS</span>
-              <IconArrowRight
-                size={20}
-                className="transition-transform group-hover:translate-x-1"
-              />
-            </>
-          )}
-        </Button>
+        {uploadStatus.status === "idle" ? (
+          <Button
+            size="lg"
+            className="group h-10 w-full gap-2 px-8 sm:w-auto"
+            onClick={onStartChat}
+            disabled={isUploading}
+          >
+            <span>ANALYZE</span>
+            <IconArrowRight
+              size={20}
+              className="transition-transform group-hover:translate-x-1"
+            />
+          </Button>
+        ) : (
+          <div
+            className={cn(
+              "flex h-10 items-center justify-center rounded-[4px] px-4",
+              uploadStatus.status === "error" && "cursor-pointer hover:bg-muted/40"
+            )}
+            onClick={() => {
+              if (uploadStatus.status === "error") {
+                onResetUploadStatus?.();
+              }
+            }}
+            title={uploadStatus.status === "error" ? "Click to retry" : undefined}
+          >
+            <LatticeLoader
+              status={uploadStatus.status}
+              elapsed={uploadStatus.elapsed}
+              label="Processing..."
+              doneLabel="Done in"
+              errorLabel="Failed after"
+              pattern="spiral"
+              shape="square"
+              color="#8a8a8e"
+              glowColor="#8a8a8e"
+            />
+          </div>
+        )}
       </div>
     </div>
   );

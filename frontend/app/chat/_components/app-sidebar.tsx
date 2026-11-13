@@ -1,6 +1,7 @@
 "use client";
 
-import { IconPlus, IconTrash, IconRotateRectangle } from "@tabler/icons-react";
+import { IconPlus, IconTrash } from "@tabler/icons-react";
+import { Blocks } from "loading-dev";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import {
@@ -129,7 +130,11 @@ export function AppSidebar({
             <SidebarMenu>
               {isLoading ? (
                 <div className="flex flex-col items-center justify-center gap-3 py-8">
-                  <IconRotateRectangle className="text-primary size-6 animate-spin" />
+                  <Blocks
+                    size={24}
+                    sweep="diagonal"
+                    className="text-primary dark:text-emerald-400"
+                  />
                   <p className="text-muted-foreground animate-pulse text-[10px] font-medium tracking-wider uppercase">
                     Loading chats...
                   </p>
@@ -165,9 +170,10 @@ export function AppSidebar({
                         disabled={deletingChatId === chat.id}
                       >
                         {deletingChatId === chat.id ? (
-                          <IconRotateRectangle
-                            size={16}
-                            className="animate-spin"
+                          <Blocks
+                            size={14}
+                            sweep="diagonal"
+                            className="text-destructive"
                           />
                         ) : (
                           <IconTrash size={16} />
@@ -200,7 +206,11 @@ export function AppSidebar({
               title={isCollapsed ? "DELETE ALL" : undefined}
             >
               {isDeletingAll ? (
-                <IconRotateRectangle size={20} className="animate-spin" />
+                <Blocks
+                  size={18}
+                  sweep="diagonal"
+                  className="text-destructive"
+                />
               ) : (
                 <IconTrash size={20} stroke={2.5} />
               )}

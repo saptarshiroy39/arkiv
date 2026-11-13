@@ -3,12 +3,12 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { toast } from "sonner";
 import {
-  IconRotateRectangle,
   IconArrowUp,
   IconMicrophone,
   IconMicrophoneFilled,
   IconFileTextSpark,
 } from "@tabler/icons-react";
+import { Blocks } from "loading-dev";
 import { Markdown } from "@/components/markdown";
 import { CopyButton } from "@/components/copy-button";
 import { Button } from "@/components/ui/button";
@@ -321,7 +321,7 @@ export function ChatView({
                 title="Send message"
               >
                 {isAsking ? (
-                  <IconRotateRectangle className="size-4 animate-spin" />
+                  <Blocks size={16} sweep="diagonal" />
                 ) : (
                   <IconArrowUp size={20} />
                 )}

@@ -4,7 +4,8 @@ import * as React from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { toast } from "sonner";
-import { IconFilesFilled, IconRotateRectangle } from "@tabler/icons-react";
+import { IconFilesFilled } from "@tabler/icons-react";
+import { Blocks } from "loading-dev";
 import { Button } from "@/components/ui/button";
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { UploadView } from "../_components/upload-view";
@@ -41,7 +42,12 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
 
   const [inputValue, setInputValue] = React.useState("");
   const [isRightPanelOpen, setIsRightPanelOpen] = React.useState(false);
-  const [isUploading, setIsUploading] = React.useState(false);
+  const [uploadStatus, setUploadStatus] = React.useState<{
+    status: "idle" | "working" | "done" | "error";
+    elapsed?: number;
+  }>({ status: "idle" });
+  const isUploading =
+    uploadStatus.status === "working" || uploadStatus.status === "done";
   const [isAsking, setIsAsking] = React.useState(false);
   const [askingStatus, setAskingStatus] = React.useState<{
     status: "working" | "done" | "error";
@@ -92,10 +98,15 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
     if (newFiles.length === 0) setView("upload");
   };
 
+  const handleResetUploadStatus = () => {
+    setUploadStatus({ status: "idle" });
+  };
+
   const startChat = async () => {
     if (uploadedFiles.length === 0 || isUploading) return;
 
-    setIsUploading(true);
+    setUploadStatus({ status: "working" });
+    const startTime = performance.now();
     const newChatId = Date.now().toString();
     const formData = new FormData();
     uploadedFiles.forEach((f) => {
@@ -110,6 +121,10 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
       });
 
       if (!response.ok) throw new Error("Upload failed");
+
+      const elapsed =
+        Math.round(((performance.now() - startTime) / 1000) * 10) / 10;
+      setUploadStatus({ status: "done", elapsed });
 
       const newChat: ChatSession = {
         id: newChatId,
@@ -145,12 +160,19 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
         JSON.stringify(fileMetadata)
       );
 
+      await new Promise((resolve) => setTimeout(resolve, 800));
       router.push(`/chat/${newChatId}`);
     } catch (error) {
       console.error("Upload error:", error);
-      toast.error("Failed to upload files. Please try again.");
-    } finally {
-      setIsUploading(false);
+      const elapsed =
+        Math.round(((performance.now() - startTime) / 1000) * 10) / 10;
+      setUploadStatus({ status: "error", elapsed });
+
+      setTimeout(() => {
+        setUploadStatus((current) =>
+          current.status === "error" ? { status: "idle" } : current
+        );
+      }, 3500);
     }
   };
 
@@ -287,10 +309,7 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
         <main className="relative flex min-h-0 flex-1 overflow-hidden">
           <div className="flex min-h-0 flex-1 flex-col">
             {view === "upload" && (
-              <UploadView
-                onUpload={handleFileSelect}
-                isUploading={isUploading}
-              />
+              <UploadView onUpload={handleFileSelect} />
             )}
             {view === "files" && (
               <FilesView
@@ -298,7 +317,8 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
                 onAddFile={handleFileSelect}
                 onStartChat={startChat}
                 onRemoveFile={handleRemoveFile}
-                isUploading={isUploading}
+                uploadStatus={uploadStatus}
+                onResetUploadStatus={handleResetUploadStatus}
               />
             )}
             {view === "chat" && (
@@ -334,7 +354,11 @@ export default function ChatPage() {
   if (isLoadingChats) {
     return (
       <div className="bg-sidebar flex flex-1 flex-col items-center justify-center gap-4">
-        <IconRotateRectangle className="text-primary size-8 animate-spin" />
+        <Blocks
+          size={32}
+          sweep="diagonal"
+          className="text-primary dark:text-emerald-400"
+        />
         <p className="text-muted-foreground animate-pulse text-sm font-medium">
           Initializing session...
         </p>
