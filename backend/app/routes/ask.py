@@ -1,8 +1,16 @@
 from fastapi import APIRouter, HTTPException
 from openai import OpenAI
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from app.config import CHAT_MODEL, GEMINI_BASE_URL, GOOGLE_API_KEY, SYSTEM_PROMPT, TOP_K, USER_PROMPT
+from app.config import (
+    CHAT_MODEL,
+    GEMINI_BASE_URL,
+    GOOGLE_API_KEY,
+    SYSTEM_PROMPT,
+    TEMPERATURE,
+    TOP_K,
+    USER_PROMPT,
+)
 from app.rag.processor import format_context
 from app.rag.vectorstore import search_docs
 
@@ -17,6 +25,7 @@ client = OpenAI(
 class AskRequest(BaseModel):
     question: str
     session_id: str
+    temperature: float = Field(default=TEMPERATURE, ge=0.0, le=1.0)
 
 
 @router.post("/ask")
@@ -35,6 +44,7 @@ async def ask(body: AskRequest) -> dict:
     context = format_context(docs)
     response = client.chat.completions.create(
         model=CHAT_MODEL,
+        temperature=body.temperature,
         messages=[
             {
                 "role": "system", 
