@@ -2,7 +2,7 @@ from langchain_core.documents import Document
 from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient, models
 
-from app.config import EMBED_DIMENSION, QDRANT_API_KEY, QDRANT_COLLECTION_NAME, QDRANT_URL, TOP_K
+from app.config import EMBED_DIMENSION, QDRANT_API_KEY, QDRANT_COLLECTION_NAME, QDRANT_URL, SCORE_THRESHOLD, TOP_K
 from app.rag.embedder import embeddings
 
 
@@ -41,7 +41,7 @@ def add_docs(chunks: list[Document], session_id: str) -> None:
 
 
 # https://python.langchain.com/docs/integrations/vectorstores/qdrant/#query-vector-store
-def search_docs(question: str, session_id: str, k: int = TOP_K) -> list[Document]:
+def search_docs(question: str, session_id: str, k: int = TOP_K, score_threshold: float | None = SCORE_THRESHOLD,) -> list[Document]:
     search_filter = models.Filter(
         must=[
             models.FieldCondition(
@@ -50,7 +50,7 @@ def search_docs(question: str, session_id: str, k: int = TOP_K) -> list[Document
             )
         ]
     )
-    return vectorstore.similarity_search(question, k=k, filter=search_filter)
+    return vectorstore.similarity_search(question, k=k, filter=search_filter, score_threshold=score_threshold)
 
 
 # https://qdrant.tech/documentation/concepts/points/#delete-points

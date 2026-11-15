@@ -6,6 +6,7 @@ from app.config import (
     CHAT_MODEL,
     GEMINI_BASE_URL,
     GOOGLE_API_KEY,
+    SCORE_THRESHOLD,
     SYSTEM_PROMPT,
     TEMPERATURE,
     TOP_K,
@@ -26,6 +27,7 @@ class AskRequest(BaseModel):
     question: str
     session_id: str
     temperature: float = Field(default=TEMPERATURE, ge=0.0, le=1.0)
+    score_threshold: float = Field(default=SCORE_THRESHOLD, ge=0.0, le=1.0)
 
 
 @router.post("/ask")
@@ -36,7 +38,12 @@ async def ask(body: AskRequest) -> dict:
     )
     k = TOP_K * 2 if is_summary else TOP_K
 
-    docs = search_docs(body.question, session_id=body.session_id, k=k)
+    docs = search_docs(
+        body.question,
+        session_id=body.session_id,
+        k=k,
+        score_threshold=body.score_threshold,
+    )
 
     if not docs:
         raise HTTPException(400, "No documents found for this session.")
