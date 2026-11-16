@@ -1,5 +1,6 @@
 from langchain_core.documents import Document
 
+from app.config import CHUNK_OVERLAP, CHUNK_SIZE
 from app.rag.chunker import chunk_docs
 from app.rag.processor import clean_text, process_latex
 from app.rag.loader import read_csv, read_docx, read_json, read_md, read_pdf, read_pptx, read_tex, read_txt, read_xlsx
@@ -24,10 +25,10 @@ def _clean_docs(docs: list[Document], original_name: str = "Document") -> list[D
         doc.metadata["file_name"] = original_name
     return docs
 
-def process_file(path: str, ext: str, session_id: str, original_name: str = "Document") -> int:
+def process_file(path: str, ext: str, session_id: str, original_name: str = "Document", chunk_size: int = CHUNK_SIZE, chunk_overlap: int = CHUNK_OVERLAP) -> int:
     loader = LOADERS[ext.lower()]
     docs = loader(path)
     docs = _clean_docs(docs, original_name=original_name)
-    chunks = chunk_docs(docs)
+    chunks = chunk_docs(docs, chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     add_docs(chunks, session_id=session_id)
     return len(chunks)

@@ -37,7 +37,6 @@ short_description: RAG Application
 | ![GET](https://img.shields.io/badge/GET-blue) | `/` | default | API name, version & status |
 | ![POST](https://img.shields.io/badge/POST-green) | `/upload` | RAG | Upload & process documents into Qdrant Cloud |
 | ![POST](https://img.shields.io/badge/POST-green) | `/ask` | RAG | Session-based RAG Question Answering |
-| ![GET](https://img.shields.io/badge/GET-blue) | `/chats` | RAG | Active chat sessions list |
 | ![DELETE](https://img.shields.io/badge/DELETE-red) | `/delete/{session_id}` | RAG | Delete session vectorstore points |
 | ![DELETE](https://img.shields.io/badge/DELETE-red) | `/clear` | RAG | Clear all vectorstore points |
 
@@ -54,8 +53,7 @@ backend/
 │   │   ├── ask.py          # /ask endpoint (RAG query handler)
 │   │   ├── upload.py       # /upload endpoint (tempfile streaming)
 │   │   ├── delete.py       # /delete/{session_id} endpoint
-│   │   ├── clear.py        # /clear endpoint
-│   │   └── chats.py        # /chats session list endpoint
+│   │   └── clear.py        # /clear endpoint
 │   ├── rag/                # RAG implementations
 │   │   ├── loader.py       # Multi-format document loaders (PDF, DOCX, XLSX, etc.)
 │   │   ├── chunker.py      # Recursive character text splitter
