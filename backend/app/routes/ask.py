@@ -26,6 +26,7 @@ client = OpenAI(
 class AskRequest(BaseModel):
     question: str
     session_id: str
+    top_k: int = Field(default=TOP_K, ge=1, le=20)
     temperature: float = Field(default=TEMPERATURE, ge=0.0, le=1.0)
     score_threshold: float = Field(default=SCORE_THRESHOLD, ge=0.0, le=1.0)
 
@@ -36,17 +37,18 @@ async def ask(body: AskRequest) -> dict:
         word in body.question.lower()
         for word in ["summarize", "summary", "overview", "tl;dr", "tldr", "key points"]
     )
-    k = TOP_K * 2 if is_summary else TOP_K
+    k = body.top_k * 2 if is_summary else body.top_k
+    threshold = min(body.score_threshold, 0.2) if is_summary else body.score_threshold
 
     docs = search_docs(
         body.question,
         session_id=body.session_id,
         k=k,
-        score_threshold=body.score_threshold,
+        score_threshold=threshold,
     )
 
     if not docs:
-        raise HTTPException(400, "No documents found for this session.")
+        raise HTTPException(400, "No relevant documents found for this query.")
 
     context = format_context(docs)
     response = client.chat.completions.create(

@@ -12,10 +12,7 @@ client = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
 if not client.collection_exists(QDRANT_COLLECTION_NAME):
     client.create_collection(
         collection_name=QDRANT_COLLECTION_NAME,
-        vectors_config=models.VectorParams(
-            size=EMBED_DIMENSION,
-            distance=models.Distance.COSINE,
-        ),
+        vectors_config=models.VectorParams(size=EMBED_DIMENSION, distance=models.Distance.COSINE),
     )
     client.create_payload_index(
         collection_name=QDRANT_COLLECTION_NAME,
@@ -41,7 +38,7 @@ def add_docs(chunks: list[Document], session_id: str) -> None:
 
 
 # https://python.langchain.com/docs/integrations/vectorstores/qdrant/#query-vector-store
-def search_docs(question: str, session_id: str, k: int = TOP_K, score_threshold: float | None = SCORE_THRESHOLD,) -> list[Document]:
+def search_docs(question: str, session_id: str, k: int = TOP_K, score_threshold: float = SCORE_THRESHOLD) -> list[Document]:
     search_filter = models.Filter(
         must=[
             models.FieldCondition(

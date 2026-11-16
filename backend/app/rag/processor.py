@@ -50,7 +50,7 @@ def format_context(docs: list[Document]) -> str:
             elif raw_page is not None:
                 page = str(raw_page)
 
-        meta_header = f"[Source: {file_name}" + (f" | Page: {page}]" if page else "]")
+        meta_header = f"[Source: {file_name} | Page: {page}]" if page else f"[Source: {file_name}]"
         formatted_chunks.append(f"{meta_header}\n{doc.page_content}")
 
     return "\n\n---\n\n".join(formatted_chunks)
