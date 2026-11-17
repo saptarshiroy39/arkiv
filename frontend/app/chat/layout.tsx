@@ -11,14 +11,8 @@ function ChatLayoutContent({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const initialChatId = (params.id as string[] | undefined)?.[0];
 
-  const {
-    chats,
-    isLoadingChats,
-    isDeletingAll,
-    deletingChatId,
-    deleteChat,
-    deleteAllChats,
-  } = useChat();
+  const { chats, isLoadingChats, deletingChatId, deleteChat, deleteAllChats } =
+    useChat();
 
   const handleChatSelect = (id: string) => {
     router.push(`/chat/${id}`);
@@ -54,7 +48,6 @@ function ChatLayoutContent({ children }: { children: React.ReactNode }) {
           onDeleteAll={handleDeleteAll}
           onDeleteChat={handleDeleteChat}
           isLoading={isLoadingChats}
-          isDeletingAll={isDeletingAll}
           deletingChatId={deletingChatId}
         />
         {children}

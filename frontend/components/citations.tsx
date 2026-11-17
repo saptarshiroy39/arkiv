@@ -29,7 +29,7 @@ export function CitationBadge({
   return (
     <span
       className={cn(
-        "inline-flex size-5 shrink-0 items-center justify-center rounded-[4px] bg-[#8a8a8e]/[0.22] font-mono text-[11px] font-bold leading-none text-primary select-none dark:text-emerald-400",
+        "text-primary inline-flex size-5 shrink-0 items-center justify-center rounded-[4px] bg-[#8a8a8e]/[0.22] font-mono text-[11px] leading-none font-bold select-none dark:text-emerald-400",
         className
       )}
     >
@@ -51,7 +51,7 @@ export function Citations({ citations, className }: CitationsProps) {
 
   return (
     <div className={cn("w-full space-y-1.5", className)}>
-      <div className="flex items-center gap-2 font-mono text-sm font-medium text-foreground">
+      <div className="text-foreground flex items-center gap-2 font-mono text-sm font-medium">
         <IconBook size={16} />
         <span>Source(s)</span>
         <CitationBadge value={citations.length} />
@@ -64,11 +64,11 @@ export function Citations({ citations, className }: CitationsProps) {
             className="flex items-center gap-2 py-0.5 text-sm"
           >
             <CitationBadge value={i + 1} />
-            <span className="truncate font-mono font-medium text-foreground/90">
+            <span className="text-foreground/90 truncate font-mono font-medium">
               {citation.fileName}
             </span>
             {citation.page ? (
-              <span className="shrink-0 font-mono text-xs text-muted-foreground">
+              <span className="text-muted-foreground shrink-0 font-mono text-xs">
                 Page {citation.page}
               </span>
             ) : null}

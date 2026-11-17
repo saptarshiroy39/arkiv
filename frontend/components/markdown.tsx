@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -30,10 +31,14 @@ export function Markdown({ content, className }: MarkdownProps) {
         remarkPlugins={[remarkGfm, remarkMath, remarkBreaks]}
         rehypePlugins={[rehypeKatex, [rehypeHighlight, { detect: true }]]}
         components={{
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          a: ({ node, href, children, ...props }) => {
-            if (href?.startsWith("#citation-") || href?.startsWith("citation:")) {
-              const raw = href.replace(/^#citation-/, "").replace(/^citation:/, "");
+          a: ({ node: _node, href, children, ...props }) => {
+            if (
+              href?.startsWith("#citation-") ||
+              href?.startsWith("citation:")
+            ) {
+              const raw = href
+                .replace(/^#citation-/, "")
+                .replace(/^citation:/, "");
               const index = parseInt(raw || String(children), 10) || 1;
               return <Citation index={index} />;
             }
@@ -50,15 +55,13 @@ export function Markdown({ content, className }: MarkdownProps) {
               </a>
             );
           },
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          pre: ({ node, ...props }) => (
+          pre: ({ node: _node, ...props }) => (
             <pre
               {...props}
               className="text-foreground bg-muted/30 border-border scrollbar-thin scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent my-4 overflow-x-auto rounded-[4px] border p-4"
             />
           ),
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          code: ({ node, className, children, ...props }) => {
+          code: ({ node: _node, className, children, ...props }) => {
             const match = /language-(\w+)/.exec(className || "");
             const isInline = !match && !String(children).includes("\n");
 
@@ -66,7 +69,7 @@ export function Markdown({ content, className }: MarkdownProps) {
               <code
                 {...props}
                 className={cn(
-                  "text-foreground bg-muted/50 px-1.5 py-0.5 font-mono text-sm rounded-[4px]",
+                  "text-foreground bg-muted/50 rounded-[4px] px-1.5 py-0.5 font-mono text-sm",
                   className
                 )}
               >
@@ -81,40 +84,33 @@ export function Markdown({ content, className }: MarkdownProps) {
               </code>
             );
           },
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          table: ({ node, ...props }) => (
+          table: ({ node: _node, ...props }) => (
             <div className="border-border my-4 overflow-x-auto rounded-[4px] border">
               <table {...props} className="w-full border-collapse text-left" />
             </div>
           ),
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          th: ({ node, ...props }) => (
+          th: ({ node: _node, ...props }) => (
             <th
               {...props}
               className="border-border bg-muted/30 border-b px-4 py-2 font-semibold"
             />
           ),
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          td: ({ node, ...props }) => (
+          td: ({ node: _node, ...props }) => (
             <td {...props} className="border-border border-b px-4 py-2" />
           ),
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          blockquote: ({ node, ...props }) => (
+          blockquote: ({ node: _node, ...props }) => (
             <blockquote
               {...props}
-              className="border-primary/30 text-muted-foreground my-4 border-l-4 pl-4 italic rounded-r-[4px]"
+              className="border-primary/30 text-muted-foreground my-4 rounded-r-[4px] border-l-4 pl-4 italic"
             />
           ),
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          ul: ({ node, ...props }) => (
+          ul: ({ node: _node, ...props }) => (
             <ul {...props} className="my-2 list-disc pl-6" />
           ),
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          ol: ({ node, ...props }) => (
+          ol: ({ node: _node, ...props }) => (
             <ol {...props} className="my-2 list-decimal pl-6" />
           ),
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          li: ({ node, ...props }) => <li {...props} className="my-0.5" />,
+          li: ({ node: _node, ...props }) => <li {...props} className="my-0.5" />,
         }}
       >
         {content}

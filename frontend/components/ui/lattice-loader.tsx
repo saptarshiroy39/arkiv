@@ -1,6 +1,11 @@
 "use client";
 
-import React, { useEffect, useLayoutEffect, useRef, type CSSProperties } from "react";
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  type CSSProperties,
+} from "react";
 
 const useIsomorphicLayoutEffect =
   typeof window !== "undefined" ? useLayoutEffect : useEffect;
@@ -62,7 +67,9 @@ const STYLE = `
 `;
 
 const fmt = (ds: number) =>
-  ds < 600 ? `${(ds / 10).toFixed(1)}s` : `${Math.floor(ds / 600)}m ${((ds % 600) / 10).toFixed(1)}s`;
+  ds < 600
+    ? `${(ds / 10).toFixed(1)}s`
+    : `${Math.floor(ds / 600)}m ${((ds % 600) / 10).toFixed(1)}s`;
 
 const spoken = (ds: number) =>
   ds < 600
@@ -98,7 +105,8 @@ export const LatticeLoader: React.FC<LatticeLoaderProps> = ({
 
   useIsomorphicLayoutEffect(() => {
     if (elapsed != null) {
-      if (timerRef.current) timerRef.current.textContent = fmt(Math.round(elapsed * 10));
+      if (timerRef.current)
+        timerRef.current.textContent = fmt(Math.round(elapsed * 10));
       return undefined;
     }
     if (status !== "working") return undefined;
@@ -119,7 +127,7 @@ export const LatticeLoader: React.FC<LatticeLoaderProps> = ({
   return (
     <span
       role="status"
-      className={`ll-root group relative inline-flex items-center leading-none [font-family:inherit] [gap:calc(var(--ll-font)*0.625)] [font-size:var(--ll-font)] [color:var(--ll-color)]${className ? ` ${className}` : ""}`}
+      className={`ll-root group relative inline-flex items-center [gap:calc(var(--ll-font)*0.625)] [font-family:inherit] [font-size:var(--ll-font)] leading-none [color:var(--ll-color)]${className ? ` ${className}` : ""}`}
       data-status={status}
       data-shape={shape}
       data-glow={glow ? "" : undefined}
@@ -133,7 +141,8 @@ export const LatticeLoader: React.FC<LatticeLoaderProps> = ({
           "--ll-mark": status === "error" ? errorColor : doneColor,
           "--ll-idle": idleOpacity,
           "--ll-glow": glowColor || color,
-          "--ll-mark-glow": glowColor || (status === "error" ? errorColor : doneColor),
+          "--ll-mark-glow":
+            glowColor || (status === "error" ? errorColor : doneColor),
           "--ll-cycle": `${cycle}ms`,
           "--ll-peak": 1,
           "--ll-ease-out": "cubic-bezier(0.23, 1, 0.32, 1)",
@@ -144,20 +153,20 @@ export const LatticeLoader: React.FC<LatticeLoaderProps> = ({
     >
       <style>{STYLE}</style>
       <span className="grid shrink-0" aria-hidden="true">
-        <span className="ll-run [grid-area:1/1] grid [grid-template-columns:repeat(var(--ll-n),var(--ll-cell))] [gap:var(--ll-gap)] [transition:opacity_200ms_ease] group-data-[status=done]:opacity-0 group-data-[status=error]:opacity-0 group-data-[status=done]:[&>span]:[animation-play-state:paused] group-data-[status=error]:[&>span]:[animation-play-state:paused]">
+        <span className="ll-run grid [grid-template-columns:repeat(var(--ll-n),var(--ll-cell))] [gap:var(--ll-gap)] [grid-area:1/1] [transition:opacity_200ms_ease] group-data-[status=done]:opacity-0 group-data-[status=error]:opacity-0 group-data-[status=done]:[&>span]:[animation-play-state:paused] group-data-[status=error]:[&>span]:[animation-play-state:paused]">
           {SPIRAL_PATTERN.cells.map((unit, i) => (
             <span
               key={i}
-              className={`${CELL} [opacity:var(--ll-idle)] animate-[lattice-on-35_var(--ll-cycle)_infinite] [animation-timing-function:var(--ll-ease-in-out)] group-data-[glow]:[box-shadow:0_0_calc(var(--ll-cell)*1.2)_calc(var(--ll-cell)*0.12)_var(--ll-glow)]`}
+              className={`${CELL} animate-[lattice-on-35_var(--ll-cycle)_infinite] [opacity:var(--ll-idle)] [animation-timing-function:var(--ll-ease-in-out)] group-data-[glow]:[box-shadow:0_0_calc(var(--ll-cell)*1.2)_calc(var(--ll-cell)*0.12)_var(--ll-glow)]`}
               style={{ animationDelay: `${Math.round(unit * d)}ms` }}
             />
           ))}
         </span>
-        <span className="ll-mark [grid-area:1/1] grid [grid-template-columns:repeat(var(--ll-n),var(--ll-cell))] [gap:var(--ll-gap)] origin-center opacity-0 [transform:scale(0.9)] [transition:opacity_160ms_var(--ll-ease-out),transform_160ms_var(--ll-ease-out)] group-data-[status=done]:opacity-100 group-data-[status=done]:[transform:none] group-data-[status=done]:[transition:opacity_200ms_ease,transform_200ms_var(--ll-ease-out)] group-data-[status=error]:opacity-100 group-data-[status=error]:[transform:none] group-data-[status=error]:[transition:opacity_200ms_ease,transform_200ms_var(--ll-ease-out)]">
+        <span className="ll-mark grid origin-center [transform:scale(0.9)] [grid-template-columns:repeat(var(--ll-n),var(--ll-cell))] [gap:var(--ll-gap)] opacity-0 [grid-area:1/1] [transition:opacity_160ms_var(--ll-ease-out),transform_160ms_var(--ll-ease-out)] group-data-[status=done]:[transform:none] group-data-[status=done]:opacity-100 group-data-[status=done]:[transition:opacity_200ms_ease,transform_200ms_var(--ll-ease-out)] group-data-[status=error]:[transform:none] group-data-[status=error]:opacity-100 group-data-[status=error]:[transition:opacity_200ms_ease,transform_200ms_var(--ll-ease-out)]">
           {SPIRAL_PATTERN.cells.map((_, i) => (
             <span
               key={i}
-              className={`${CELL} [opacity:var(--ll-idle)] [transition:opacity_200ms_ease,background-color_200ms_ease] data-[on]:[background:var(--ll-mark)] data-[on]:[opacity:var(--ll-peak)] group-data-[glow]:data-[on]:[box-shadow:0_0_calc(var(--ll-cell)*1.2)_calc(var(--ll-cell)*0.12)_var(--ll-mark-glow)]`}
+              className={`${CELL} [opacity:var(--ll-idle)] [transition:opacity_200ms_ease,background-color_200ms_ease] data-[on]:[opacity:var(--ll-peak)] data-[on]:[background:var(--ll-mark)] group-data-[glow]:data-[on]:[box-shadow:0_0_calc(var(--ll-cell)*1.2)_calc(var(--ll-cell)*0.12)_var(--ll-mark-glow)]`}
               data-on={MARKS[mark].includes(i) ? "" : undefined}
             />
           ))}
@@ -186,7 +195,7 @@ export const LatticeLoader: React.FC<LatticeLoaderProps> = ({
       {showTimer ? (
         <span
           ref={timerRef}
-          className="font-mono tabular-nums opacity-60 [font-size:calc(var(--ll-font)*0.875)]"
+          className="font-mono [font-size:calc(var(--ll-font)*0.875)] tabular-nums opacity-60"
           aria-hidden="true"
         >
           {elapsed != null ? fmt(Math.round(elapsed * 10)) : "0.0s"}

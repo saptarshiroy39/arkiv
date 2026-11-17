@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/swipe-toast";
 import { IconFilesFilled } from "@tabler/icons-react";
 import { Blocks } from "loading-dev";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 function ChatInterface({ initialChatId }: { initialChatId?: string }) {
   const router = useRouter();
-  const { setChats } = useChat();
+  const { setChats, settings } = useChat();
 
   const [view, setView] = React.useState<ViewState>(
     initialChatId ? "chat" : "upload"
@@ -113,6 +113,11 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
       if (f.file) formData.append("files", f.file);
     });
     formData.append("session_id", newChatId);
+    formData.append("chunk_size", Math.round(settings.chunk_size).toString());
+    formData.append(
+      "chunk_overlap",
+      Math.round(settings.chunk_overlap).toString()
+    );
 
     try {
       const response = await fetch(`${API_URL}/upload`, {
@@ -120,7 +125,22 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
         body: formData,
       });
 
-      if (!response.ok) throw new Error("Upload failed");
+      if (!response.ok) {
+        let errMessage = "Upload failed";
+        try {
+          const errData = await response.json();
+          if (errData && typeof errData.detail === "string") {
+            errMessage = errData.detail;
+          } else if (errData && Array.isArray(errData.detail)) {
+            errMessage = errData.detail
+              .map((d: { msg?: string }) => d.msg || JSON.stringify(d))
+              .join(", ");
+          }
+        } catch {
+          // ignore
+        }
+        throw new Error(errMessage);
+      }
 
       const elapsed =
         Math.round(((performance.now() - startTime) / 1000) * 10) / 10;
@@ -215,11 +235,29 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
         body: JSON.stringify({
           question: inputValue,
           session_id: initialChatId,
+          top_k: Math.round(settings.top_k),
+          temperature: Number(settings.temperature),
+          score_threshold: Number(settings.score_threshold),
         }),
         signal: controller.signal,
       });
 
-      if (!response.ok) throw new Error("Failed to get answer");
+      if (!response.ok) {
+        let errMessage = "Failed to get answer";
+        try {
+          const errData = await response.json();
+          if (errData && typeof errData.detail === "string") {
+            errMessage = errData.detail;
+          } else if (errData && Array.isArray(errData.detail)) {
+            errMessage = errData.detail
+              .map((d: { msg?: string }) => d.msg || JSON.stringify(d))
+              .join(", ");
+          }
+        } catch {
+          // ignore
+        }
+        throw new Error(errMessage);
+      }
 
       const data = await response.json();
       const elapsed =
@@ -245,9 +283,11 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
         if (!isTimeout) return;
       }
       console.error("Ask error:", error);
+      const detailMsg =
+        error instanceof Error ? error.message : "Failed to get answer";
       const warningMessage = isTimeout
         ? "Connection timeout. Please check your network."
-        : "Connection error. Please check your internet.";
+        : detailMsg;
 
       toast.error(warningMessage);
 
@@ -261,7 +301,7 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
         role: "assistant",
         content: isTimeout
           ? "The request timed out. The server took too long to respond."
-          : "An error was encountered while processing your request.",
+          : detailMsg,
         status: "error",
         elapsed,
       };
@@ -308,9 +348,7 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
 
         <main className="relative flex min-h-0 flex-1 overflow-hidden">
           <div className="flex min-h-0 flex-1 flex-col">
-            {view === "upload" && (
-              <UploadView onUpload={handleFileSelect} />
-            )}
+            {view === "upload" && <UploadView onUpload={handleFileSelect} />}
             {view === "files" && (
               <FilesView
                 files={uploadedFiles}

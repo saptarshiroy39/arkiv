@@ -3,13 +3,19 @@
 import { IconBrightness } from "@tabler/icons-react";
 import { useTheme } from "next-themes";
 import { useReducedMotion, AnimatePresence, motion } from "motion/react";
-import { useEffect, useSyncExternalStore, type ComponentPropsWithoutRef } from "react";
+import {
+  useEffect,
+  useSyncExternalStore,
+  type ComponentPropsWithoutRef,
+} from "react";
 import { cn } from "@/lib/utils";
 
 export type ThemeVariant = "circle-blur";
 
-export interface ThemeToggleProps
-  extends Omit<ComponentPropsWithoutRef<"button">, "children" | "onClick"> {
+export interface ThemeToggleProps extends Omit<
+  ComponentPropsWithoutRef<"button">,
+  "children" | "onClick"
+> {
   /** Animation variant. Default: "circle-blur". */
   variant?: ThemeVariant;
   iconClassName?: string;
@@ -106,14 +112,18 @@ export function useThemeToggle() {
 export function ThemeToggle({
   className,
   iconClassName,
+  variant,
   ...rest
 }: ThemeToggleProps) {
+  void variant;
   const { isDark, mounted, toggle } = useThemeToggle();
 
   return (
     <button
       type="button"
-      aria-label={mounted && isDark ? "Switch to light mode" : "Switch to dark mode"}
+      aria-label={
+        mounted && isDark ? "Switch to light mode" : "Switch to dark mode"
+      }
       onClick={toggle}
       className={cn("flex items-center justify-center", className)}
       {...rest}
@@ -132,13 +142,21 @@ export function ThemeToggle({
             >
               <IconBrightness
                 size={16}
-                className={cn("transition-transform duration-200", isDark && "rotate-180", iconClassName)}
+                className={cn(
+                  "transition-transform duration-200",
+                  isDark && "rotate-180",
+                  iconClassName
+                )}
               />
             </motion.span>
           </AnimatePresence>
         </span>
       ) : (
-        <IconBrightness size={16} className={cn("opacity-0", iconClassName)} aria-hidden="true" />
+        <IconBrightness
+          size={16}
+          className={cn("opacity-0", iconClassName)}
+          aria-hidden="true"
+        />
       )}
     </button>
   );

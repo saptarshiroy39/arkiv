@@ -4,7 +4,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/swipe-toast";
 import { cn } from "@/lib/utils";
 import Figlet from "@/components/figlet";
 import "./globals.css";
@@ -112,7 +112,7 @@ export default function RootLayout({
           <div className="flex min-h-screen w-full flex-col">
             <Figlet />
             <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
-            <Toaster position="top-center" richColors />
+            <Toaster />
           </div>
         </ThemeProvider>
         <Analytics />
