@@ -1,6 +1,6 @@
 "use client";
 
-import { IconPlus, IconTrash } from "@tabler/icons-react";
+import { IconPlus, IconTrash, IconSettings } from "@tabler/icons-react";
 import { Blocks } from "loading-dev";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -16,20 +16,10 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { ChatSession } from "@/app/chat/types";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { SettingsDialog } from "./settings-dialog";
 
 interface AppSidebarProps {
   chats: ChatSession[];
@@ -39,7 +29,6 @@ interface AppSidebarProps {
   onDeleteAll: () => void;
   onDeleteChat: (id: string) => void;
   isLoading?: boolean;
-  isDeletingAll?: boolean;
   deletingChatId?: string | null;
 }
 
@@ -51,11 +40,11 @@ export function AppSidebar({
   onDeleteAll,
   onDeleteChat,
   isLoading,
-  isDeletingAll,
   deletingChatId,
 }: AppSidebarProps) {
   const { state, open, isMobile, setOpen } = useSidebar();
   const isCollapsed = state === "collapsed" && !isMobile;
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const openRef = useRef(open);
   useEffect(() => {
@@ -98,11 +87,14 @@ export function AppSidebar({
         )}
       >
         <SidebarTrigger
-          className={cn("size-10 [&_svg]:size-5 rounded-[4px]", !isCollapsed && "-ml-1")}
+          className={cn(
+            "size-10 rounded-[4px] [&_svg]:size-5",
+            !isCollapsed && "-ml-1"
+          )}
         />
         <ThemeToggle
           variant="circle-blur"
-          className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex size-10 items-center justify-center transition-colors rounded-[4px]"
+          className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex size-10 items-center justify-center rounded-[4px] transition-colors"
           title={isCollapsed ? "Toggle theme" : undefined}
         />
       </SidebarHeader>
@@ -113,7 +105,7 @@ export function AppSidebar({
           onClick={onNewChat}
           variant="ghost"
           className={cn(
-            "hover:bg-sidebar-accent h-10 w-full justify-start gap-3 px-2 text-sm font-bold transition-all rounded-[4px]",
+            "hover:bg-sidebar-accent h-10 w-full justify-start gap-3 rounded-[4px] px-2 text-sm font-bold transition-all",
             isCollapsed && "size-10 justify-center p-0"
           )}
           title={isCollapsed ? "NEW CHAT" : undefined}
@@ -147,7 +139,7 @@ export function AppSidebar({
                         isActive={activeChatId === chat.id}
                         onClick={() => onChatSelect(chat.id)}
                         className={cn(
-                          "h-10 px-2 text-sm transition-colors rounded-[4px]",
+                          "h-10 rounded-[4px] px-2 text-sm transition-colors",
                           "font-normal data-active:bg-transparent data-active:font-normal",
                           activeChatId === chat.id
                             ? "text-primary"
@@ -158,7 +150,7 @@ export function AppSidebar({
                       </SidebarMenuButton>
                       <SidebarMenuAction
                         className={cn(
-                          "hover:text-destructive size-7 hover:bg-transparent data-active:bg-transparent rounded-[4px]",
+                          "hover:text-destructive size-7 rounded-[4px] hover:bg-transparent data-active:bg-transparent",
                           deletingChatId === chat.id
                             ? "text-destructive"
                             : "text-muted-foreground"
@@ -194,52 +186,24 @@ export function AppSidebar({
         )}
       </SidebarContent>
       <SidebarFooter className={cn("border-t p-2", isCollapsed && "px-1")}>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              variant="ghost"
-              className={cn(
-                "text-destructive hover:text-destructive hover:bg-destructive/10 h-10 w-full justify-start gap-3 px-2 text-sm font-bold transition-all rounded-[4px]",
-                isCollapsed && "size-10 justify-center p-0"
-              )}
-              disabled={chats.length === 0 || isDeletingAll}
-              title={isCollapsed ? "DELETE ALL" : undefined}
-            >
-              {isDeletingAll ? (
-                <Blocks
-                  size={18}
-                  sweep="diagonal"
-                  className="text-destructive"
-                />
-              ) : (
-                <IconTrash size={20} stroke={2.5} />
-              )}
-              {!isCollapsed && (
-                <span>{isDeletingAll ? "DELETING..." : "DELETE ALL"}</span>
-              )}
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            {/* Force hot-reload of dialog border styling */}
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This will permanently delete all your chat history and uploaded
-                files context.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>CANCEL</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={onDeleteAll}
-                variant="destructive"
-                className=""
-              >
-                DELETE ALL
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <Button
+          variant="ghost"
+          onClick={() => setIsSettingsOpen(true)}
+          className={cn(
+            "hover:bg-sidebar-accent h-10 w-full justify-start gap-3 rounded-[4px] px-2 text-sm font-bold transition-all",
+            isCollapsed && "size-10 justify-center p-0"
+          )}
+          title={isCollapsed ? "SETTINGS" : undefined}
+        >
+          <IconSettings size={20} stroke={2.2} />
+          {!isCollapsed && <span>SETTINGS</span>}
+        </Button>
+
+        <SettingsDialog
+          open={isSettingsOpen}
+          onOpenChange={setIsSettingsOpen}
+          onDeleteAll={onDeleteAll}
+        />
       </SidebarFooter>
     </Sidebar>
   );

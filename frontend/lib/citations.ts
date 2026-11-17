@@ -48,8 +48,7 @@ export function parseCitations(content: string): ParsedCitationsResult {
   if (citations.length > 0) {
     const sourcesList = citations
       .map(
-        (c, i) =>
-          `[${i + 1}] ${c.fileName}${c.page ? ` (Page ${c.page})` : ""}`
+        (c, i) => `[${i + 1}] ${c.fileName}${c.page ? ` (Page ${c.page})` : ""}`
       )
       .join("\n");
     copyText = `${copyText}\n\nSource(s):\n${sourcesList}`;

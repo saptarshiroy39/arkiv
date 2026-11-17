@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/swipe-toast";
 import {
   IconArrowUp,
   IconMicrophone,
@@ -180,7 +180,7 @@ export function ChatView({
       <MessageScrollerProvider>
         <MessageScroller className="min-h-0 flex-1">
           <MessageScrollerViewport className="px-4 md:px-6">
-            <MessageScrollerContent className="mx-auto max-w-4xl py-4 pb-40 gap-6">
+            <MessageScrollerContent className="mx-auto max-w-4xl gap-6 py-4 pb-40">
               {messages.map((message) => {
                 const isAssistant = message.role === "assistant";
                 const { processedContent, citations, copyText } = isAssistant
@@ -205,8 +205,8 @@ export function ChatView({
                       className={cn(
                         "text-sm leading-relaxed",
                         message.role === "user"
-                          ? "max-w-[90%] bg-primary/10 text-foreground border-primary/20 border px-4 py-2.5 rounded-[4px]"
-                          : "max-w-[95%] w-full bg-transparent"
+                          ? "bg-primary/10 text-foreground border-primary/20 max-w-[90%] rounded-[4px] border px-4 py-2.5"
+                          : "w-full max-w-[95%] bg-transparent"
                       )}
                     >
                       {message.role === "assistant" && message.status && (
@@ -258,7 +258,7 @@ export function ChatView({
             direction="end"
             variant="default"
             size="icon"
-            className="bg-primary hover:bg-primary/80 text-primary-foreground hover:text-primary-foreground! border-0 size-8 rounded-[4px] shadow-none bottom-32!"
+            className="bg-primary hover:bg-primary/80 text-primary-foreground hover:text-primary-foreground! bottom-32! size-8 rounded-[4px] border-0 shadow-none"
           />
         </MessageScroller>
       </MessageScrollerProvider>

@@ -59,24 +59,27 @@ export function RightPanel({ files, onClose, isOpen }: RightPanelProps) {
         </div>
         <ScrollArea className="flex-1 p-2">
           <div className="space-y-1">
-            {files.map((file, i) => (
-              <div key={i} className="group flex h-12 items-center gap-3 p-2 rounded-[4px]">
-                <div className="bg-primary/5 dark:bg-primary/10 text-primary border-primary/20 flex size-10 shrink-0 items-center justify-center border rounded-[4px] dark:text-emerald-400">
-                  {(() => {
-                    const Icon = getFileIcon(file.name);
-                    return <Icon size={20} />;
-                  })()}
+            {files.map((file, i) => {
+              const Icon = getFileIcon(file.name);
+              return (
+                <div
+                  key={i}
+                  className="group flex h-12 items-center gap-3 rounded-[4px] p-2"
+                >
+                  <div className="bg-primary/5 dark:bg-primary/10 text-primary border-primary/20 flex size-10 shrink-0 items-center justify-center rounded-[4px] border dark:text-emerald-400">
+                    <Icon size={20} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-xs font-medium" title={file.name}>
+                      {truncateFileName(file.name, 25)}
+                    </p>
+                    <p className="text-muted-foreground text-[10px] tracking-wider uppercase">
+                      {formatFileSize(file.size)}
+                    </p>
+                  </div>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-xs font-medium" title={file.name}>
-                    {truncateFileName(file.name, 25)}
-                  </p>
-                  <p className="text-muted-foreground text-[10px] tracking-wider uppercase">
-                    {formatFileSize(file.size)}
-                  </p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </ScrollArea>
       </aside>

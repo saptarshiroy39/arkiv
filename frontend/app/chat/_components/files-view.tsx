@@ -1,11 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import {
-  IconX,
-  IconPlus,
-  IconArrowRight,
-} from "@tabler/icons-react";
+import { IconX, IconPlus, IconArrowRight } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -60,20 +56,19 @@ export function FilesView({
       />
 
       <div className="grid w-full max-w-4xl grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-        {files.map((file, i) => (
-          <Card
-            key={`${file.name}-${file.size}`}
-            className={cn(
-              "group relative flex h-36 flex-col items-center justify-center gap-3 p-4 text-center transition-all",
-              isUploading && "opacity-50 grayscale-[0.5]"
-            )}
-          >
-            <div className="bg-primary/5 dark:bg-primary/10 text-primary border-primary/20 flex size-12 items-center justify-center border rounded-[4px] transition-transform group-hover:scale-110 dark:text-emerald-400">
-              {(() => {
-                const Icon = getFileIcon(file.name);
-                return <Icon size={24} />;
-              })()}
-            </div>
+        {files.map((file, i) => {
+          const Icon = getFileIcon(file.name);
+          return (
+            <Card
+              key={`${file.name}-${file.size}`}
+              className={cn(
+                "group relative flex h-36 flex-col items-center justify-center gap-3 p-4 text-center transition-all",
+                isUploading && "opacity-50 grayscale-[0.5]"
+              )}
+            >
+              <div className="bg-primary/5 dark:bg-primary/10 text-primary border-primary/20 flex size-12 items-center justify-center rounded-[4px] border transition-transform group-hover:scale-110 dark:text-emerald-400">
+                <Icon size={24} />
+              </div>
             <div className="w-full min-w-0 px-2">
               <p className="truncate text-sm font-semibold" title={file.name}>
                 {truncateFileName(file.name, 28)}
@@ -93,12 +88,13 @@ export function FilesView({
               </Button>
             )}
           </Card>
-        ))}
+        );
+      })}
         {!isUploading && files.length < 6 && (
           <Button
             variant="outline"
             onClick={() => fileInputRef.current?.click()}
-            className="hover:bg-accent/50 flex h-36 flex-col items-center justify-center gap-2 border-2 border-dashed rounded-[4px] transition-all"
+            className="hover:bg-accent/50 flex h-36 flex-col items-center justify-center gap-2 rounded-[4px] border-2 border-dashed transition-all"
           >
             <IconPlus size={24} />
             <span className="text-xs font-medium">ADD MORE</span>
@@ -124,14 +120,17 @@ export function FilesView({
           <div
             className={cn(
               "flex h-10 items-center justify-center rounded-[4px] px-4",
-              uploadStatus.status === "error" && "cursor-pointer hover:bg-muted/40"
+              uploadStatus.status === "error" &&
+                "hover:bg-muted/40 cursor-pointer"
             )}
             onClick={() => {
               if (uploadStatus.status === "error") {
                 onResetUploadStatus?.();
               }
             }}
-            title={uploadStatus.status === "error" ? "Click to retry" : undefined}
+            title={
+              uploadStatus.status === "error" ? "Click to retry" : undefined
+            }
           >
             <LatticeLoader
               status={uploadStatus.status}

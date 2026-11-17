@@ -78,7 +78,6 @@ export const truncateFileName = (name: string, maxLength = 24) => {
 export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 export const MAX_FILE_COUNT = 6;
 
-
 export const formatChatTitle = (timestampStr: string) => {
   const timestamp = parseInt(timestampStr);
   if (isNaN(timestamp)) return "New Analysis";
