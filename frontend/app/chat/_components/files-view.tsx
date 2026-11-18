@@ -38,7 +38,7 @@ export function FilesView({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className="bg-sidebar relative flex flex-1 flex-col items-center justify-center space-y-4 p-4 sm:space-y-8 sm:p-8">
+    <div className="bg-sidebar relative flex min-h-0 flex-1 flex-col items-center justify-start overflow-y-auto space-y-4 p-4 sm:justify-center sm:space-y-8 sm:p-8">
       <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
         Ready to explore..?
       </h2>

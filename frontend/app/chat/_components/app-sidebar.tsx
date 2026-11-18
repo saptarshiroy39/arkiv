@@ -195,7 +195,7 @@ export function AppSidebar({
           )}
           title={isCollapsed ? "SETTINGS" : undefined}
         >
-          <IconSettings size={20} stroke={2.2} />
+          <IconSettings size={20} stroke={2.5} />
           {!isCollapsed && <span>SETTINGS</span>}
         </Button>
 
