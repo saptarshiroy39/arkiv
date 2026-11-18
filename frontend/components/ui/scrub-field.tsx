@@ -91,7 +91,7 @@ export const ScrubField: React.FC<ScrubFieldProps> = ({
   step = 1,
   size = "md",
   width: widthProp,
-  sensitivity = 2,
+  sensitivity = 8,
   rubberReach = 0,
   returnDuration = 0,
   coarseMultiplier = 0,
