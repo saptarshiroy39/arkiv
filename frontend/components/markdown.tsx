@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -13,6 +12,12 @@ import { Citation } from "@/components/citations";
 interface MarkdownProps {
   content: string;
   className?: string;
+}
+
+function clean<T extends object>(props: T): Omit<T, "node"> {
+  const { node: _, ...rest } = props as T & { node?: unknown };
+  void _;
+  return rest;
 }
 
 export function Markdown({ content, className }: MarkdownProps) {
@@ -31,7 +36,7 @@ export function Markdown({ content, className }: MarkdownProps) {
         remarkPlugins={[remarkGfm, remarkMath, remarkBreaks]}
         rehypePlugins={[rehypeKatex, [rehypeHighlight, { detect: true }]]}
         components={{
-          a: ({ node: _node, href, children, ...props }) => {
+          a: ({ href, children, ...props }) => {
             if (
               href?.startsWith("#citation-") ||
               href?.startsWith("citation:")
@@ -45,7 +50,7 @@ export function Markdown({ content, className }: MarkdownProps) {
 
             return (
               <a
-                {...props}
+                {...clean(props)}
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -55,19 +60,19 @@ export function Markdown({ content, className }: MarkdownProps) {
               </a>
             );
           },
-          pre: ({ node: _node, ...props }) => (
+          pre: (props) => (
             <pre
-              {...props}
+              {...clean(props)}
               className="text-foreground bg-muted/30 border-border scrollbar-thin scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent my-4 overflow-x-auto rounded-[4px] border p-4"
             />
           ),
-          code: ({ node: _node, className, children, ...props }) => {
+          code: ({ className, children, ...props }) => {
             const match = /language-(\w+)/.exec(className || "");
             const isInline = !match && !String(children).includes("\n");
 
             return isInline ? (
               <code
-                {...props}
+                {...clean(props)}
                 className={cn(
                   "text-foreground bg-muted/50 rounded-[4px] px-1.5 py-0.5 font-mono text-sm",
                   className
@@ -77,40 +82,46 @@ export function Markdown({ content, className }: MarkdownProps) {
               </code>
             ) : (
               <code
-                {...props}
+                {...clean(props)}
                 className={cn("text-foreground font-mono text-sm", className)}
               >
                 {children}
               </code>
             );
           },
-          table: ({ node: _node, ...props }) => (
+          table: (props) => (
             <div className="border-border my-4 overflow-x-auto rounded-[4px] border">
-              <table {...props} className="w-full border-collapse text-left" />
+              <table
+                {...clean(props)}
+                className="w-full border-collapse text-left"
+              />
             </div>
           ),
-          th: ({ node: _node, ...props }) => (
+          th: (props) => (
             <th
-              {...props}
+              {...clean(props)}
               className="border-border bg-muted/30 border-b px-4 py-2 font-semibold"
             />
           ),
-          td: ({ node: _node, ...props }) => (
-            <td {...props} className="border-border border-b px-4 py-2" />
+          td: (props) => (
+            <td
+              {...clean(props)}
+              className="border-border border-b px-4 py-2"
+            />
           ),
-          blockquote: ({ node: _node, ...props }) => (
+          blockquote: (props) => (
             <blockquote
-              {...props}
+              {...clean(props)}
               className="border-primary/30 text-muted-foreground my-4 rounded-r-[4px] border-l-4 pl-4 italic"
             />
           ),
-          ul: ({ node: _node, ...props }) => (
-            <ul {...props} className="my-2 list-disc pl-6" />
+          ul: (props) => (
+            <ul {...clean(props)} className="my-2 list-disc pl-6" />
           ),
-          ol: ({ node: _node, ...props }) => (
-            <ol {...props} className="my-2 list-decimal pl-6" />
+          ol: (props) => (
+            <ol {...clean(props)} className="my-2 list-decimal pl-6" />
           ),
-          li: ({ node: _node, ...props }) => <li {...props} className="my-0.5" />,
+          li: (props) => <li {...clean(props)} className="my-0.5" />,
         }}
       >
         {content}

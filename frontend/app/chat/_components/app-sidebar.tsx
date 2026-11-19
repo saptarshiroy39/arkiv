@@ -1,6 +1,6 @@
 "use client";
 
-import { IconPlus, IconTrash, IconSettings } from "@tabler/icons-react";
+import { IconPlus, IconTrash, IconCheck } from "@tabler/icons-react";
 import { Blocks } from "loading-dev";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -18,8 +18,9 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { ChatSession } from "@/app/chat/types";
-import { useEffect, useRef, useState } from "react";
-import { SettingsDialog } from "./settings-dialog";
+import { useEffect, useRef } from "react";
+import { HoldButton } from "@/components/ui/hold-button";
+import { useChat } from "./chat-context";
 
 interface AppSidebarProps {
   chats: ChatSession[];
@@ -44,7 +45,7 @@ export function AppSidebar({
 }: AppSidebarProps) {
   const { state, open, isMobile, setOpen } = useSidebar();
   const isCollapsed = state === "collapsed" && !isMobile;
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const { isDeletingAll } = useChat();
 
   const openRef = useRef(open);
   useEffect(() => {
@@ -93,7 +94,6 @@ export function AppSidebar({
           )}
         />
         <ThemeToggle
-          variant="circle-blur"
           className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex size-10 items-center justify-center rounded-[4px] transition-colors"
           title={isCollapsed ? "Toggle theme" : undefined}
         />
@@ -185,25 +185,27 @@ export function AppSidebar({
           </div>
         )}
       </SidebarContent>
-      <SidebarFooter className={cn("border-t p-2", isCollapsed && "px-1")}>
-        <Button
-          variant="ghost"
-          onClick={() => setIsSettingsOpen(true)}
+      <SidebarFooter className={cn("p-2", isCollapsed && "px-1")}>
+        <HoldButton
+          size="md"
+          radius={4}
+          holdTime={1500}
+          releaseTime={200}
+          pressScale={0.97}
+          disabled={chats.length === 0 || isDeletingAll}
+          doneLabel={isCollapsed ? "" : "DELETED"}
+          holdLabel={isCollapsed ? "" : isDeletingAll ? "DELETING..." : "HOLD"}
+          icon={<IconTrash size={18} stroke={2.5} />}
+          doneIcon={<IconCheck size={18} stroke={2.5} />}
           className={cn(
-            "hover:bg-sidebar-accent h-10 w-full justify-start gap-3 rounded-[4px] px-2 text-sm font-bold transition-all",
+            "h-10 w-full rounded-[4px] border-0 font-mono text-sm font-bold tracking-wider shadow-none transition-all",
             isCollapsed && "size-10 justify-center p-0"
           )}
-          title={isCollapsed ? "SETTINGS" : undefined}
+          title={isCollapsed ? "HOLD TO DELETE ALL" : undefined}
+          onHold={onDeleteAll}
         >
-          <IconSettings size={20} stroke={2.5} />
-          {!isCollapsed && <span>SETTINGS</span>}
-        </Button>
-
-        <SettingsDialog
-          open={isSettingsOpen}
-          onOpenChange={setIsSettingsOpen}
-          onDeleteAll={onDeleteAll}
-        />
+          {isCollapsed ? "" : isDeletingAll ? "DELETING..." : "DELETE ALL"}
+        </HoldButton>
       </SidebarFooter>
     </Sidebar>
   );

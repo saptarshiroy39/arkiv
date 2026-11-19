@@ -38,7 +38,7 @@ export function FilesView({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className="bg-sidebar relative flex min-h-0 flex-1 flex-col items-center justify-start overflow-y-auto space-y-4 p-4 sm:justify-center sm:space-y-8 sm:p-8">
+    <div className="bg-sidebar relative flex min-h-0 flex-1 flex-col items-center justify-start space-y-4 overflow-y-auto p-4 sm:justify-center sm:space-y-8 sm:p-8">
       <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
         Ready to explore..?
       </h2>
@@ -69,27 +69,27 @@ export function FilesView({
               <div className="bg-primary/5 dark:bg-primary/10 text-primary border-primary/20 flex size-12 items-center justify-center rounded-[4px] border transition-transform group-hover:scale-110 dark:text-emerald-400">
                 <Icon size={24} />
               </div>
-            <div className="w-full min-w-0 px-2">
-              <p className="truncate text-sm font-semibold" title={file.name}>
-                {truncateFileName(file.name, 28)}
-              </p>
-              <p className="text-muted-foreground mt-1 text-[10px] font-medium tracking-wider uppercase">
-                {formatFileSize(file.size)}
-              </p>
-            </div>
-            {!isUploading && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 absolute top-0 right-0 size-10 rounded-[4px]"
-                onClick={() => onRemoveFile(i)}
-              >
-                <IconX size={20} />
-              </Button>
-            )}
-          </Card>
-        );
-      })}
+              <div className="w-full min-w-0 px-2">
+                <p className="truncate text-sm font-semibold" title={file.name}>
+                  {truncateFileName(file.name, 28)}
+                </p>
+                <p className="text-muted-foreground mt-1 text-[10px] font-medium tracking-wider uppercase">
+                  {formatFileSize(file.size)}
+                </p>
+              </div>
+              {!isUploading && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 absolute top-0 right-0 size-10 rounded-[4px]"
+                  onClick={() => onRemoveFile(i)}
+                >
+                  <IconX size={20} />
+                </Button>
+              )}
+            </Card>
+          );
+        })}
         {!isUploading && files.length < 6 && (
           <Button
             variant="outline"
@@ -108,7 +108,6 @@ export function FilesView({
             size="lg"
             className="group h-10 w-full gap-2 px-8 sm:w-auto"
             onClick={onStartChat}
-            disabled={isUploading}
           >
             <span>ANALYZE</span>
             <IconArrowRight

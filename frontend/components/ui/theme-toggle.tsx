@@ -10,14 +10,10 @@ import {
 } from "react";
 import { cn } from "@/lib/utils";
 
-export type ThemeVariant = "circle-blur";
-
 export interface ThemeToggleProps extends Omit<
   ComponentPropsWithoutRef<"button">,
   "children" | "onClick"
 > {
-  /** Animation variant. Default: "circle-blur". */
-  variant?: ThemeVariant;
   iconClassName?: string;
 }
 
@@ -112,10 +108,8 @@ export function useThemeToggle() {
 export function ThemeToggle({
   className,
   iconClassName,
-  variant,
   ...rest
 }: ThemeToggleProps) {
-  void variant;
   const { isDark, mounted, toggle } = useThemeToggle();
 
   return (
