@@ -9,12 +9,14 @@ import React, {
   type CSSProperties,
   type ReactNode,
 } from "react";
+import { cn } from "@/lib/utils";
 
 export type HoldButtonSize = "sm" | "md" | "lg";
 export type HoldButtonDirection = "right" | "up";
 
 export interface HoldButtonProps {
   children?: ReactNode;
+  holdLabel?: ReactNode;
   doneLabel?: ReactNode;
   icon?: ReactNode;
   doneIcon?: ReactNode;
@@ -33,6 +35,7 @@ export interface HoldButtonProps {
   glow?: boolean;
   resetAfter?: number;
   disabled?: boolean;
+  title?: string;
   onHold?: () => void;
   onTap?: () => void;
   className?: string;
@@ -73,48 +76,45 @@ const SIZES: Record<HoldButtonSize, string> = {
   lg: "h-12 px-6 text-base",
 };
 
-const GLOW =
-  "inset_0_1px_0_rgba(255,255,255,0.06),0_10px_32px_-6px_color-mix(in_srgb,var(--hb-fill)_70%,transparent)";
-
-const LABEL_SPAN =
-  "[grid-area:1/1] inline-flex items-center gap-2 whitespace-nowrap [transition:opacity_200ms_ease,filter_200ms_ease]";
+const WAVE_MASK = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='200' viewBox='0 0 20 200' preserveAspectRatio='none'%3E%3Cpath d='M0 0H10C18 8 18 25.3 10 33.3S2 58.7 10 66.7S18 92 10 100S2 125.3 10 133.3S18 158.7 10 166.7S2 192 10 200H0Z'/%3E%3C/svg%3E")`;
 
 const STYLE = `
 .hb-root{--hb-w:0px;--hb-h:0px;--hb-cycles:2;--hb-p:0}
 .hb-fill{clip-path:inset(0 calc((1 - var(--hb-p)) * (100% + 0.75 * var(--hb-wave)) - var(--hb-p) * 0.25 * var(--hb-wave)) 0 0)}
-.hb-root[data-direction=up] .hb-fill{clip-path:inset(calc((1 - var(--hb-p)) * (100% + 0.75 * var(--hb-wave)) - var(--hb-p) * 0.25 * var(--hb-wave)) 0 0 0)}
-.hb-crest{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='200' viewBox='0 0 20 200' preserveAspectRatio='none'%3E%3Cpath d='M0 0H10C18 8 18 25.3 10 33.3S2 58.7 10 66.7S18 92 10 100S2 125.3 10 133.3S18 158.7 10 166.7S2 192 10 200H0Z'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='200' viewBox='0 0 20 200' preserveAspectRatio='none'%3E%3Cpath d='M0 0H10C18 8 18 25.3 10 33.3S2 58.7 10 66.7S18 92 10 100S2 125.3 10 133.3S18 158.7 10 166.7S2 192 10 200H0Z'/%3E%3C/svg%3E");-webkit-mask-repeat:repeat-y;mask-repeat:repeat-y;-webkit-mask-size:var(--hb-wave) calc(var(--hb-h) * 2);mask-size:var(--hb-wave) calc(var(--hb-h) * 2);-webkit-mask-position-x:calc(-1 * var(--hb-wave) + var(--hb-p) * (var(--hb-w) + var(--hb-wave)));mask-position-x:calc(-1 * var(--hb-wave) + var(--hb-p) * (var(--hb-w) + var(--hb-wave)));-webkit-mask-position-y:calc(-1 * var(--hb-p) * var(--hb-cycles) * var(--hb-h));mask-position-y:calc(-1 * var(--hb-p) * var(--hb-cycles) * var(--hb-h))}
-.hb-root[data-direction=up] .hb-crest{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='20' viewBox='0 0 200 20' preserveAspectRatio='none'%3E%3Cpath d='M0 20V10C12 2 38 2 50 10S88 18 100 10S138 2 150 10S188 18 200 10V20Z'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='20' viewBox='0 0 200 20' preserveAspectRatio='none'%3E%3Cpath d='M0 20V10C12 2 38 2 50 10S88 18 100 10S138 2 150 10S188 18 200 10V20Z'/%3E%3C/svg%3E");-webkit-mask-repeat:repeat-x;mask-repeat:repeat-x;-webkit-mask-size:calc(var(--hb-w) * 2) var(--hb-wave);mask-size:calc(var(--hb-w) * 2) var(--hb-wave);-webkit-mask-position-x:calc(-1 * var(--hb-p) * var(--hb-cycles) * var(--hb-w));mask-position-x:calc(-1 * var(--hb-p) * var(--hb-cycles) * var(--hb-w));-webkit-mask-position-y:calc(var(--hb-h) - var(--hb-p) * (var(--hb-h) + var(--hb-wave)));mask-position-y:calc(var(--hb-h) - var(--hb-p) * (var(--hb-h) + var(--hb-wave)))}
-@keyframes hb-pulse{from{opacity:1;box-shadow:0 0 0 0 color-mix(in srgb,var(--hb-fill) 55%,transparent)}to{opacity:0;box-shadow:0 0 0 14px color-mix(in srgb,var(--hb-fill) 0%,transparent)}}
+.hb-crest{
+  mask-image:var(--hb-mask);-webkit-mask-image:var(--hb-mask);
+  mask-repeat:repeat-y;-webkit-mask-repeat:repeat-y;
+  mask-size:var(--hb-wave) calc(var(--hb-h)*2);-webkit-mask-size:var(--hb-wave) calc(var(--hb-h)*2);
+  mask-position:calc(-1*var(--hb-wave) + var(--hb-p)*(var(--hb-w) + var(--hb-wave))) calc(-1*var(--hb-p)*var(--hb-cycles)*var(--hb-h));
+  -webkit-mask-position:calc(-1*var(--hb-wave) + var(--hb-p)*(var(--hb-w) + var(--hb-wave))) calc(-1*var(--hb-p)*var(--hb-cycles)*var(--hb-h));
+}
 @media (prefers-reduced-motion:reduce){
-.hb-root{transform:none!important;transition:background-color 160ms ease,box-shadow var(--hb-release) ease!important}
-.hb-fill{clip-path:inset(0)!important;opacity:0;transition:opacity var(--hb-release) ease!important}
-.hb-crest{display:none}
-.hb-root[data-phase=holding] .hb-fill,.hb-root[data-phase=done] .hb-fill{opacity:1;transition:opacity var(--hb-hold) linear!important}
-.hb-pulse{animation:none!important}
-.hb-label>span{filter:none!important;transition:opacity 200ms ease!important}
+  .hb-root{transform:none!important}
+  .hb-fill{clip-path:inset(0)!important;opacity:0}
+  .hb-crest{display:none}
+  .hb-root[data-phase=holding] .hb-fill,.hb-root[data-phase=done] .hb-fill{opacity:1}
 }`;
 
 export const HoldButton: React.FC<HoldButtonProps> = ({
-  children = "DELETE",
+  children = "Hold to delete",
+  holdLabel,
   doneLabel = "Deleted",
-  icon = null,
-  doneIcon = null,
-  backgroundColor = "#27272a",
-  fillColor = "#dc2626",
-  textColor = "#f5f5f5",
-  fillTextColor = "#ffffff",
-  size = "sm",
+  icon,
+  doneIcon,
+  backgroundColor,
+  fillColor,
+  textColor,
+  fillTextColor,
+  size = "md",
   radius = 4,
-  fillDirection = "right",
-  holdTime = 1500,
+  holdTime = 2000,
   releaseTime = 200,
   pressScale = 0.97,
   wave = true,
   waveAmplitude = 6,
-  glow = false,
   resetAfter = 1200,
   disabled = false,
+  title,
   onHold,
   onTap,
   className = "",
@@ -310,28 +310,37 @@ export const HoldButton: React.FC<HoldButtonProps> = ({
     };
   }, []);
 
-  const direction: HoldButtonDirection =
-    fillDirection === "up" ? "up" : "right";
   const labels = (
     <>
       <span
-        className={`${LABEL_SPAN} group-data-[phase=done]:opacity-0 group-data-[phase=done]:blur-[2px]`}
+        className="inline-flex items-center gap-2 whitespace-nowrap transition-opacity duration-200 select-none [grid-area:1/1] group-data-[phase=done]/hb:opacity-0"
         aria-hidden={phase === "done"}
       >
-        {icon ? (
+        {icon && (
           <span className="inline-flex flex-none [&>svg]:block">{icon}</span>
-        ) : null}
-        {children}
+        )}
+        {holdLabel ? (
+          <>
+            <span className="inline group-hover/hb:hidden group-data-[phase=holding]/hb:hidden">
+              {children}
+            </span>
+            <span className="hidden group-hover/hb:inline group-data-[phase=holding]/hb:inline">
+              {holdLabel}
+            </span>
+          </>
+        ) : (
+          children
+        )}
       </span>
       <span
-        className={`${LABEL_SPAN} group-data-[phase=done]:blur-0 opacity-0 blur-[2px] group-data-[phase=done]:opacity-100`}
+        className="inline-flex items-center gap-2 whitespace-nowrap opacity-0 transition-opacity duration-200 select-none [grid-area:1/1] group-data-[phase=done]/hb:opacity-100"
         aria-hidden={phase !== "done"}
       >
-        {doneIcon ? (
+        {doneIcon && (
           <span className="inline-flex flex-none [&>svg]:block">
             {doneIcon}
           </span>
-        ) : null}
+        )}
         {doneLabel}
       </span>
     </>
@@ -339,28 +348,41 @@ export const HoldButton: React.FC<HoldButtonProps> = ({
 
   const cssVars = {
     "--hb-radius": `${radius}px`,
-    "--hb-bg": backgroundColor,
-    "--hb-fill": fillColor,
-    "--hb-text": textColor,
-    "--hb-fill-text": fillTextColor,
+    "--hb-mask": WAVE_MASK,
     "--hb-hold": `${holdTime}ms`,
     "--hb-cycles": holdTime / 1100,
     "--hb-release": `${releaseTime}ms`,
     "--hb-press": pressScale,
     "--hb-wave": `${wave ? waveAmplitude : 0}px`,
-    "--hb-ease-out": "cubic-bezier(0.23, 1, 0.32, 1)",
+    ...(backgroundColor ? { backgroundColor } : {}),
+    ...(textColor ? { color: textColor } : {}),
   } as CSSProperties;
+
+  const fillStyle: CSSProperties = {
+    backgroundColor: fillColor || "var(--destructive)",
+    color: fillTextColor || "var(--destructive-foreground)",
+  };
 
   return (
     <button
       ref={buttonRef}
       type="button"
       disabled={disabled}
-      className={`hb-root group relative isolate m-0 inline-grid cursor-pointer touch-manipulation place-items-center [border-radius:var(--hb-radius)] border font-mono leading-none font-bold tracking-wider [color:var(--hb-text)] uppercase shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] outline-none select-none [-webkit-tap-highlight-color:transparent] [-webkit-touch-callout:none] [background:var(--hb-bg)] [transition:transform_160ms_var(--hb-ease-out),background-color_160ms_ease,box-shadow_var(--hb-release)_var(--hb-ease-out)] data-[phase=holding]:data-[input=pointer]:[transform:scale(var(--hb-press))] [@media(hover:hover)_and_(pointer:fine)]:enabled:hover:[background:color-mix(in_srgb,var(--hb-bg)_92%,#fff)] data-[glow=true]:data-[phase=holding]:shadow-[${GLOW}] data-[glow=true]:data-[phase=done]:shadow-[${GLOW}] focus-visible:[outline:2px_solid_var(--hb-fill)] focus-visible:outline-offset-[3px] disabled:pointer-events-none disabled:cursor-default disabled:opacity-50 data-[glow=true]:data-[phase=holding]:[transition:transform_160ms_var(--hb-ease-out),background-color_160ms_ease,box-shadow_var(--hb-hold)_linear] contrast-more:[outline:1px_solid_var(--hb-text)] ${SIZES[size] || SIZES.md}${className ? ` ${className}` : ""}`}
+      title={title}
+      className={cn(
+        "hb-root group/hb relative isolate m-0 inline-grid cursor-pointer touch-manipulation place-items-center [border-radius:var(--hb-radius)]",
+        "border-0 leading-none font-medium tracking-[0.01em] outline-none select-none",
+        "[-webkit-tap-highlight-color:transparent] [-webkit-touch-callout:none]",
+        "text-foreground bg-neutral-200 hover:bg-neutral-300 dark:bg-neutral-800 dark:hover:bg-neutral-700",
+        "transition-transform duration-160 ease-out",
+        "data-[phase=holding]:[transform:scale(var(--hb-press))]",
+        "focus-visible:outline-destructive focus-visible:outline-2 focus-visible:outline-offset-[3px]",
+        "disabled:pointer-events-none disabled:cursor-default disabled:opacity-50",
+        SIZES[size] || SIZES.md,
+        className
+      )}
       data-phase={phase}
       data-input={input ?? undefined}
-      data-direction={direction}
-      data-glow={glow ? "true" : undefined}
       aria-describedby={hintId}
       style={cssVars}
       onPointerDown={handlePointerDown}
@@ -374,22 +396,22 @@ export const HoldButton: React.FC<HoldButtonProps> = ({
       onContextMenu={(e) => e.preventDefault()}
     >
       <style>{STYLE}</style>
-      <span
-        className="hb-pulse pointer-events-none absolute inset-0 z-0 [border-radius:var(--hb-radius)] opacity-0 group-data-[glow=true]:group-data-[phase=done]:[animation:hb-pulse_600ms_var(--hb-ease-out)_forwards]"
-        aria-hidden="true"
-      />
-      <span className="hb-label relative z-[2] grid place-items-center">
-        {labels}
-      </span>
+      <span className="relative z-[2] grid place-items-center">{labels}</span>
       <span
         className="pointer-events-none absolute inset-0 z-[3] [clip-path:inset(0_round_var(--hb-radius))]"
         aria-hidden="true"
       >
-        <span className="hb-fill absolute inset-0 grid place-items-center [color:var(--hb-fill-text)] [background:var(--hb-fill)]">
-          <span className="hb-label grid place-items-center">{labels}</span>
+        <span
+          className="hb-fill bg-destructive text-destructive-foreground absolute inset-0 grid place-items-center"
+          style={fillStyle}
+        >
+          <span className="grid place-items-center">{labels}</span>
         </span>
-        <span className="hb-crest absolute inset-0 grid place-items-center [color:var(--hb-fill-text)] [background:var(--hb-fill)]">
-          <span className="hb-label grid place-items-center">{labels}</span>
+        <span
+          className="hb-crest bg-destructive text-destructive-foreground absolute inset-0 grid place-items-center"
+          style={fillStyle}
+        >
+          <span className="grid place-items-center">{labels}</span>
         </span>
       </span>
       <span

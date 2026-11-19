@@ -136,9 +136,7 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
               .map((d: { msg?: string }) => d.msg || JSON.stringify(d))
               .join(", ");
           }
-        } catch {
-          // ignore
-        }
+        } catch {}
         throw new Error(errMessage);
       }
 
@@ -196,8 +194,16 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
     }
   };
 
-  const handleSendMessage = async () => {
-    if (!inputValue.trim() || isAsking || !initialChatId) return;
+  const handleStop = () => {
+    abortControllerRef.current?.abort();
+    setIsAsking(false);
+  };
+
+  const handleSendMessage = async (textOverride?: string) => {
+    const textToSend = (
+      typeof textOverride === "string" ? textOverride : inputValue
+    ).trim();
+    if (!textToSend || isAsking || !initialChatId) return;
 
     abortControllerRef.current?.abort();
     const controller = new AbortController();
@@ -206,7 +212,7 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
     const userMessage: Message = {
       id: Date.now().toString(),
       role: "user",
-      content: inputValue,
+      content: textToSend,
     };
 
     const newMessages = [...messages, userMessage];
@@ -233,7 +239,7 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          question: inputValue,
+          question: textToSend,
           session_id: initialChatId,
           top_k: Math.round(settings.top_k),
           temperature: Number(settings.temperature),
@@ -253,9 +259,7 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
               .map((d: { msg?: string }) => d.msg || JSON.stringify(d))
               .join(", ");
           }
-        } catch {
-          // ignore
-        }
+        } catch {}
         throw new Error(errMessage);
       }
 
@@ -367,6 +371,7 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
                 askingStatus={askingStatus}
                 onInputChange={setInputValue}
                 onSendMessage={handleSendMessage}
+                onStop={handleStop}
               />
             )}
           </div>

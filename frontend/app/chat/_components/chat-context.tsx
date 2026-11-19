@@ -32,7 +32,6 @@ interface ChatContextType {
   deleteAllChats: (onSuccess?: () => void) => Promise<void>;
   settings: ArkivSettings;
   updateSettings: (newSettings: Partial<ArkivSettings>) => void;
-  resetSettings: () => void;
 }
 
 const ChatContext = React.createContext<ChatContextType | undefined>(undefined);
@@ -213,15 +212,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     []
   );
 
-  const resetSettings = React.useCallback(() => {
-    setLocalSettings(DEFAULT_SETTINGS);
-    try {
-      localStorage.setItem("arkiv_settings", JSON.stringify(DEFAULT_SETTINGS));
-    } catch (e) {
-      console.error("Failed to reset settings:", e);
-    }
-  }, []);
-
   return (
     <ChatContext.Provider
       value={{
@@ -234,7 +224,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         deleteAllChats,
         settings,
         updateSettings,
-        resetSettings,
       }}
     >
       {children}

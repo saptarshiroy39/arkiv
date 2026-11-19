@@ -70,7 +70,10 @@ export function RightPanel({ files, onClose, isOpen }: RightPanelProps) {
                     <Icon size={20} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-xs font-medium" title={file.name}>
+                    <p
+                      className="truncate text-xs font-medium"
+                      title={file.name}
+                    >
                       {truncateFileName(file.name, 25)}
                     </p>
                     <p className="text-muted-foreground text-[10px] tracking-wider uppercase">
