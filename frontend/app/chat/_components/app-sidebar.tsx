@@ -88,13 +88,10 @@ export function AppSidebar({
         )}
       >
         <SidebarTrigger
-          className={cn(
-            "size-10 rounded-[4px] [&_svg]:size-5",
-            !isCollapsed && "-ml-1"
-          )}
+          className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground size-7 rounded-md transition-colors [&_svg]:size-5"
         />
         <ThemeToggle
-          className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex size-10 items-center justify-center rounded-[4px] transition-colors"
+          className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex size-7 items-center justify-center rounded-md transition-colors"
           title={isCollapsed ? "Toggle theme" : undefined}
         />
       </SidebarHeader>
@@ -105,8 +102,8 @@ export function AppSidebar({
           onClick={onNewChat}
           variant="ghost"
           className={cn(
-            "hover:bg-sidebar-accent h-10 w-full justify-start gap-3 rounded-[4px] px-2 text-sm font-bold transition-all",
-            isCollapsed && "size-10 justify-center p-0"
+            "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground h-10 w-full justify-start gap-3 rounded-lg px-2 text-sm font-bold transition-all",
+            isCollapsed && "size-7 justify-center p-0 mx-auto rounded-md"
           )}
           title={isCollapsed ? "NEW CHAT" : undefined}
         >
@@ -139,7 +136,7 @@ export function AppSidebar({
                         isActive={activeChatId === chat.id}
                         onClick={() => onChatSelect(chat.id)}
                         className={cn(
-                          "h-10 rounded-[4px] px-2 text-sm transition-colors",
+                          "h-10 rounded-lg px-2 text-sm transition-colors",
                           "font-normal data-active:bg-transparent data-active:font-normal",
                           activeChatId === chat.id
                             ? "text-primary"
@@ -150,7 +147,7 @@ export function AppSidebar({
                       </SidebarMenuButton>
                       <SidebarMenuAction
                         className={cn(
-                          "hover:text-destructive size-7 rounded-[4px] hover:bg-transparent data-active:bg-transparent",
+                          "hover:text-destructive size-7 rounded-md hover:bg-transparent data-active:bg-transparent",
                           deletingChatId === chat.id
                             ? "text-destructive"
                             : "text-muted-foreground"
@@ -188,18 +185,18 @@ export function AppSidebar({
       <SidebarFooter className={cn("p-2", isCollapsed && "px-1")}>
         <HoldButton
           size="md"
-          radius={4}
+          radius={8}
           holdTime={1500}
           releaseTime={200}
           pressScale={0.97}
           disabled={chats.length === 0 || isDeletingAll}
           doneLabel={isCollapsed ? "" : "DELETED"}
           holdLabel={isCollapsed ? "" : isDeletingAll ? "DELETING..." : "HOLD"}
-          icon={<IconTrash size={18} stroke={2.5} />}
-          doneIcon={<IconCheck size={18} stroke={2.5} />}
+          icon={<IconTrash size={18} stroke={2} />}
+          doneIcon={<IconCheck size={18} stroke={2} />}
           className={cn(
-            "h-10 w-full rounded-[4px] border-0 font-mono text-sm font-bold tracking-wider shadow-none transition-all",
-            isCollapsed && "size-10 justify-center p-0"
+            "h-10 w-full rounded-lg border-0 font-mono text-sm font-bold tracking-wider shadow-none transition-all",
+            isCollapsed && "size-7 justify-center p-0 mx-auto rounded-md"
           )}
           title={isCollapsed ? "HOLD TO DELETE ALL" : undefined}
           onHold={onDeleteAll}

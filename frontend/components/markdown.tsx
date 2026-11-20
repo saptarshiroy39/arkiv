@@ -25,7 +25,7 @@ export function Markdown({ content, className }: MarkdownProps) {
     <div
       className={cn(
         "prose prose-sm dark:prose-invert max-w-none wrap-break-word",
-        "prose-p:leading-relaxed prose-pre:p-0 prose-pre:bg-transparent prose-pre:border-none",
+        "prose-p:leading-relaxed prose-pre:p-0 prose-pre:bg-transparent prose-pre:border-none prose-table:my-0",
         "prose-code:bg-muted/50 prose-code:px-1.5 prose-code:py-0.5 prose-code:before:content-none prose-code:after:content-none",
         "prose-headings:font-semibold prose-headings:tracking-tight",
         className
@@ -63,7 +63,7 @@ export function Markdown({ content, className }: MarkdownProps) {
           pre: (props) => (
             <pre
               {...clean(props)}
-              className="text-foreground bg-muted/30 border-border scrollbar-thin scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent my-4 overflow-x-auto rounded-[4px] border p-4"
+              className="text-foreground bg-muted/30 border-border scrollbar-thin scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent my-4 overflow-x-auto rounded-lg border p-4"
             />
           ),
           code: ({ className, children, ...props }) => {
@@ -74,7 +74,7 @@ export function Markdown({ content, className }: MarkdownProps) {
               <code
                 {...clean(props)}
                 className={cn(
-                  "text-foreground bg-muted/50 rounded-[4px] px-1.5 py-0.5 font-mono text-sm",
+                  "text-foreground bg-muted/50 rounded-sm px-1.5 py-0.5 font-mono text-sm",
                   className
                 )}
               >
@@ -90,29 +90,41 @@ export function Markdown({ content, className }: MarkdownProps) {
             );
           },
           table: (props) => (
-            <div className="border-border my-4 overflow-x-auto rounded-[4px] border">
+            <div className="border-border my-4 overflow-x-auto rounded-lg border">
               <table
                 {...clean(props)}
-                className="w-full border-collapse text-left"
+                className="my-0! w-full border-collapse text-left text-sm"
               />
             </div>
+          ),
+          thead: (props) => (
+            <thead
+              {...clean(props)}
+              className="border-border bg-muted/40 border-b"
+            />
+          ),
+          tr: (props) => (
+            <tr
+              {...clean(props)}
+              className="border-border border-b last:border-b-0 transition-colors hover:bg-muted/20"
+            />
           ),
           th: (props) => (
             <th
               {...clean(props)}
-              className="border-border bg-muted/30 border-b px-4 py-2 font-semibold"
+              className="text-foreground px-4 py-2.5 text-left font-semibold"
             />
           ),
           td: (props) => (
             <td
               {...clean(props)}
-              className="border-border border-b px-4 py-2"
+              className="text-foreground/90 px-4 py-2.5 align-middle"
             />
           ),
           blockquote: (props) => (
             <blockquote
               {...clean(props)}
-              className="border-primary/30 text-muted-foreground my-4 rounded-r-[4px] border-l-4 pl-4 italic"
+              className="border-primary/30 text-muted-foreground my-4 rounded-r-md border-l-4 pl-4 italic"
             />
           ),
           ul: (props) => (

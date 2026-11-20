@@ -119,7 +119,7 @@ export function ThemeToggle({
         mounted && isDark ? "Switch to light mode" : "Switch to dark mode"
       }
       onClick={toggle}
-      className={cn("flex items-center justify-center", className)}
+      className={cn("flex size-7 items-center justify-center rounded-md", className)}
       {...rest}
     >
       {mounted ? (

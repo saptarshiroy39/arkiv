@@ -104,11 +104,11 @@ export const SwipeToast: React.FC<SwipeToastProps> = ({
   onAction,
   open = true,
   onClose,
-  background = "var(--sidebar)",
+  background = "var(--sidebar-accent)",
   color = "var(--foreground)",
   fuseColor = "#10b981",
   width = 356,
-  radius = 4,
+  radius = 8,
   slideMs = 400,
   settleBounce = 0.2,
   swipeDistance = 40,
@@ -373,7 +373,7 @@ export const SwipeToast: React.FC<SwipeToastProps> = ({
         <div className="[transform:translateY(0)] opacity-100 [transition:transform_var(--st-slide)_cubic-bezier(0.23,1,0.32,1),opacity_calc(var(--st-slide)*0.6)_ease] group-data-[inline=true]:mt-[var(--st-gap)] group-data-[instant]:[transition-duration:0s] group-data-[mounted=false]:[transform:translateY(100%)] group-data-[mounted=false]:opacity-0 group-data-[phase=closing]:[transform:translateY(100%)] group-data-[phase=closing]:opacity-0 group-data-[phase=closing]:[transition:transform_calc(var(--st-slide)*0.7)_cubic-bezier(0.23,1,0.32,1),opacity_calc(var(--st-slide)*0.5)_ease] group-data-[phase=gone]:invisible group-data-[phase=gone]:[transform:translateY(100%)] group-data-[phase=gone]:opacity-0 motion-reduce:[transform:none]! motion-reduce:[transition:opacity_200ms_ease] starting:[transform:translateY(100%)] starting:opacity-0">
           <motion.div
             ref={cardRef}
-            className="border-border/80 relative flex cursor-grab touch-none items-center gap-2.5 overflow-hidden [border-radius:var(--st-radius)] border p-3.5 font-mono shadow-2xl outline-none select-none [-webkit-tap-highlight-color:transparent] [-webkit-touch-callout:none] [background:var(--st-bg)] group-data-[dismissible=false]:cursor-default group-data-[dismissible=false]:touch-auto data-[swiping]:cursor-grabbing"
+            className="relative flex cursor-grab touch-none items-center gap-2.5 overflow-hidden [border-radius:var(--st-radius)] border-0 p-3.5 font-mono shadow-none outline-none select-none [-webkit-tap-highlight-color:transparent] [-webkit-touch-callout:none] [background:var(--st-bg)] group-data-[dismissible=false]:cursor-default group-data-[dismissible=false]:touch-auto data-[swiping]:cursor-grabbing"
             role="status"
             aria-live="polite"
             aria-atomic="true"
@@ -435,7 +435,7 @@ export const SwipeToast: React.FC<SwipeToastProps> = ({
             {actionLabel ? (
               <button
                 type="button"
-                className="bg-primary text-primary-foreground hover:bg-primary/90 h-6.5 flex-none cursor-pointer touch-manipulation rounded-[4px] border-0 px-2.5 [font-family:inherit] font-mono text-xs font-bold outline-none [-webkit-tap-highlight-color:transparent] [transition:transform_160ms_cubic-bezier(0.23,1,0.32,1),opacity_160ms_ease] active:[transform:scale(0.97)] motion-reduce:active:[transform:none]"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 h-6.5 flex-none cursor-pointer touch-manipulation rounded-md border-0 px-2.5 [font-family:inherit] font-mono text-xs font-bold outline-none [-webkit-tap-highlight-color:transparent] [transition:transform_160ms_cubic-bezier(0.23,1,0.32,1),opacity_160ms_ease] active:[transform:scale(0.97)] motion-reduce:active:[transform:none]"
                 onClick={() => {
                   latest.current.onAction?.();
                   close("action");
@@ -447,7 +447,7 @@ export const SwipeToast: React.FC<SwipeToastProps> = ({
             {closeButton ? (
               <button
                 type="button"
-                className="text-muted-foreground hover:text-foreground hover:bg-sidebar-accent relative grid size-6 flex-none cursor-pointer touch-manipulation place-items-center rounded-[4px] border-0 bg-transparent [font-family:inherit] outline-none [-webkit-tap-highlight-color:transparent] [transition:transform_160ms_cubic-bezier(0.23,1,0.32,1),background-color_160ms_ease] before:absolute before:-inset-2 before:content-[''] active:[transform:scale(0.97)] motion-reduce:active:[transform:none]"
+                className="text-muted-foreground hover:text-foreground hover:bg-sidebar-accent relative grid size-6 flex-none cursor-pointer touch-manipulation place-items-center rounded-md border-0 bg-transparent [font-family:inherit] outline-none [-webkit-tap-highlight-color:transparent] [transition:transform_160ms_cubic-bezier(0.23,1,0.32,1),background-color_160ms_ease] before:absolute before:-inset-2 before:content-[''] active:[transform:scale(0.97)] motion-reduce:active:[transform:none]"
                 aria-label="Close"
                 onClick={() => close("close")}
               >
