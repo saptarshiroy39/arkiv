@@ -47,12 +47,12 @@ export function RightPanel({ files, onClose, isOpen }: RightPanelProps) {
         )}
       >
         <div className="flex h-14 shrink-0 items-center justify-between p-4">
-          <h2 className="text-sm font-bold">{files.length} Files</h2>
+          <h2 className="text-sm font-bold">{files.length} File(s)</h2>
           <Button
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground size-10 rounded-[4px]"
+            className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground size-7 rounded-md transition-colors"
           >
             <IconFilesOff size={24} />
           </Button>
@@ -64,9 +64,9 @@ export function RightPanel({ files, onClose, isOpen }: RightPanelProps) {
               return (
                 <div
                   key={i}
-                  className="group flex h-12 items-center gap-3 rounded-[4px] p-2"
+                  className="group hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex h-14 items-center gap-3 rounded-lg p-2 transition-colors"
                 >
-                  <div className="bg-primary/5 dark:bg-primary/10 text-primary border-primary/20 flex size-10 shrink-0 items-center justify-center rounded-[4px] border dark:text-emerald-400">
+                  <div className="bg-primary/10 dark:bg-emerald-500/20 text-primary dark:text-emerald-400 flex size-10 shrink-0 items-center justify-center rounded-lg border-0 transition-colors duration-200 group-hover:bg-primary/15 dark:group-hover:bg-emerald-500/25">
                     <Icon size={20} />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -76,7 +76,7 @@ export function RightPanel({ files, onClose, isOpen }: RightPanelProps) {
                     >
                       {truncateFileName(file.name, 25)}
                     </p>
-                    <p className="text-muted-foreground text-[10px] tracking-wider uppercase">
+                    <p className="text-muted-foreground mt-1 text-[10px] tracking-wider uppercase">
                       {formatFileSize(file.size)}
                     </p>
                   </div>

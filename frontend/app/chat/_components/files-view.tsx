@@ -63,11 +63,11 @@ export function FilesView({
             <Card
               key={`${file.name}-${file.size}`}
               className={cn(
-                "group relative flex h-36 flex-col items-center justify-center gap-3 p-4 text-center transition-all",
+                "group relative flex h-36 flex-col items-center justify-center gap-3 border-0 bg-neutral-200/70 p-4 text-center shadow-none transition-colors hover:bg-neutral-200/90 dark:bg-neutral-800/80 dark:hover:bg-neutral-800/95",
                 isUploading && "opacity-50 grayscale-[0.5]"
               )}
             >
-              <div className="bg-primary/5 dark:bg-primary/10 text-primary border-primary/20 flex size-12 items-center justify-center rounded-[4px] border transition-transform group-hover:scale-110 dark:text-emerald-400">
+              <div className="bg-primary/10 dark:bg-emerald-500/20 text-primary dark:text-emerald-400 flex size-12 items-center justify-center rounded-lg border-0 transition-all duration-200 group-hover:scale-105 group-hover:bg-primary/15 dark:group-hover:bg-emerald-500/25">
                 <Icon size={24} />
               </div>
               <div className="w-full min-w-0 px-2">
@@ -82,10 +82,12 @@ export function FilesView({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 absolute top-0 right-0 size-10 rounded-[4px]"
+                  className="text-muted-foreground/70 hover:text-destructive hover:bg-destructive/10 dark:hover:text-red-400 dark:hover:bg-red-500/20 absolute top-2 right-2 size-7 rounded-md transition-colors"
                   onClick={() => onRemoveFile(i)}
+                  title="Remove file"
                 >
-                  <IconX size={20} />
+                  <IconX size={15} stroke={2} />
+                  <span className="sr-only">Remove file</span>
                 </Button>
               )}
             </Card>
@@ -95,7 +97,7 @@ export function FilesView({
           <Button
             variant="outline"
             onClick={() => fileInputRef.current?.click()}
-            className="hover:bg-accent/50 flex h-36 flex-col items-center justify-center gap-2 rounded-[4px] border-2 border-dashed transition-all"
+            className="hover:bg-accent/50 flex h-36 flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed transition-all"
           >
             <IconPlus size={24} />
             <span className="text-xs font-medium">ADD MORE</span>
@@ -119,7 +121,7 @@ export function FilesView({
         ) : (
           <div
             className={cn(
-              "flex h-10 items-center justify-center rounded-[4px] px-4",
+              "flex h-10 items-center justify-center rounded-md px-4",
               uploadStatus.status === "error" &&
                 "hover:bg-muted/40 cursor-pointer"
             )}
@@ -138,7 +140,6 @@ export function FilesView({
               label="Processing..."
               doneLabel="Done in"
               errorLabel="Failed after"
-              pattern="spiral"
               shape="square"
               color="#8a8a8e"
               glowColor="#8a8a8e"

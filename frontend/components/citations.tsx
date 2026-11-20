@@ -29,7 +29,7 @@ export function CitationBadge({
   return (
     <span
       className={cn(
-        "text-primary inline-flex size-5 shrink-0 items-center justify-center rounded-[4px] bg-[#8a8a8e]/[0.22] font-mono text-[11px] leading-none font-bold select-none dark:text-emerald-400",
+        "text-primary inline-flex size-5 shrink-0 items-center justify-center rounded-sm bg-[#8a8a8e]/[0.22] font-mono text-[11px] leading-none font-bold select-none dark:text-emerald-400",
         className
       )}
     >

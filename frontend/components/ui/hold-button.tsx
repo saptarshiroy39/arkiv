@@ -12,7 +12,6 @@ import React, {
 import { cn } from "@/lib/utils";
 
 export type HoldButtonSize = "sm" | "md" | "lg";
-export type HoldButtonDirection = "right" | "up";
 
 export interface HoldButtonProps {
   children?: ReactNode;
@@ -26,13 +25,11 @@ export interface HoldButtonProps {
   fillTextColor?: string;
   size?: HoldButtonSize;
   radius?: number;
-  fillDirection?: HoldButtonDirection;
   holdTime?: number;
   releaseTime?: number;
   pressScale?: number;
   wave?: boolean;
   waveAmplitude?: number;
-  glow?: boolean;
   resetAfter?: number;
   disabled?: boolean;
   title?: string;

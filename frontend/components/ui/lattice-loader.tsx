@@ -1,14 +1,6 @@
 "use client";
 
-import React, {
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  type CSSProperties,
-} from "react";
-
-const useIsomorphicLayoutEffect =
-  typeof window !== "undefined" ? useLayoutEffect : useEffect;
+import React, { useEffect, useRef, type CSSProperties } from "react";
 
 export type LatticeStatus = "working" | "done" | "error";
 export type LatticePatternName = "spiral";
@@ -81,6 +73,7 @@ export const LatticeLoader: React.FC<LatticeLoaderProps> = ({
   doneLabel = "Done in",
   errorLabel = "Failed after",
   status = "working",
+  grid = 3,
   shape = "square",
   color = "#8a8a8e",
   doneColor = "#22c55e",
@@ -103,7 +96,7 @@ export const LatticeLoader: React.FC<LatticeLoaderProps> = ({
   const timerRef = useRef<HTMLSpanElement>(null);
   const mark = status === "error" ? "error" : "done";
 
-  useIsomorphicLayoutEffect(() => {
+  useEffect(() => {
     if (elapsed != null) {
       if (timerRef.current)
         timerRef.current.textContent = fmt(Math.round(elapsed * 10));
@@ -133,7 +126,7 @@ export const LatticeLoader: React.FC<LatticeLoaderProps> = ({
       data-glow={glow ? "" : undefined}
       style={
         {
-          "--ll-n": 3,
+          "--ll-n": grid,
           "--ll-cell": `${cellSize}px`,
           "--ll-gap": `${gap}px`,
           "--ll-font": `${fontSize}px`,

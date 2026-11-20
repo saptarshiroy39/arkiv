@@ -28,7 +28,7 @@ export function CopyButton({ content, className }: CopyButtonProps) {
       variant="ghost"
       size="icon"
       className={cn(
-        "text-muted-foreground hover:text-foreground size-8",
+        "text-muted-foreground hover:text-foreground size-7 rounded-md",
         className
       )}
       onClick={handleCopy}

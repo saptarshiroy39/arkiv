@@ -173,7 +173,7 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
         JSON.stringify(fileMetadata)
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      await new Promise((resolve) => setTimeout(resolve, 500));
       router.push(`/chat/${newChatId}`);
     } catch (error) {
       console.error("Upload error:", error);
@@ -346,7 +346,7 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
               variant="ghost"
               size="icon"
               onClick={() => setIsRightPanelOpen(true)}
-              className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground size-10"
+              className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground size-7 rounded-md transition-colors"
             >
               <IconFilesFilled size={20} />
             </Button>

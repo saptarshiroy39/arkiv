@@ -11,12 +11,12 @@ import {
   IconAdjustmentsHorizontal,
   IconArrowUp,
   IconFileTextSpark,
-  IconMicrophone,
-  IconMicrophoneFilled,
   IconRotate2,
   IconSquare,
 } from "@tabler/icons-react";
-import { Slider } from "@/components/ui/slider";
+import { VoicePill } from "@/components/ui/voice-pill";
+import { ElasticSlider } from "@/components/ui/elastic-slider";
+import { useSpeechRecognition } from "@/hooks/use-speech-recog";
 import { cn } from "@/lib/utils";
 
 export interface PromptBarProps {
@@ -27,7 +27,7 @@ export interface PromptBarProps {
   onSend?: (text: string) => void;
   onStop?: () => void;
   onSummarize?: () => void;
-  onDictate?: () => string | void | Promise<string | void>;
+  onDictate?: boolean;
   topK?: number;
   temperature?: number;
   scoreThreshold?: number;
@@ -66,7 +66,7 @@ export function PromptBar({
   const rootRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
-  const dictationSeq = useRef(0);
+  const baseDraftRef = useRef("");
 
   const [internalDraft, setInternalDraft] = useState("");
   const isControlled = value !== undefined;
@@ -78,7 +78,14 @@ export function PromptBar({
   };
 
   const [paramsOpen, setParamsOpen] = useState(false);
-  const [listening, setListening] = useState(false);
+
+  const { isListening, startListening, stopListening } = useSpeechRecognition({
+    onResult: (transcript) => {
+      const base = baseDraftRef.current;
+      const separator = base ? " " : "";
+      setDraft(`${base}${separator}${transcript}`);
+    },
+  });
 
   const slashMatch = /(^|\s)\/([a-z0-9_-]*)$/i.exec(draft);
   const slashQuery = slashMatch ? slashMatch[2].toLowerCase() : null;
@@ -120,35 +127,28 @@ export function PromptBar({
 
   const send = () => {
     if (!canSend || busy) return;
+    if (isListening) stopListening();
     onSend?.(draft.trim());
     setDraft("");
     setParamsOpen(false);
     focusInput();
   };
 
-  const toggleListen = () => {
-    if (listening) {
-      dictationSeq.current += 1;
-      setListening(false);
-      return;
-    }
-    const seq = ++dictationSeq.current;
-    setListening(true);
-    Promise.resolve(onDictate?.()).then(
-      (text) => {
-        if (seq !== dictationSeq.current) return;
-        setListening(false);
-        if (text) {
-          const newDraft = draft.trim() ? `${draft.trimEnd()} ${text}` : text;
-          setDraft(newDraft);
-        }
-        focusInput();
-      },
-      () => {
-        if (seq === dictationSeq.current) setListening(false);
-      }
-    );
+  const handleVoiceStart = () => {
+    baseDraftRef.current = draft.trim();
+    startListening();
   };
+
+  const handleVoiceStop = () => {
+    stopListening();
+    focusInput();
+  };
+
+  useEffect(() => {
+    if (busy && isListening) {
+      stopListening();
+    }
+  }, [busy, isListening, stopListening]);
 
   const pickCommand = (cmdName: string) => {
     if (!slashMatch) return;
@@ -191,127 +191,97 @@ export function PromptBar({
     <div
       ref={rootRef}
       className={cn(
-        "border-border/80 bg-sidebar-accent/50 relative w-full rounded-[4px] border text-sm transition-colors",
+        "bg-neutral-200/70 dark:bg-neutral-800/80 hover:bg-neutral-200/90 dark:hover:bg-neutral-800/95 focus-within:bg-neutral-200/90 dark:focus-within:bg-neutral-800/95 relative w-full rounded-xl border-0 text-sm transition-colors",
         className
       )}
     >
       {paramsOpen && (
         <div
           ref={popoverRef}
-          className="bg-sidebar-accent text-foreground absolute bottom-[calc(100%+8px)] left-0 z-30 w-64 space-y-3.5 rounded-[4px] p-3.5 shadow-none sm:w-[270px]"
+          className="bg-neutral-200/90 dark:bg-neutral-800/95 text-foreground absolute bottom-[calc(100%+8px)] left-0 z-30 w-72 space-y-2 rounded-xl p-2.5 shadow-none sm:w-80"
           role="dialog"
           aria-label="Parameters"
         >
-          <div className="space-y-1">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-foreground font-mono font-semibold">
-                Top-K
-              </span>
-              <div className="flex items-center gap-1.5">
-                <span className="text-foreground font-mono text-sm font-bold tabular-nums">
-                  {topK}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => onParamChange?.("top_k", DEFAULT_TOP_K)}
-                  title={`Reset Top-K (default: ${DEFAULT_TOP_K})`}
-                  className="text-muted-foreground/60 hover:text-foreground cursor-pointer p-0.5 transition-colors"
-                >
-                  <IconRotate2 size={13} stroke={2.5} />
-                </button>
-              </div>
-            </div>
-            <div className="pt-1">
-              <Slider
-                min={1}
-                max={20}
-                step={1}
-                value={[topK]}
-                onValueChange={([val]) => onParamChange?.("top_k", val)}
-                className="cursor-pointer"
-              />
-            </div>
+          <div className="flex items-center gap-1.5">
+            <ElasticSlider
+              className="flex-1"
+              label="Top-K"
+              min={1}
+              max={20}
+              step={1}
+              value={topK}
+              onValueChange={(val) => onParamChange?.("top_k", val)}
+              formatValue={(v) => `${Math.round(v)}`}
+            />
+            <button
+              type="button"
+              onClick={() => onParamChange?.("top_k", DEFAULT_TOP_K)}
+              title={`Reset Top-K (default: ${DEFAULT_TOP_K})`}
+              className="text-muted-foreground hover:text-foreground cursor-pointer rounded-md p-1.5 transition-colors shrink-0 hover:bg-neutral-300/70 dark:hover:bg-neutral-700/70"
+            >
+              <IconRotate2 size={13} stroke={2.5} />
+            </button>
           </div>
 
-          <div className="space-y-1">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-foreground font-mono font-semibold">
-                Temperature
-              </span>
-              <div className="flex items-center gap-1.5">
-                <span className="text-foreground font-mono text-sm font-bold tabular-nums">
-                  {temperature.toFixed(2)}
-                </span>
-                <button
-                  type="button"
-                  onClick={() =>
-                    onParamChange?.("temperature", DEFAULT_TEMPERATURE)
-                  }
-                  title={`Reset Temperature (default: ${DEFAULT_TEMPERATURE})`}
-                  className="text-muted-foreground/60 hover:text-foreground cursor-pointer p-0.5 transition-colors"
-                >
-                  <IconRotate2 size={13} stroke={2.5} />
-                </button>
-              </div>
-            </div>
-            <div className="pt-1">
-              <Slider
-                min={0}
-                max={1}
-                step={0.05}
-                value={[temperature]}
-                onValueChange={([val]) => onParamChange?.("temperature", val)}
-                className="cursor-pointer"
-              />
-            </div>
+          <div className="flex items-center gap-1.5">
+            <ElasticSlider
+              className="flex-1"
+              label="Temperature"
+              min={0}
+              max={1}
+              step={0.05}
+              value={temperature}
+              onValueChange={(val) => onParamChange?.("temperature", val)}
+              formatValue={(v) => v.toFixed(2)}
+            />
+            <button
+              type="button"
+              onClick={() =>
+                onParamChange?.("temperature", DEFAULT_TEMPERATURE)
+              }
+              title={`Reset Temperature (default: ${DEFAULT_TEMPERATURE})`}
+              className="text-muted-foreground hover:text-foreground cursor-pointer rounded-md p-1.5 transition-colors shrink-0 hover:bg-neutral-300/70 dark:hover:bg-neutral-700/70"
+            >
+              <IconRotate2 size={13} stroke={2.5} />
+            </button>
           </div>
 
-          <div className="space-y-1">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-foreground font-mono font-semibold">
-                Similarity Threshold
-              </span>
-              <div className="flex items-center gap-1.5">
-                <span className="text-foreground font-mono text-sm font-bold tabular-nums">
-                  {scoreThreshold.toFixed(2)}
-                </span>
-                <button
-                  type="button"
-                  onClick={() =>
-                    onParamChange?.("score_threshold", DEFAULT_SCORE_THRESHOLD)
-                  }
-                  title={`Reset Similarity Threshold (default: ${DEFAULT_SCORE_THRESHOLD})`}
-                  className="text-muted-foreground/60 hover:text-foreground cursor-pointer p-0.5 transition-colors"
-                >
-                  <IconRotate2 size={13} stroke={2.5} />
-                </button>
-              </div>
-            </div>
-            <div className="pt-1">
-              <Slider
-                min={0}
-                max={1}
-                step={0.05}
-                value={[scoreThreshold]}
-                onValueChange={([val]) =>
-                  onParamChange?.("score_threshold", val)
-                }
-                className="cursor-pointer"
-              />
-            </div>
+          <div className="flex items-center gap-1.5">
+            <ElasticSlider
+              className="flex-1"
+              label="Similarity Threshold"
+              min={0}
+              max={1}
+              step={0.05}
+              value={scoreThreshold}
+              onValueChange={(val) =>
+                onParamChange?.("score_threshold", val)
+              }
+              formatValue={(v) => v.toFixed(2)}
+            />
+            <button
+              type="button"
+              onClick={() =>
+                onParamChange?.("score_threshold", DEFAULT_SCORE_THRESHOLD)
+              }
+              title={`Reset Similarity Threshold (default: ${DEFAULT_SCORE_THRESHOLD})`}
+              className="text-muted-foreground hover:text-foreground cursor-pointer rounded-md p-1.5 transition-colors shrink-0 hover:bg-neutral-300/70 dark:hover:bg-neutral-700/70"
+            >
+              <IconRotate2 size={13} stroke={2.5} />
+            </button>
           </div>
         </div>
       )}
 
       {showCommands && filteredCommands.length > 0 && (
-        <div className="border-border bg-sidebar text-foreground absolute bottom-[calc(100%+8px)] left-0 z-20 w-64 space-y-0.5 rounded-[4px] border p-1">
+        <div className="bg-sidebar text-foreground absolute bottom-[calc(100%+8px)] left-0 z-20 w-64 space-y-0.5 rounded-xl p-1 shadow-none">
           {filteredCommands.map((cmd, idx) => (
             <button
               key={cmd.name}
               type="button"
               onClick={() => pickCommand(cmd.name)}
               className={cn(
-                "flex w-full cursor-pointer items-center justify-between rounded-[4px] px-2 py-1.5 text-left text-xs transition-colors",
+                "flex w-full cursor-pointer items-center justify-between rounded-lg px-2 py-1.5 text-left text-xs transition-colors",
                 idx === activeCommandIndex
                   ? "bg-sidebar-accent text-foreground font-medium"
                   : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
@@ -333,7 +303,7 @@ export function PromptBar({
           ref={inputRef}
           rows={1}
           value={draft}
-          placeholder={listening ? "Listening…" : placeholder}
+          placeholder={isListening ? "Listening…" : placeholder}
           aria-label="Prompt"
           onChange={(e) => {
             setDraft(e.target.value);
@@ -349,7 +319,7 @@ export function PromptBar({
               type="button"
               onClick={onSummarize}
               title="Summarize documents"
-              className="text-primary hover:text-primary/80 inline-flex size-7 cursor-pointer items-center justify-center rounded-[4px] transition-colors dark:text-emerald-400 dark:hover:text-emerald-300"
+              className="text-primary hover:text-primary/80 inline-flex size-7 cursor-pointer items-center justify-center rounded-md transition-colors dark:text-emerald-400 dark:hover:text-emerald-300"
             >
               <IconFileTextSpark size={18} />
             </button>
@@ -361,7 +331,7 @@ export function PromptBar({
             aria-expanded={paramsOpen}
             title="Adjust Top-K, Temperature & Similarity Threshold"
             className={cn(
-              "inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-[4px] px-1.5 font-mono text-xs font-medium transition-colors",
+              "inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-1.5 font-mono text-xs font-medium transition-colors",
               paramsOpen
                 ? "text-primary dark:text-emerald-400"
                 : "text-muted-foreground hover:text-foreground"
@@ -381,24 +351,12 @@ export function PromptBar({
           <div className="flex-1" />
 
           {onDictate && (
-            <button
-              type="button"
-              onClick={toggleListen}
-              aria-label={listening ? "Stop dictation" : "Dictate"}
-              title={listening ? "Stop dictation" : "Dictate"}
-              className={cn(
-                "inline-flex size-7 cursor-pointer items-center justify-center rounded-[4px] transition-colors",
-                listening
-                  ? "bg-red-500/10 text-red-500"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {listening ? (
-                <IconMicrophoneFilled size={18} className="animate-pulse" />
-              ) : (
-                <IconMicrophone size={18} />
-              )}
-            </button>
+            <VoicePill
+              listening={isListening}
+              disabled={busy}
+              onStart={handleVoiceStart}
+              onStop={handleVoiceStop}
+            />
           )}
 
           <button
@@ -411,12 +369,12 @@ export function PromptBar({
               else send();
             }}
             className={cn(
-              "inline-flex size-7 items-center justify-center rounded-[4px] transition-colors",
+              "inline-flex size-7 items-center justify-center rounded-md transition-colors",
               busy
                 ? "bg-destructive text-destructive-foreground hover:bg-destructive/90 cursor-pointer"
                 : armed
                   ? "bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
-                  : "cursor-not-allowed bg-neutral-200 text-neutral-400 dark:bg-neutral-800 dark:text-neutral-500"
+                  : "cursor-not-allowed bg-neutral-300/80 text-neutral-500 dark:bg-neutral-700/80 dark:text-neutral-400"
             )}
           >
             {busy ? (

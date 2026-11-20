@@ -1,7 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
-import { toast } from "@/components/ui/swipe-toast";
+import { IconArrowDown } from "@tabler/icons-react";
 import { Markdown } from "@/components/markdown";
 import { CopyButton } from "@/components/copy-button";
 import {
@@ -19,21 +18,6 @@ import { parseCitations } from "@/lib/citations";
 import { Citations } from "@/components/citations";
 import { PromptBar } from "@/components/ui/prompt-bar";
 import { useChat } from "./chat-context";
-
-type SpeechRecognitionConstructor = new () => {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  onresult: (event: {
-    results: {
-      length: number;
-      [index: number]: { [index: number]: { transcript: string } };
-    };
-  }) => void;
-  onerror: () => void;
-  onend: () => void;
-  start: () => void;
-};
 
 interface ChatViewProps {
   messages: Message[];
@@ -59,58 +43,6 @@ export function ChatView({
 }: ChatViewProps) {
   const { settings, updateSettings } = useChat();
 
-  const handleDictate = useCallback(() => {
-    return new Promise<string>((resolve) => {
-      if (typeof window === "undefined") {
-        resolve("");
-        return;
-      }
-      const SpeechRecognition =
-        (
-          window as unknown as {
-            SpeechRecognition: SpeechRecognitionConstructor;
-          }
-        ).SpeechRecognition ||
-        (
-          window as unknown as {
-            webkitSpeechRecognition: SpeechRecognitionConstructor;
-          }
-        ).webkitSpeechRecognition;
-
-      if (!SpeechRecognition) {
-        toast.error("Speech recognition is not supported in your browser.");
-        resolve("");
-        return;
-      }
-
-      const recognition = new SpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.lang = "en-US";
-
-      recognition.onresult = (event) => {
-        let transcript = "";
-        for (let i = 0; i < event.results.length; i++) {
-          transcript += event.results[i]?.[0]?.transcript || "";
-        }
-        resolve(transcript);
-      };
-
-      recognition.onerror = () => {
-        resolve("");
-      };
-
-      recognition.onend = () => {
-        resolve("");
-      };
-
-      try {
-        recognition.start();
-      } catch {
-        resolve("");
-      }
-    });
-  }, []);
 
   const handleSummarize = () => {
     onInputChange("Summarize the uploaded documents.");
@@ -147,7 +79,7 @@ export function ChatView({
                       className={cn(
                         "text-sm leading-relaxed",
                         message.role === "user"
-                          ? "bg-primary/10 text-foreground border-primary/20 max-w-[90%] rounded-[4px] border px-4 py-2.5"
+                          ? "bg-primary/10 dark:bg-emerald-500/20 text-foreground max-w-[90%] rounded-lg px-4 py-2.5"
                           : "w-full max-w-[95%] bg-transparent"
                       )}
                     >
@@ -156,7 +88,6 @@ export function ChatView({
                           <LatticeLoader
                             status={message.status}
                             elapsed={message.elapsed}
-                            pattern="spiral"
                             shape="square"
                             color="#8a8a8e"
                             glowColor="#8a8a8e"
@@ -182,11 +113,10 @@ export function ChatView({
                   scrollAnchor={false}
                   className="animate-in fade-in slide-in-from-bottom-2 flex w-full flex-col items-start duration-300"
                 >
-                  <div className="flex items-center rounded-[4px] bg-transparent py-2.5 text-sm leading-relaxed">
+                  <div className="flex items-center rounded-md bg-transparent py-2.5 text-sm leading-relaxed">
                     <LatticeLoader
                       status={askingStatus?.status ?? "working"}
                       elapsed={askingStatus?.elapsed}
-                      pattern="spiral"
                       shape="square"
                       color="#8a8a8e"
                       glowColor="#8a8a8e"
@@ -200,8 +130,11 @@ export function ChatView({
             direction="end"
             variant="default"
             size="icon"
-            className="bg-primary hover:bg-primary/80 text-primary-foreground hover:text-primary-foreground! bottom-40! size-8 rounded-[4px] border-0 shadow-none"
-          />
+            className="bg-primary hover:bg-primary/90 text-primary-foreground hover:text-primary-foreground! bottom-40! size-7 rounded-md border-0 shadow-none"
+          >
+            <IconArrowDown size={18} stroke={2.5} />
+            <span className="sr-only">Scroll to end</span>
+          </MessageScrollerButton>
         </MessageScroller>
       </MessageScrollerProvider>
 
@@ -216,7 +149,7 @@ export function ChatView({
             onSend={onSendMessage}
             onStop={onStop}
             onSummarize={handleSummarize}
-            onDictate={handleDictate}
+            onDictate
             topK={settings.top_k}
             temperature={settings.temperature}
             scoreThreshold={settings.score_threshold}

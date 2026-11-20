@@ -61,12 +61,12 @@ export function UploadView({ onUpload }: UploadViewProps) {
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={cn(
-          "hover:bg-accent/50 group flex aspect-video w-[90%] max-w-md cursor-pointer flex-col items-center justify-center gap-4 rounded-[4px] border-2 border-dashed ring-0 transition-all sm:aspect-2/1 sm:w-full sm:max-w-2xl",
+          "hover:bg-accent/50 group flex aspect-video w-[90%] max-w-md cursor-pointer flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed ring-0 transition-all sm:aspect-2/1 sm:w-full sm:max-w-2xl",
           isDragging && "border-primary bg-primary/5"
         )}
       >
-        <div className="bg-primary/5 dark:bg-primary/10 border-primary/20 flex size-16 items-center justify-center rounded-[4px] border transition-transform group-hover:scale-110">
-          <IconUpload className="text-primary size-8 dark:text-emerald-400" />
+        <div className="bg-primary/10 dark:bg-emerald-500/20 text-primary dark:text-emerald-400 flex size-16 items-center justify-center rounded-xl border-0 transition-all duration-200 group-hover:scale-105 group-hover:bg-primary/15 dark:group-hover:bg-emerald-500/25">
+          <IconUpload className="size-8" />
         </div>
         <div className="space-y-2">
           <p className="text-base font-semibold sm:text-lg">
