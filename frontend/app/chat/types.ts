@@ -6,6 +6,7 @@ export interface Message {
   content: string;
   status?: "working" | "done" | "error";
   elapsed?: number;
+  timestamp?: number | string;
 }
 
 export interface ChatSession {

@@ -191,14 +191,14 @@ export function PromptBar({
     <div
       ref={rootRef}
       className={cn(
-        "bg-neutral-200/70 dark:bg-neutral-800/80 hover:bg-neutral-200/90 dark:hover:bg-neutral-800/95 focus-within:bg-neutral-200/90 dark:focus-within:bg-neutral-800/95 relative w-full rounded-xl border-0 text-sm transition-colors",
+        "relative w-full rounded-xl border-0 bg-neutral-200/70 text-sm transition-colors focus-within:bg-neutral-200/90 hover:bg-neutral-200/90 dark:bg-neutral-800/80 dark:focus-within:bg-neutral-800/95 dark:hover:bg-neutral-800/95",
         className
       )}
     >
       {paramsOpen && (
         <div
           ref={popoverRef}
-          className="bg-neutral-200/90 dark:bg-neutral-800/95 text-foreground absolute bottom-[calc(100%+8px)] left-0 z-30 w-72 space-y-2 rounded-xl p-2.5 shadow-none sm:w-80"
+          className="text-foreground absolute bottom-[calc(100%+8px)] left-0 z-30 w-72 space-y-2 rounded-xl bg-neutral-200/90 p-2.5 shadow-none sm:w-80 dark:bg-neutral-800/95"
           role="dialog"
           aria-label="Parameters"
         >
@@ -217,7 +217,7 @@ export function PromptBar({
               type="button"
               onClick={() => onParamChange?.("top_k", DEFAULT_TOP_K)}
               title={`Reset Top-K (default: ${DEFAULT_TOP_K})`}
-              className="text-muted-foreground hover:text-foreground cursor-pointer rounded-md p-1.5 transition-colors shrink-0 hover:bg-neutral-300/70 dark:hover:bg-neutral-700/70"
+              className="text-muted-foreground hover:text-foreground shrink-0 cursor-pointer rounded-md p-1.5 transition-colors hover:bg-neutral-300/70 dark:hover:bg-neutral-700/70"
             >
               <IconRotate2 size={13} stroke={2.5} />
             </button>
@@ -240,7 +240,7 @@ export function PromptBar({
                 onParamChange?.("temperature", DEFAULT_TEMPERATURE)
               }
               title={`Reset Temperature (default: ${DEFAULT_TEMPERATURE})`}
-              className="text-muted-foreground hover:text-foreground cursor-pointer rounded-md p-1.5 transition-colors shrink-0 hover:bg-neutral-300/70 dark:hover:bg-neutral-700/70"
+              className="text-muted-foreground hover:text-foreground shrink-0 cursor-pointer rounded-md p-1.5 transition-colors hover:bg-neutral-300/70 dark:hover:bg-neutral-700/70"
             >
               <IconRotate2 size={13} stroke={2.5} />
             </button>
@@ -254,9 +254,7 @@ export function PromptBar({
               max={1}
               step={0.05}
               value={scoreThreshold}
-              onValueChange={(val) =>
-                onParamChange?.("score_threshold", val)
-              }
+              onValueChange={(val) => onParamChange?.("score_threshold", val)}
               formatValue={(v) => v.toFixed(2)}
             />
             <button
@@ -265,7 +263,7 @@ export function PromptBar({
                 onParamChange?.("score_threshold", DEFAULT_SCORE_THRESHOLD)
               }
               title={`Reset Similarity Threshold (default: ${DEFAULT_SCORE_THRESHOLD})`}
-              className="text-muted-foreground hover:text-foreground cursor-pointer rounded-md p-1.5 transition-colors shrink-0 hover:bg-neutral-300/70 dark:hover:bg-neutral-700/70"
+              className="text-muted-foreground hover:text-foreground shrink-0 cursor-pointer rounded-md p-1.5 transition-colors hover:bg-neutral-300/70 dark:hover:bg-neutral-700/70"
             >
               <IconRotate2 size={13} stroke={2.5} />
             </button>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useParams } from "next/navigation";
 import { IconArrowDown } from "@tabler/icons-react";
 import { Markdown } from "@/components/markdown";
 import { CopyButton } from "@/components/copy-button";
@@ -17,6 +18,7 @@ import { LatticeLoader } from "@/components/ui/lattice-loader";
 import { parseCitations } from "@/lib/citations";
 import { Citations } from "@/components/citations";
 import { PromptBar } from "@/components/ui/prompt-bar";
+import { formatMessageTimestamp } from "@/app/chat/utils";
 import { useChat } from "./chat-context";
 
 interface ChatViewProps {
@@ -42,7 +44,8 @@ export function ChatView({
   onStop,
 }: ChatViewProps) {
   const { settings, updateSettings } = useChat();
-
+  const params = useParams();
+  const currentChatId = (params?.id as string[] | undefined)?.[0];
 
   const handleSummarize = () => {
     onInputChange("Summarize the uploaded documents.");
@@ -64,6 +67,9 @@ export function ChatView({
                       citations: [],
                       copyText: message.content,
                     };
+                const formattedTime = formatMessageTimestamp(
+                  message.timestamp || message.id || currentChatId
+                );
 
                 return (
                   <MessageScrollerItem
@@ -79,7 +85,7 @@ export function ChatView({
                       className={cn(
                         "text-sm leading-relaxed",
                         message.role === "user"
-                          ? "bg-primary/10 dark:bg-emerald-500/20 text-foreground max-w-[90%] rounded-lg px-4 py-2.5"
+                          ? "bg-primary/10 text-foreground max-w-[90%] rounded-lg px-4 py-2.5 dark:bg-emerald-500/20"
                           : "w-full max-w-[95%] bg-transparent"
                       )}
                     >
@@ -101,8 +107,20 @@ export function ChatView({
                         </div>
                       )}
                     </div>
-                    <div className="mt-1">
+                    <div
+                      className={cn(
+                        "mt-1 flex items-center gap-2",
+                        message.role === "user"
+                          ? "flex-row-reverse"
+                          : "flex-row"
+                      )}
+                    >
                       <CopyButton content={copyText} />
+                      {formattedTime && (
+                        <span className="text-muted-foreground font-mono text-xs select-none">
+                          {formattedTime}
+                        </span>
+                      )}
                     </div>
                   </MessageScrollerItem>
                 );

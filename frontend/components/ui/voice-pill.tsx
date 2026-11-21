@@ -55,7 +55,8 @@ const simulatedLevel = (t: number) => {
   let a = 0.06;
   for (const [s, d, p] of SYLLABLES) {
     const x = (u - s) / d;
-    if (x >= 0 && x <= 1) a = Math.max(a, p * 0.5 * (1 - Math.cos(2 * Math.PI * x)));
+    if (x >= 0 && x <= 1)
+      a = Math.max(a, p * 0.5 * (1 - Math.cos(2 * Math.PI * x)));
   }
   return a * (0.7 + 0.3 * Math.abs(Math.sin(2 * Math.PI * 7.1 * u)));
 };
@@ -67,7 +68,10 @@ const drawWave = (
   color: string,
   floor = 0.15
 ) => {
-  const dpr = Math.min(2, typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1);
+  const dpr = Math.min(
+    2,
+    typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1
+  );
   const rect = canvas.getBoundingClientRect();
   const W = Math.max(1, Math.round(rect.width * dpr));
   const H = Math.max(1, Math.round(rect.height * dpr));
@@ -145,7 +149,8 @@ export const VoicePill: React.FC<VoicePillProps> = ({
       if (timeRef.current) timeRef.current.textContent = "0:00";
       if (waveRef.current) {
         const ctx = waveRef.current.getContext("2d");
-        if (ctx) ctx.clearRect(0, 0, waveRef.current.width, waveRef.current.height);
+        if (ctx)
+          ctx.clearRect(0, 0, waveRef.current.width, waveRef.current.height);
       }
       return;
     }
@@ -167,7 +172,8 @@ export const VoicePill: React.FC<VoicePillProps> = ({
       s.env += (target - s.env) * (1 - Math.exp(-dt / tau));
       if (timeRef.current) {
         const text = clock(now - s.startedAt);
-        if (timeRef.current.textContent !== text) timeRef.current.textContent = text;
+        if (timeRef.current.textContent !== text)
+          timeRef.current.textContent = text;
       }
       if (waveRef.current) {
         const waveColor = getComputedStyle(waveRef.current).color || "#10b981";
@@ -224,12 +230,12 @@ export const VoicePill: React.FC<VoicePillProps> = ({
         } as CSSProperties
       }
       className={cn(
-        "group relative isolate inline-grid cursor-pointer place-items-center select-none rounded-md p-0 border-0 outline-none",
-        "bg-neutral-300/80 text-neutral-600 hover:bg-neutral-300 hover:text-foreground",
-        "dark:bg-neutral-700/80 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:hover:text-foreground",
+        "group relative isolate inline-grid cursor-pointer place-items-center rounded-md border-0 p-0 outline-none select-none",
+        "hover:text-foreground bg-neutral-300/80 text-neutral-600 hover:bg-neutral-300",
+        "dark:hover:text-foreground dark:bg-neutral-700/80 dark:text-neutral-300 dark:hover:bg-neutral-700",
         "data-[state=listening]:z-10 data-[state=listening]:bg-neutral-300 data-[state=listening]:dark:bg-neutral-700",
         "data-[state=listening]:text-primary data-[state=listening]:dark:text-emerald-400",
-        "disabled:pointer-events-none disabled:cursor-default disabled:opacity-55 transition-colors",
+        "transition-colors disabled:pointer-events-none disabled:cursor-default disabled:opacity-55",
         className
       )}
     >
@@ -249,7 +255,7 @@ export const VoicePill: React.FC<VoicePillProps> = ({
       <canvas
         ref={waveRef}
         className={cn(
-          "pointer-events-none absolute top-[18%] h-[64%] w-[54px] right-[calc(100%+34px)]",
+          "pointer-events-none absolute top-[18%] right-[calc(100%+34px)] h-[64%] w-[54px]",
           "opacity-0 transition-opacity duration-200",
           "group-data-[state=listening]:opacity-100"
         )}
@@ -260,7 +266,7 @@ export const VoicePill: React.FC<VoicePillProps> = ({
       <span
         ref={timeRef}
         className={cn(
-          "pointer-events-none absolute inset-y-0 right-full w-[32px] grid place-items-center leading-none",
+          "pointer-events-none absolute inset-y-0 right-full grid w-[32px] place-items-center leading-none",
           "font-mono text-xs font-medium tabular-nums opacity-0 transition-opacity duration-200",
           "group-data-[state=listening]:opacity-100"
         )}
@@ -270,20 +276,20 @@ export const VoicePill: React.FC<VoicePillProps> = ({
       </span>
 
       {/* Mic Icon & Stop Mark */}
-      <span className="relative grid place-items-center size-7">
+      <span className="relative grid size-7 place-items-center">
         <span
           className={cn(
-            "inline-flex [grid-area:1/1] transition-all duration-200",
-            "group-data-[state=listening]:opacity-0 group-data-[state=listening]:scale-75"
+            "inline-flex transition-all duration-200 [grid-area:1/1]",
+            "group-data-[state=listening]:scale-75 group-data-[state=listening]:opacity-0"
           )}
         >
           <IconMicrophone size={18} stroke={2} />
         </span>
         <span
           className={cn(
-            "size-2.5 rounded-[2px] bg-primary dark:bg-emerald-400 [grid-area:1/1]",
-            "opacity-0 scale-50 transition-all duration-200",
-            "group-data-[state=listening]:opacity-100 group-data-[state=listening]:scale-100"
+            "bg-primary size-2.5 rounded-[2px] [grid-area:1/1] dark:bg-emerald-400",
+            "scale-50 opacity-0 transition-all duration-200",
+            "group-data-[state=listening]:scale-100 group-data-[state=listening]:opacity-100"
           )}
           aria-hidden="true"
         />

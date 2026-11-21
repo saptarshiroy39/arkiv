@@ -34,7 +34,10 @@ export function Markdown({ content, className }: MarkdownProps) {
       <ReactMarkdown
         urlTransform={(url) => url}
         remarkPlugins={[remarkGfm, remarkMath, remarkBreaks]}
-        rehypePlugins={[rehypeKatex, [rehypeHighlight, { detect: true }]]}
+        rehypePlugins={[
+          [rehypeKatex, { strict: false, throwOnError: false }],
+          [rehypeHighlight, { detect: true }],
+        ]}
         components={{
           a: ({ href, children, ...props }) => {
             if (
@@ -106,7 +109,7 @@ export function Markdown({ content, className }: MarkdownProps) {
           tr: (props) => (
             <tr
               {...clean(props)}
-              className="border-border border-b last:border-b-0 transition-colors hover:bg-muted/20"
+              className="border-border hover:bg-muted/20 border-b transition-colors last:border-b-0"
             />
           ),
           th: (props) => (

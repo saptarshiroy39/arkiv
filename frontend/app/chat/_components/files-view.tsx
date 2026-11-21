@@ -67,7 +67,7 @@ export function FilesView({
                 isUploading && "opacity-50 grayscale-[0.5]"
               )}
             >
-              <div className="bg-primary/10 dark:bg-emerald-500/20 text-primary dark:text-emerald-400 flex size-12 items-center justify-center rounded-lg border-0 transition-all duration-200 group-hover:scale-105 group-hover:bg-primary/15 dark:group-hover:bg-emerald-500/25">
+              <div className="bg-primary/10 text-primary group-hover:bg-primary/15 flex size-12 items-center justify-center rounded-lg border-0 transition-all duration-200 group-hover:scale-105 dark:bg-emerald-500/20 dark:text-emerald-400 dark:group-hover:bg-emerald-500/25">
                 <Icon size={24} />
               </div>
               <div className="w-full min-w-0 px-2">
@@ -82,7 +82,7 @@ export function FilesView({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-muted-foreground/70 hover:text-destructive hover:bg-destructive/10 dark:hover:text-red-400 dark:hover:bg-red-500/20 absolute top-2 right-2 size-7 rounded-md transition-colors"
+                  className="text-muted-foreground/70 hover:text-destructive hover:bg-destructive/10 absolute top-2 right-2 size-7 rounded-md transition-colors dark:hover:bg-red-500/20 dark:hover:text-red-400"
                   onClick={() => onRemoveFile(i)}
                   title="Remove file"
                 >

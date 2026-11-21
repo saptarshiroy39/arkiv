@@ -41,7 +41,9 @@ interface SpeechRecognitionInstance {
   abort: () => void;
 }
 
-const getSpeechRecognition = (): (new () => SpeechRecognitionInstance) | null => {
+const getSpeechRecognition = ():
+  | (new () => SpeechRecognitionInstance)
+  | null => {
   if (typeof window === "undefined") return null;
   const w = window as unknown as {
     SpeechRecognition?: new () => SpeechRecognitionInstance;

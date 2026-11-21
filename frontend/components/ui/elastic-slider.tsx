@@ -405,8 +405,8 @@ export function ElasticSlider({
         aria-valuenow={value}
         aria-valuetext={displayValue}
         className={cn(
-          "group/slider bg-background/90 hover:bg-background dark:bg-neutral-900/90 dark:hover:bg-neutral-900 absolute inset-0 cursor-pointer touch-none overflow-hidden rounded-lg border-0 outline-none transition-colors",
-          "data-[focus-visible=true]:ring-1 data-[focus-visible=true]:ring-ring/50"
+          "group/slider bg-background/90 hover:bg-background absolute inset-0 cursor-pointer touch-none overflow-hidden rounded-lg border-0 transition-colors outline-none dark:bg-neutral-900/90 dark:hover:bg-neutral-900",
+          "data-[focus-visible=true]:ring-ring/50 data-[focus-visible=true]:ring-1"
         )}
         style={{ width: rubberWidth, x: rubberX }}
         onPointerDown={handlePointerDown}
@@ -420,7 +420,10 @@ export function ElasticSlider({
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0"
+        >
           {Array.from({ length: hashMarkCount }, (_, i) => (
             <div
               key={i}
@@ -435,13 +438,13 @@ export function ElasticSlider({
 
         <motion.div
           aria-hidden="true"
-          className="bg-emerald-500/30 group-data-[active=true]/slider:bg-emerald-500/40 dark:bg-emerald-500/40 dark:group-data-[active=true]/slider:bg-emerald-500/50 pointer-events-none absolute inset-y-0 left-0 transition-colors"
+          className="pointer-events-none absolute inset-y-0 left-0 bg-emerald-500/30 transition-colors group-data-[active=true]/slider:bg-emerald-500/40 dark:bg-emerald-500/40 dark:group-data-[active=true]/slider:bg-emerald-500/50"
           style={{ width: fillWidth }}
         />
 
         <motion.div
           aria-hidden="true"
-          className="bg-emerald-600 dark:bg-emerald-400 pointer-events-none absolute top-1/2 h-5 w-1 -translate-y-1/2 rounded-full"
+          className="pointer-events-none absolute top-1/2 h-5 w-1 -translate-y-1/2 rounded-full bg-emerald-600 dark:bg-emerald-400"
           style={{ left: handleLeft }}
           animate={{
             opacity: handleOpacity,
