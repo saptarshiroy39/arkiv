@@ -155,6 +155,7 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
           id: "1",
           role: "assistant",
           content: "Your files have been processed. How can I help you today?",
+          timestamp: Number(newChatId) || Date.now(),
         },
       ];
 
@@ -204,10 +205,12 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
+    const now = Date.now();
     const userMessage: Message = {
-      id: Date.now().toString(),
+      id: now.toString(),
       role: "user",
       content: textToSend,
+      timestamp: now,
     };
 
     const newMessages = [...messages, userMessage];
@@ -272,12 +275,14 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
       setAskingStatus({ status: "done", elapsed });
       await new Promise((resolve) => setTimeout(resolve, 350));
 
+      const now = Date.now();
       const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: (now + 1).toString(),
         role: "assistant",
         content: data.answer,
         status: "done",
         elapsed,
+        timestamp: now,
       };
       const updatedMessages = [...newMessages, aiMessage];
       setMessages(updatedMessages);
@@ -303,14 +308,16 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
       setAskingStatus({ status: "error", elapsed });
       await new Promise((resolve) => setTimeout(resolve, 350));
 
+      const now = Date.now();
       const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: (now + 1).toString(),
         role: "assistant",
         content: isTimeout
           ? "The request timed out. The server took too long to respond."
           : detailMsg,
         status: "error",
         elapsed,
+        timestamp: now,
       };
       setMessages([...newMessages, errorMessage]);
     } finally {

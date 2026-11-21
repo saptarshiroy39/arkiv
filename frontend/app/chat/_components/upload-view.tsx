@@ -65,7 +65,7 @@ export function UploadView({ onUpload }: UploadViewProps) {
           isDragging && "border-primary bg-primary/5"
         )}
       >
-        <div className="bg-primary/10 dark:bg-emerald-500/20 text-primary dark:text-emerald-400 flex size-16 items-center justify-center rounded-xl border-0 transition-all duration-200 group-hover:scale-105 group-hover:bg-primary/15 dark:group-hover:bg-emerald-500/25">
+        <div className="bg-primary/10 text-primary group-hover:bg-primary/15 flex size-16 items-center justify-center rounded-xl border-0 transition-all duration-200 group-hover:scale-105 dark:bg-emerald-500/20 dark:text-emerald-400 dark:group-hover:bg-emerald-500/25">
           <IconUpload className="size-8" />
         </div>
         <div className="space-y-2">

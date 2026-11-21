@@ -66,7 +66,7 @@ export function RightPanel({ files, onClose, isOpen }: RightPanelProps) {
                   key={i}
                   className="group hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex h-14 items-center gap-3 rounded-lg p-2 transition-colors"
                 >
-                  <div className="bg-primary/10 dark:bg-emerald-500/20 text-primary dark:text-emerald-400 flex size-10 shrink-0 items-center justify-center rounded-lg border-0 transition-colors duration-200 group-hover:bg-primary/15 dark:group-hover:bg-emerald-500/25">
+                  <div className="bg-primary/10 text-primary group-hover:bg-primary/15 flex size-10 shrink-0 items-center justify-center rounded-lg border-0 transition-colors duration-200 dark:bg-emerald-500/20 dark:text-emerald-400 dark:group-hover:bg-emerald-500/25">
                     <Icon size={20} />
                   </div>
                   <div className="min-w-0 flex-1">

@@ -87,9 +87,7 @@ export function AppSidebar({
           isCollapsed && "h-auto flex-col gap-2 px-0 pt-2 pb-0"
         )}
       >
-        <SidebarTrigger
-          className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground size-7 rounded-md transition-colors [&_svg]:size-5"
-        />
+        <SidebarTrigger className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground size-7 rounded-md transition-colors [&_svg]:size-5" />
         <ThemeToggle
           className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex size-7 items-center justify-center rounded-md transition-colors"
           title={isCollapsed ? "Toggle theme" : undefined}
@@ -103,7 +101,7 @@ export function AppSidebar({
           variant="ghost"
           className={cn(
             "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground h-10 w-full justify-start gap-3 rounded-lg px-2 text-sm font-bold transition-all",
-            isCollapsed && "size-7 justify-center p-0 mx-auto rounded-md"
+            isCollapsed && "mx-auto size-7 justify-center rounded-md p-0"
           )}
           title={isCollapsed ? "NEW CHAT" : undefined}
         >
@@ -196,7 +194,7 @@ export function AppSidebar({
           doneIcon={<IconCheck size={18} stroke={2} />}
           className={cn(
             "h-10 w-full rounded-lg border-0 font-mono text-sm font-bold tracking-wider shadow-none transition-all",
-            isCollapsed && "size-7 justify-center p-0 mx-auto rounded-md"
+            isCollapsed && "mx-auto size-7 justify-center rounded-md p-0"
           )}
           title={isCollapsed ? "HOLD TO DELETE ALL" : undefined}
           onHold={onDeleteAll}

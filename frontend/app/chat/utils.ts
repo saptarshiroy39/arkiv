@@ -87,3 +87,24 @@ export const formatChatTitle = (timestampStr: string) => {
   const ss = String(date.getSeconds()).padStart(2, "0");
   return `Analysis ${hh}:${mm}:${ss}`;
 };
+
+export const formatMessageTimestamp = (timestamp?: number | string | Date) => {
+  if (!timestamp) return "";
+  const num = typeof timestamp === "string" ? Number(timestamp) : timestamp;
+  if (typeof num === "number" && (!isFinite(num) || num < 946684800000))
+    return "";
+
+  const date = typeof num === "number" ? new Date(num) : new Date(timestamp);
+  if (isNaN(date.getTime())) return "";
+
+  let hours = date.getHours();
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12 || 12;
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+
+  return `${hours}:${minutes} ${ampm}, ${day}-${month}-${year}`;
+};
