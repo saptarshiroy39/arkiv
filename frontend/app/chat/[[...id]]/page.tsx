@@ -113,11 +113,6 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
       if (f.file) formData.append("files", f.file);
     });
     formData.append("session_id", newChatId);
-    formData.append("chunk_size", Math.round(settings.chunk_size).toString());
-    formData.append(
-      "chunk_overlap",
-      Math.round(settings.chunk_overlap).toString()
-    );
 
     try {
       const response = await fetch(`${API_URL}/upload`, {
@@ -232,6 +227,13 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
       controller.abort();
     }, 30000);
 
+    const history = messages
+      .filter((m) => m.id !== "1" && m.status !== "error" && m.content)
+      .map((m) => ({
+        role: m.role,
+        content: m.content,
+      }));
+
     try {
       const response = await fetch(`${API_URL}/ask`, {
         method: "POST",
@@ -241,6 +243,7 @@ function ChatInterface({ initialChatId }: { initialChatId?: string }) {
         body: JSON.stringify({
           question: textToSend,
           session_id: initialChatId,
+          history,
           top_k: Math.round(settings.top_k),
           temperature: Number(settings.temperature),
           score_threshold: Number(settings.score_threshold),

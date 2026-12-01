@@ -1,34 +1,35 @@
+import re
 from langchain_core.documents import Document
-
-from app.config import CHUNK_OVERLAP, CHUNK_SIZE
 from app.rag.chunker import chunk_docs
-from app.rag.processor import clean_text, process_latex
-from app.rag.loader import read_csv, read_docx, read_json, read_md, read_pdf, read_pptx, read_tex, read_txt, read_xlsx
-from app.rag.vectorstore import add_docs
+from app.rag.loader import LOADERS
 
-LOADERS = {
-    "pdf": read_pdf,
-    "csv": read_csv,
-    "txt": read_txt,
-    "md": read_md,
-    "json": read_json,
-    "tex": read_tex,
-    "docx": read_docx,
-    "xlsx": read_xlsx,
-    "pptx": read_pptx,
-}
 
-def _clean_docs(docs: list[Document], original_name: str = "Document") -> list[Document]:
+RE_SPACES = re.compile(r"[ \t]+")
+RE_NEWLINES = re.compile(r"\n{3,}")
+
+
+def _clean(text: str) -> str:
+    if not text:
+        return ""
+    text = text.replace("\x00", "")
+    text = RE_SPACES.sub(" ", text)
+    return RE_NEWLINES.sub("\n\n", text).strip()
+
+
+def _format(docs: list[Document]) -> str:
+    formatted_chunks = []
     for doc in docs:
-        doc.page_content = clean_text(doc.page_content)
-        doc.page_content = process_latex(doc.page_content)
-        doc.metadata["file_name"] = original_name
-    return docs
+        file_name = doc.metadata.get("file_name", "Document")
+        p = doc.metadata.get("page_label") or doc.metadata.get("page")
+        page = p + 1 if isinstance(p, int) else p
+        header = f"[Source: {file_name} | Page: {page}]" if page is not None else f"[Source: {file_name}]"
+        formatted_chunks.append(f"{header}\n{doc.page_content}")
+    return "\n\n---\n\n".join(formatted_chunks)
 
-def process_file(path: str, ext: str, session_id: str, original_name: str = "Document", chunk_size: int = CHUNK_SIZE, chunk_overlap: int = CHUNK_OVERLAP) -> int:
-    loader = LOADERS[ext.lower()]
-    docs = loader(path)
-    docs = _clean_docs(docs, original_name=original_name)
-    chunks = chunk_docs(docs, chunk_size=chunk_size, chunk_overlap=chunk_overlap)
-    add_docs(chunks, session_id=session_id)
-    return len(chunks)
+
+def _process(path: str, name: str, ext: str) -> list[Document]:
+    docs = LOADERS[ext](path)
+    for doc in docs:
+        doc.page_content = _clean(doc.page_content)
+        doc.metadata["file_name"] = name
+    return chunk_docs(docs)

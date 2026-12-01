@@ -58,8 +58,8 @@ export function PromptBar({
   onSummarize,
   onDictate,
   topK = DEFAULT_TOP_K,
-  temperature = 0.2,
-  scoreThreshold = 0.45,
+  temperature = DEFAULT_TEMPERATURE,
+  scoreThreshold = DEFAULT_SCORE_THRESHOLD,
   onParamChange,
   className = "",
 }: PromptBarProps) {

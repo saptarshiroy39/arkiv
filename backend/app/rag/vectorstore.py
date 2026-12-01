@@ -1,13 +1,13 @@
 from langchain_core.documents import Document
 from langchain_qdrant import QdrantVectorStore
-from qdrant_client import QdrantClient, models
-
+from qdrant_client import AsyncQdrantClient, QdrantClient, models
 from app.config import EMBED_DIMENSION, QDRANT_API_KEY, QDRANT_COLLECTION_NAME, QDRANT_URL, SCORE_THRESHOLD, TOP_K
 from app.rag.embedder import embeddings
 
 
 # https://python.langchain.com/docs/integrations/vectorstores/qdrant/
 client = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
+async_client = AsyncQdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
 
 if not client.collection_exists(QDRANT_COLLECTION_NAME):
     client.create_collection(
@@ -29,16 +29,16 @@ vectorstore = QdrantVectorStore(
 
 
 # https://python.langchain.com/docs/integrations/vectorstores/qdrant/#query-vector-store
-def add_docs(chunks: list[Document], session_id: str) -> None:
+async def add_docs(chunks: list[Document], session_id: str) -> None:
     if not chunks:
         raise ValueError("No text could be extracted.")
     for chunk in chunks:
         chunk.metadata["session_id"] = session_id
-    vectorstore.add_documents(chunks)
+    await vectorstore.aadd_documents(chunks)
 
 
 # https://python.langchain.com/docs/integrations/vectorstores/qdrant/#query-vector-store
-def search_docs(question: str, session_id: str, k: int = TOP_K, score_threshold: float = SCORE_THRESHOLD) -> list[Document]:
+async def search_docs(question: str, session_id: str, k: int = TOP_K, score_threshold: float = SCORE_THRESHOLD) -> list[Document]:
     search_filter = models.Filter(
         must=[
             models.FieldCondition(
@@ -47,12 +47,12 @@ def search_docs(question: str, session_id: str, k: int = TOP_K, score_threshold:
             )
         ]
     )
-    return vectorstore.similarity_search(question, k=k, filter=search_filter, score_threshold=score_threshold)
+    return await vectorstore.asimilarity_search(question, k=k, filter=search_filter, score_threshold=score_threshold)
 
 
 # https://qdrant.tech/documentation/concepts/points/#delete-points
-def delete_vs(session_id: str) -> bool:
-    client.delete(
+async def delete_vs(session_id: str) -> None:
+    await async_client.delete(
         collection_name=QDRANT_COLLECTION_NAME,
         points_selector=models.FilterSelector(
             filter=models.Filter(
@@ -65,13 +65,11 @@ def delete_vs(session_id: str) -> bool:
             )
         ),
     )
-    return True
 
 
 # https://qdrant.tech/documentation/concepts/points/#delete-points
-def clear_all_vs() -> bool:
-    client.delete(
+async def clear_all_vs() -> None:
+    await async_client.delete(
         collection_name=QDRANT_COLLECTION_NAME,
         points_selector=models.FilterSelector(filter=models.Filter()),
     )
-    return True

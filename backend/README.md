@@ -59,8 +59,7 @@ backend/
 │   │   ├── chunker.py      # Recursive character text splitter
 │   │   ├── embedder.py     # Gemini vector embeddings (768-dim)
 │   │   ├── vectorstore.py  # Qdrant Cloud integration with session filtering
-│   │   ├── cleaner.py      # Text cleaning & LaTeX formula processor
-│   │   └── pipeline.py     # E2E document processing pipeline
+│   │   └── pipeline.py     # Text processing, LaTeX handling, & ingestion pipeline
 │   └── static/             # Static files & favicon
 ├── pyproject.toml          # Python project configuration
 ├── uv.lock                 # Dependency lockfile
