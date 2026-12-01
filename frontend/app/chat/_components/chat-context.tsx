@@ -10,16 +10,12 @@ export interface ArkivSettings {
   top_k: number;
   temperature: number;
   score_threshold: number;
-  chunk_size: number;
-  chunk_overlap: number;
 }
 
 export const DEFAULT_SETTINGS: ArkivSettings = {
   top_k: 10,
   temperature: 0.2,
   score_threshold: 0.45,
-  chunk_size: 800,
-  chunk_overlap: 100,
 };
 
 interface ChatContextType {
@@ -84,14 +80,6 @@ function getSavedSettings(): ArkivSettings {
         typeof parsed.score_threshold === "number"
           ? parsed.score_threshold
           : DEFAULT_SETTINGS.score_threshold,
-      chunk_size:
-        typeof parsed.chunk_size === "number"
-          ? parsed.chunk_size
-          : DEFAULT_SETTINGS.chunk_size,
-      chunk_overlap:
-        typeof parsed.chunk_overlap === "number"
-          ? parsed.chunk_overlap
-          : DEFAULT_SETTINGS.chunk_overlap,
     };
   } catch (error) {
     console.error("Failed to load settings:", error);

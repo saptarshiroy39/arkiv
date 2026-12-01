@@ -10,6 +10,7 @@ import {
   truncateFileName,
   formatFileSize,
   getFileIcon,
+  MAX_FILE_COUNT,
 } from "@/app/chat/utils";
 import { LatticeLoader } from "@/components/ui/lattice-loader";
 
@@ -90,7 +91,7 @@ export function FilesView({
             </Card>
           );
         })}
-        {!isUploading && files.length < 6 && (
+        {!isUploading && files.length < MAX_FILE_COUNT && (
           <Button
             variant="outline"
             onClick={() => fileInputRef.current?.click()}
